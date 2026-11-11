@@ -1,0 +1,1633 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Atelier Cosmique</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky bar with five acts + challenges; each act = a dark "observation window" beside a control column, stacked on phone. Deliberately single dark theme: the subject is space. */
+:root{
+  color-scheme: dark;
+  --bg:#0a0b14; --panel:#121429; --panel-2:#191c37; --line:#2a2e52; --fg:#ecebf6; --muted:#a09fbf; --deep:#05060d;
+  --accent:#f4c35a; --accent-ink:#1c1405; --cool:#8aa9ff; --xp:#cfd8ff;
+  --q-red:#ff6170; --q-green:#3fd98e; --q-blue:#4fa3ff;
+  --proton:#ff8a70; --neutron:#9fb0d4; --electron:#6fe3ff;
+  --ok:#4fd18b; --warn:#f4c35a; --bad:#ff6b6b;
+  --display:'Unbounded','Segoe UI',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--cool)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px}
+.top-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;justify-content:space-between}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand h1{font-family:var(--display);font-weight:700;font-size:clamp(18px,3.2vw,23px);letter-spacing:.01em;margin:0}
+.beta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:1px 8px}
+.toggles{display:flex;gap:14px;flex-wrap:wrap}
+.tg{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer}
+.tg input{accent-color:var(--accent);width:16px;height:16px}
+.tg.xpt{color:var(--xp)}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;overflow-x:auto;max-width:100%;margin-top:10px;scrollbar-width:thin}
+.tab{background:none;border:0;border-radius:9px;padding:7px 11px;color:var(--muted);cursor:pointer;white-space:nowrap;font-weight:500;font-size:14px}
+.tab[aria-selected="true"]{background:var(--panel-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.tab .n{font-family:var(--mono);color:var(--accent);margin-right:6px;font-size:12px}
+.tab .cnt{font-family:var(--mono);font-size:11px;margin-left:6px;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:0 6px}
+
+.act{padding-top:20px}
+.act-head{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-width:780px}
+.act-head h2{font-family:var(--display);font-weight:500;font-size:clamp(20px,3vw,27px);margin:0;text-wrap:balance}
+.act-head p{margin:0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media (min-width:920px){.grid{grid-template-columns:minmax(0,1fr) 390px}}
+.two{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px}
+@media (min-width:920px){.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.stage{position:relative;background:var(--deep);border:1px solid var(--line);border-radius:16px;overflow:hidden;height:clamp(320px,58vh,640px);touch-action:none}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{font-family:var(--display);font-weight:500;font-size:15px;margin:0;letter-spacing:.01em;text-wrap:balance}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)} .small{font-size:13px} .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+p{margin:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:500;font-size:14px;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--cool)}
+.btn-primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn-primary:hover{filter:brightness(1.08);border-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+.hud{position:absolute;left:12px;top:12px;right:12px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}
+.hud-pill{background:rgba(5,6,13,.74);border:1px solid var(--line);border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;min-width:0}
+.hud-pill .v{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+.hud-pill .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.hud-bottom{position:absolute;left:12px;right:12px;bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.note{font-size:12px;color:var(--muted);background:rgba(5,6,13,.74);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.step{width:100%;text-align:left;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}
+.step .num{font-family:var(--mono);font-size:12px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--muted)}
+.step .t{font-weight:500;font-size:14px}
+.step .w{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.step[data-state="done"] .num{background:var(--ok);border-color:var(--ok);color:#06210f}
+.step[data-state="next"]{box-shadow:0 0 0 1px var(--accent) inset;border-color:var(--accent)}
+.step[data-state="next"] .num{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.step[data-state="locked"]{opacity:.62}
+.story h3{font-size:17px}
+.proof{border-left:3px solid var(--cool);padding:4px 0 4px 10px;font-size:14px}
+.proof b{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cool);display:block;font-weight:500}
+.alert{border-radius:10px;padding:10px 12px;font-size:14px;border:1px solid;display:flex;flex-direction:column;gap:8px}
+.alert.bad{border-color:var(--bad);background:rgba(255,107,107,.08)}
+.alert.warn{border-color:var(--warn);background:rgba(244,195,90,.08)}
+.alert.ok{border-color:var(--ok);background:rgba(79,209,139,.08)}
+.xp{display:none;font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--deep);border:1px dashed var(--cool);border-radius:10px;padding:10px 12px;color:var(--xp);overflow-wrap:anywhere}
+.xp::before{content:"Mode expert";display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--cool);margin-bottom:4px}
+body.expert .xp{display:block}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line)}
+.chip[aria-pressed="true"]{border-color:var(--ok)}
+.chip[aria-pressed="true"]::before{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.chip[data-static]{cursor:default}
+.pchip{border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.pchip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+
+.cal{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.cal li button{width:100%;display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:9px 2px;cursor:pointer}
+.cal .d{font-family:var(--mono);font-size:13px;color:var(--accent);font-variant-numeric:tabular-nums}
+.cal .e{font-size:14px}
+.cal .ago{display:block;font-size:12px;color:var(--muted)}
+.cal li button[aria-pressed="true"]{background:var(--panel-2)}
+@media (max-width:480px){.cal li button{grid-template-columns:118px minmax(0,1fr)}}
+
+.bench{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-bottom:16px}
+@media (min-width:920px){.bench{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.slots{display:flex;gap:14px;flex-wrap:wrap;padding-bottom:22px}
+.slot{position:relative;width:74px;height:74px;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;background:var(--panel-2);cursor:pointer}
+.slot.filled{border-style:solid}
+.slot .f{font-family:var(--display);font-size:24px;font-weight:700;color:#0b0b12}
+.slot .q{position:absolute;bottom:-20px;left:-10px;right:-10px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.slot .x{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:13px;line-height:1;display:grid;place-items:center;cursor:pointer}
+.slot.c0{background:var(--q-red);border-color:var(--q-red)} .slot.c1{background:var(--q-green);border-color:var(--q-green)} .slot.c2{background:var(--q-blue);border-color:var(--q-blue)}
+.bar{height:12px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;display:flex}
+.bar span{display:block;height:100%}
+.stepper{display:grid;grid-template-columns:minmax(0,1fr) 38px 76px 38px;gap:6px;align-items:center}
+.stepper label{font-size:14px;display:flex;align-items:center;gap:8px}
+.stepper input,.sel{width:100%;text-align:center;background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:7px 4px;font-family:var(--mono)}
+.stepper button{height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);cursor:pointer;font-size:18px}
+.idcard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.nuclide{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;display:flex;align-items:center}
+.nuclide .ix{display:inline-flex;flex-direction:column;font-family:var(--mono);font-weight:500;font-size:14px;line-height:1.15;text-align:right;margin-right:4px}
+.nuclide .chg{font-family:var(--mono);font-weight:500;font-size:16px;align-self:flex-start;margin-left:3px;color:var(--accent)}
+.idname{font-family:var(--display);font-size:18px;font-weight:500}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:14px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:500;border:1px solid}
+.pill.ok{color:var(--ok);border-color:var(--ok)} .pill.warn{color:var(--warn);border-color:var(--warn)} .pill.bad{color:var(--bad);border-color:var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.pt-wrap{overflow-x:auto;padding-bottom:6px}
+.pt{display:grid;grid-template-columns:repeat(18,minmax(22px,1fr));grid-template-rows:repeat(7,auto) 10px auto auto;gap:2px;min-width:440px}
+.el{border:1px solid var(--line);background:var(--panel-2);border-radius:4px;font-family:var(--mono);font-size:11px;padding:4px 0;text-align:center;cursor:pointer;line-height:1.1;min-width:0}
+.el .z{display:block;font-size:8px;color:var(--muted)}
+.el.s{background:#1d2140}.el.p{background:#1a2638}.el.d{background:#241d38}.el.f{background:#2a1f2c}
+.el[aria-current="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.el[aria-current="true"] .z{color:var(--accent-ink)}
+.chart-box{position:relative;width:100%;height:260px}
+.chart-box canvas{position:absolute;inset:0;width:100%;height:100%}
+
+.sol-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgba(5,6,13,.8);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.sol-controls input[type=range]{width:120px;accent-color:var(--accent)}
+.range-row{display:flex;flex-direction:column;gap:4px}
+.range-row input[type=range]{width:100%;accent-color:var(--accent)}
+.range-head{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.season{font-size:15px;font-weight:500}
+.moonrow{display:flex;gap:12px;align-items:center}
+.moonrow canvas{width:56px;height:56px;flex:none}
+
+.defis{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:760px){.defis{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.defi{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.defi .ck{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--muted);font-family:var(--mono)}
+.defi.won{border-color:var(--ok)}
+.defi.won .ck{background:var(--ok);border-color:var(--ok);color:#06210f}
+.defi .t{font-weight:500}
+.defi .w{font-size:13px;color:var(--muted)}
+.defi a{font-size:13px}
+.score{font-family:var(--display);font-size:34px;font-weight:700}
+.meter{height:10px;border-radius:5px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden}
+.meter span{display:block;height:100%;background:var(--accent)}
+
+.toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;justify-content:center;pointer-events:none}
+.toast span{background:var(--ok);color:#06210f;font-weight:600;border-radius:12px;padding:10px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:520px}
+.foot{margin-top:28px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:6px;max-width:860px}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top-row">
+      <div class="brand"><h1>Atelier Cosmique</h1><span class="beta">bêta 2</span></div>
+      <div class="toggles">
+        <label class="tg xpt"><input type="checkbox" id="expert-mode"> Mode expert</label>
+        <label class="tg"><input type="checkbox" id="light-mode"> Mode léger</label>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Actes">
+      <button class="tab" role="tab" id="tab-big-bang" data-tab="big-bang"><span class="n">1</span>Big Bang</button>
+      <button class="tab" role="tab" id="tab-matiere" data-tab="matiere"><span class="n">2</span>Matière</button>
+      <button class="tab" role="tab" id="tab-etoiles" data-tab="etoiles"><span class="n">3</span>Étoiles</button>
+      <button class="tab" role="tab" id="tab-molecules" data-tab="molecules"><span class="n">4</span>Molécules</button>
+      <button class="tab" role="tab" id="tab-systeme-solaire" data-tab="systeme-solaire"><span class="n">5</span>Système solaire</button>
+      <button class="tab" role="tab" id="tab-defis" data-tab="defis">Défis<span class="cnt" id="defi-count">0</span></button>
+    </nav>
+  </header>
+
+  <!-- ACTE 1 -->
+  <section class="act" id="panel-big-bang" role="tabpanel" aria-labelledby="tab-big-bang">
+    <div class="act-head">
+      <h2>Du point brûlant aux premières étoiles</h2>
+      <p>Déclenche chaque étape dans l’ordre de l’histoire. Si tu brûles une étape, l’univers te dit pourquoi ce n’est pas encore possible.</p>
+    </div>
+    <div class="grid">
+      <div class="stage" id="bb-stage">
+        <canvas id="bb-canvas" aria-label="Animation de l’univers primordial"></canvas>
+        <div class="hud">
+          <div class="hud-pill"><span class="k">Temps depuis le Big Bang</span><span class="v" id="bb-time">t = 0</span></div>
+          <div class="hud-pill"><span class="k">Température</span><span class="v" id="bb-temp">inconnue</span></div>
+        </div>
+        <div class="hud-bottom"><span class="note" id="bb-caption">Un point minuscule, infiniment chaud. Appuie sur « Déclencher l’inflation ».</span></div>
+      </div>
+      <div class="side">
+        <div class="card story">
+          <span class="label" id="bb-story-k">Instant zéro</span>
+          <h3 id="bb-story-t">Avant tout</h3>
+          <p id="bb-story-p"></p>
+          <div class="proof" id="bb-proof" hidden><b>Comment le sait-on ?</b><span></span></div>
+          <div class="xp" id="bb-xp">Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½. Conversion : 1 eV ↔ 11 605 K.</div>
+          <div id="bb-alert" hidden></div>
+        </div>
+        <div class="card">
+          <span class="label">Les étapes</span>
+          <ol class="steps" id="bb-steps"></ol>
+          <div class="row"><button class="btn" id="bb-reset">Revenir à l’instant zéro</button></div>
+        </div>
+        <div class="card">
+          <span class="label">Champs allumés</span>
+          <div class="chips" id="bb-fields"></div>
+          <p class="small muted">Dans ce jeu, « allumer » un champ veut dire : l’univers a assez refroidi pour que son effet apparaisse. En réalité, ces champs existent dès le début.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Le calendrier cosmique</h3>
+      <p class="small muted">Toute l’histoire de l’univers, 13,8 milliards d’années, ramenée à une seule année. Le Big Bang a lieu le 1er janvier à minuit. Touche une ligne pour la mettre en évidence.</p>
+      <ul class="cal" id="cal"></ul>
+      <div class="xp">Une « seconde » du calendrier = 13,8 × 10⁹ / (365 × 86 400) ≈ 438 ans. Toute l’histoire écrite tient dans les 12 dernières secondes.</div>
+    </div>
+  </section>
+
+  <!-- ACTE 2 -->
+  <section class="act" id="panel-matiere" role="tabpanel" aria-labelledby="tab-matiere" hidden>
+    <div class="act-head">
+      <h2>Assemble la matière, quark par quark</h2>
+      <p>Les lois de la nature s’appliquent : couleurs des quarks, charges, stabilité des noyaux. Éteins un champ pour voir ce que deviendrait la matière sans lui.</p>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <span class="label">Champs de la nature</span>
+      <div class="chips" id="at-fields"></div>
+      <div id="at-fields-alert" hidden></div>
+    </div>
+    <div class="bench">
+      <div class="card">
+        <h3>Étape 1 · Trois quarks font un nucléon</h3>
+        <p class="small muted">Ajoute trois quarks. Touche un quark pour changer sa couleur. Pour être lié par le champ fort, le trio doit être « blanc » : une couleur de chaque.</p>
+        <div class="row">
+          <button class="btn" id="q-add-u">+ quark up (u)</button>
+          <button class="btn" id="q-add-d">+ quark down (d)</button>
+          <button class="btn" id="q-clear">Vider</button>
+        </div>
+        <div class="slots" id="q-slots"></div>
+        <div class="row"><button class="btn btn-primary" id="q-form">Former la particule</button></div>
+      </div>
+      <div class="card" id="q-result">
+        <span class="label">Résultat</span>
+        <p class="muted">Essaie uud pour un proton, ou udd pour un neutron.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="stage" id="atom-stage">
+        <canvas id="atom-canvas" aria-label="Modèle de l’atome, à faire tourner du doigt"></canvas>
+        <div class="hud-bottom">
+          <div class="legend note">
+            <span><i class="dot" style="background:var(--proton)"></i>Proton</span>
+            <span><i class="dot" style="background:var(--neutron)"></i>Neutron</span>
+            <span><i class="dot" style="background:var(--electron)"></i>Électron</span>
+          </div>
+          <span class="note">Glisse pour tourner · noyau très agrandi</span>
+        </div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <h3>Étape 2 · Construis ton atome</h3>
+          <div class="stepper"><label for="at-z"><i class="dot" style="background:var(--proton)"></i>Protons</label><button data-k="z" data-d="-1" aria-label="Retirer un proton">−</button><input id="at-z" type="number" inputmode="numeric" min="1" max="118" value="6"><button data-k="z" data-d="1" aria-label="Ajouter un proton">+</button></div>
+          <div class="stepper"><label for="at-n"><i class="dot" style="background:var(--neutron)"></i>Neutrons</label><button data-k="n" data-d="-1" aria-label="Retirer un neutron">−</button><input id="at-n" type="number" inputmode="numeric" min="0" max="200" value="6"><button data-k="n" data-d="1" aria-label="Ajouter un neutron">+</button></div>
+          <div class="stepper"><label for="at-e"><i class="dot" style="background:var(--electron)"></i>Électrons</label><button data-k="e" data-d="-1" aria-label="Retirer un électron">−</button><input id="at-e" type="number" inputmode="numeric" min="0" max="121" value="6"><button data-k="e" data-d="1" aria-label="Ajouter un électron">+</button></div>
+        </div>
+        <div class="card" id="atom-info"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Tableau périodique</h3>
+      <p class="small muted">Touche un élément : l’atelier construit son isotope le plus courant, électriquement neutre.</p>
+      <div class="pt-wrap"><div class="pt" id="pt"></div></div>
+    </div>
+  </section>
+
+  <!-- ACTE 3 -->
+  <section class="act" id="panel-etoiles" role="tabpanel" aria-labelledby="tab-etoiles" hidden>
+    <div class="act-head">
+      <h2>Les étoiles forgeronnes</h2>
+      <p>Choisis une étoile et fais-la fusionner, couche après couche. Une petite étoile s’arrête au carbone ; une géante va jusqu’au fer, puis explose.</p>
+    </div>
+    <div class="grid">
+      <div class="stage" id="star-stage">
+        <canvas id="star-canvas" aria-label="Coupe d’une étoile en fusion"></canvas>
+        <div class="hud">
+          <div class="hud-pill"><span class="k">Température du cœur</span><span class="v" id="st-temp">—</span></div>
+          <div class="hud-pill"><span class="k">Durée de l’étape</span><span class="v" id="st-dur">—</span></div>
+        </div>
+        <div class="hud-bottom"><span class="note" id="st-caption">Coupe de l’étoile : chaque couche est le produit d’une fusion.</span></div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <span class="label">Choisis ton étoile</span>
+          <div class="chips" id="st-types"></div>
+        </div>
+        <div class="card story">
+          <span class="label" id="st-k">Prête</span>
+          <h3 id="st-t">Une boule d’hydrogène</h3>
+          <p id="st-p">La gravitation comprime le gaz jusqu’à ce que le cœur atteigne des millions de degrés. Lance la première fusion.</p>
+          <div class="proof" id="st-proof" hidden><b>Comment le sait-on ?</b><span></span></div>
+          <div class="xp" id="st-xp">4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV : 0,7 % de la masse devient énergie (E = mc²).</div>
+          <div id="st-alert" hidden></div>
+        </div>
+        <div class="card">
+          <span class="label">Les fusions</span>
+          <ol class="steps" id="st-steps"></ol>
+          <div class="row"><button class="btn" id="st-reset">Recommencer avec une nouvelle étoile</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Pourquoi tout s’arrête au fer</h3>
+      <p class="small muted">Énergie de liaison par nucléon : plus la courbe est haute, plus le noyau est solide. Fusionner des noyaux légers fait monter la courbe et libère de l’énergie. Au-delà du fer et du nickel, la courbe redescend : fusionner coûte de l’énergie au lieu d’en libérer.</p>
+      <div class="chart-box"><canvas id="be-chart" aria-label="Courbe de l’énergie de liaison par nucléon en fonction du nombre de masse"></canvas></div>
+      <div class="xp">Formule de Weizsäcker (modèle de la goutte liquide), en MeV :<br>B(A,Z) = 15,75·A − 17,8·A^⅔ − 0,711·Z(Z−1)/A^⅓ − 23,7·(A−2Z)²/A ± 11,18/√A<br>Points : valeurs mesurées (²H 1,11 · ⁴He 7,07 · ¹²C 7,68 · ¹⁶O 7,98 · ⁵⁶Fe 8,79 · ⁶²Ni 8,79 · ²³⁸U 7,57 MeV/nucléon). Le ⁶²Ni est le plus lié de tous, de très peu devant le ⁵⁶Fe.</div>
+    </div>
+  </section>
+
+  <!-- ACTE 4 -->
+  <section class="act" id="panel-molecules" role="tabpanel" aria-labelledby="tab-molecules" hidden>
+    <div class="act-head">
+      <h2>Des atomes aux molécules</h2>
+      <p>Les atomes forgés dans les étoiles se lient en partageant leurs électrons. Fais tourner chaque molécule : les géométries sont calculées, pas dessinées à la main.</p>
+    </div>
+    <div class="grid">
+      <div class="stage" id="mol-stage">
+        <canvas id="mol-canvas" aria-label="Molécule en 3D, à faire tourner"></canvas>
+        <div class="hud"><div class="hud-pill"><span class="k">Molécule</span><span class="v" id="mol-name">Eau · H₂O</span></div></div>
+        <div class="hud-bottom">
+          <div class="legend note" id="mol-legend"></div>
+          <span class="note">Glisse pour tourner</span>
+        </div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <span class="label">Choisis une molécule</span>
+          <div class="chips" id="mol-chips"></div>
+        </div>
+        <div class="card" id="mol-info"></div>
+        <div class="card">
+          <h3>Défi de la valence</h3>
+          <p class="small muted">Chaque atome forme un nombre précis de liaisons. Choisis un atome central et accroche-lui des hydrogènes.</p>
+          <div class="stepper" style="grid-template-columns:minmax(0,1fr) 120px"><label for="val-c">Atome central</label><select id="val-c" class="sel"><option value="C">Carbone (C)</option><option value="N">Azote (N)</option><option value="O" selected>Oxygène (O)</option><option value="F">Fluor (F)</option></select></div>
+          <div class="stepper"><label for="val-h">Hydrogènes</label><button id="val-m" aria-label="Retirer un hydrogène">−</button><input id="val-h" type="number" min="0" max="5" value="1" readonly><button id="val-p" aria-label="Ajouter un hydrogène">+</button></div>
+          <div class="row"><button class="btn btn-primary" id="val-go">Assembler</button></div>
+          <div id="val-out"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px" id="drug-card">
+      <span class="label">En vitrine · Amloperin (GHPL)</span>
+      <h3>Deux molécules, deux façons de baisser la tension</h3>
+      <p>Amloperin associe deux antihypertenseurs, en quatre dosages combinant 5 ou 10 mg de chaque principe actif.</p>
+      <div class="two" style="margin-top:4px">
+        <div class="card" style="background:var(--panel-2)">
+          <h3>Amlodipine</h3>
+          <p class="small">Inhibiteur calcique de la famille des dihydropyridines. Elle bloque les canaux calciques de type L des cellules musculaires des artères : les vaisseaux se relâchent et la pression baisse.</p>
+          <div class="row"><button class="btn" data-mol="amlodipine">Voir en 3D</button></div>
+        </div>
+        <div class="card" style="background:var(--panel-2)">
+          <h3>Périndopril</h3>
+          <p class="small">Inhibiteur de l’enzyme de conversion (IEC). Transformé dans l’organisme en périndoprilate, il empêche la formation d’angiotensine II, puissant vasoconstricteur, et réduit la sécrétion d’aldostérone.</p>
+          <div class="row"><button class="btn" data-mol="perindopril">Voir en 3D</button></div>
+        </div>
+      </div>
+      <p class="small muted">Deux mécanismes complémentaires sur la pression artérielle. La forme active est représentée, sans le sel utilisé en pharmacie. Information pédagogique, pas un avis médical.</p>
+      <div class="xp">Amlodipine : C₂₀H₂₅ClN₂O₅, 408,9 g/mol, un carbone asymétrique (commercialisée en racémique). Périndopril : C₁₉H₃₂N₂O₅, 368,5 g/mol, cinq centres stéréogènes, tous de configuration S. Géométries : conformères générés (RDKit, ETKDG) puis optimisés au champ de force MMFF94 ; une conformation parmi d’autres possibles.</div>
+    </div>
+  </section>
+
+  <!-- ACTE 5 -->
+  <section class="act" id="panel-systeme-solaire" role="tabpanel" aria-labelledby="tab-systeme-solaire" hidden>
+    <div class="act-head">
+      <h2>Prends les commandes du système solaire</h2>
+      <p>Les planètes partent de leur vraie position du jour. Accélère le temps, incline un axe : le jour et la nuit viennent de la rotation, les saisons viennent de l’inclinaison.</p>
+    </div>
+    <div class="grid">
+      <div class="stage" id="sol-stage">
+        <canvas id="sol-canvas" aria-label="Système solaire en 3D, à faire tourner"></canvas>
+        <div class="hud"><div class="hud-pill"><span class="k">Date simulée</span><span class="v" id="sol-date">—</span></div></div>
+        <div class="hud-bottom">
+          <div class="sol-controls">
+            <button class="btn" id="sol-play" aria-label="Pause">❚❚</button>
+            <input type="range" id="sol-speed" min="0" max="6" step="1" value="2" aria-label="Vitesse du temps">
+            <span class="mono small" id="sol-speed-l">1 jour / s</span>
+            <button class="btn" id="sol-today">Aujourd’hui</button>
+          </div>
+          <button class="btn" id="sol-overview">Vue d’ensemble</button>
+        </div>
+        <div id="sol-fallback" class="note" style="position:absolute;top:60px;left:12px;right:12px" hidden>La 3D n’est pas disponible sur cet appareil : vue du dessus en 2D.</div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <span class="label">Choisis une planète</span>
+          <div class="chips" id="sol-chips"></div>
+          <label class="toggle"><input type="checkbox" id="sol-real"> Distances à l’échelle réelle</label>
+          <label class="toggle"><input type="checkbox" id="sol-axes" checked> Afficher les axes de rotation</label>
+          <div class="chips" id="sol-fields"></div>
+          <div id="sol-grav-alert" hidden></div>
+        </div>
+        <div class="card" id="sol-info"></div>
+        <div class="card">
+          <span class="label">La Lune ce jour-là</span>
+          <div class="moonrow"><canvas id="moon-canvas" width="112" height="112" aria-label="Phase de la Lune"></canvas><div><div class="season" id="moon-name">—</div><div class="small muted" id="moon-sub"></div></div></div>
+          <p class="small muted">Une éclipse demande une nouvelle ou une pleine lune et une Lune proche du plan de l’orbite terrestre, incliné de 5,1°. Ces deux conditions réunies sont rares : d’où quelques éclipses par an seulement.</p>
+          <div class="xp" id="moon-xp"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DÉFIS -->
+  <section class="act" id="panel-defis" role="tabpanel" aria-labelledby="tab-defis" hidden>
+    <div class="act-head">
+      <h2>Défis</h2>
+      <p>Chaque défi se valide tout seul quand tu le réussis dans un acte. Ta progression reste sur cet appareil.</p>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="row" style="justify-content:space-between"><span class="score mono" id="defi-score">0 / 0</span><button class="btn" id="defi-reset">Remettre à zéro</button></div>
+      <div class="meter"><span id="defi-meter" style="width:0%"></span></div>
+    </div>
+    <ul class="defis" id="defi-list"></ul>
+  </section>
+
+  <footer class="foot">
+    <span class="label">Sources et simplifications</span>
+    <span>Positions des planètes : <a href="https://ssd.jpl.nasa.gov/planets/approx_pos.html" target="_blank" rel="noopener">éléments képlériens du JPL</a> (valides de 1800 à 2050). Données physiques : <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noopener">fiches de la NASA</a>. Masses des particules : <a href="https://pdg.lbl.gov" target="_blank" rel="noopener">Particle Data Group</a>. Structure du périndopril : <a href="https://pubchem.ncbi.nlm.nih.gov/compound/107807" target="_blank" rel="noopener">PubChem</a>.</span>
+    <span>Version bêta pédagogique : orbites dans un même plan, tailles non à l’échelle, axes de toutes les planètes orientés comme celui de la Terre. Stabilité des noyaux exacte jusqu’au calcium, estimée au-delà. Durées stellaires : ordres de grandeur des modèles d’évolution.</span>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden><span id="toast-t"></span></div>
+
+<!-- ======== DONNÉES (modifiables sans toucher au code) ======== -->
+<script type="application/json" id="d-steps">[
+ {"label":"Déclencher l’inflation","on":["inflaton"],"req":[],"time":"10⁻³⁶ → 10⁻³² s","temp":"≈ 10²⁸ K","k":"Étape 1 · Inflation","title":"L’espace se dilate",
+  "text":"Un champ hypothétique, l’inflaton, dilate l’espace d’un facteur d’au moins 10²⁶ en une infime fraction de seconde. Ses fluctuations quantiques deviendront les germes des galaxies. L’inflation est soutenue par les observations ; son mécanisme exact reste une hypothèse.",
+  "proof":"Le fond diffus cosmologique est uniforme dans tout le ciel à 1 sur 100 000 près, et ses minuscules variations ont la forme prédite par l’inflation (satellites COBE, WMAP, Planck).",
+  "xp":"Facteur d’expansion ≥ e⁶⁰ ≈ 10²⁶ (au moins 60 « e-folds »). L’échelle d’énergie exacte dépend du modèle d’inflation.",
+  "caption":"L’espace gonfle. Les particules naissent de l’énergie de l’inflaton."},
+ {"label":"Allumer le champ de Higgs","on":["higgs","faible","em"],"req":["inflaton"],"time":"≈ 10⁻¹² s","temp":"≈ 10¹⁵ K (≈ 160 GeV)","k":"Étape 2 · Brisure électrofaible","title":"Les particules prennent une masse",
+  "why":"Il faut d’abord un espace où les particules existent : déclenche l’inflation.",
+  "text":"Jusqu’ici, les particules n’ont pas de masse et filent à la vitesse de la lumière. Le champ de Higgs prend une valeur non nulle partout : quarks, électrons et bosons W et Z acquièrent une masse. La force électrofaible se sépare en deux : la force faible, de très courte portée, et l’électromagnétisme, porté par le photon sans masse.",
+  "proof":"Le boson de Higgs a été découvert au CERN en 2012 par les expériences ATLAS et CMS, avec une masse d’environ 125 GeV.",
+  "xp":"Valeur du champ de Higgs dans le vide : v ≈ 246 GeV. Transition vers k_B·T ≈ 160 GeV, soit ≈ 1,9 × 10¹⁵ K (1 GeV ≈ 1,16 × 10¹³ K).",
+  "caption":"Les particules ralentissent : elles ont désormais une masse."},
+ {"label":"Laisser agir le champ fort","on":["fort"],"req":["higgs"],"time":"≈ 10⁻⁶ s (≈ 20 µs)","temp":"≈ 10¹² K (≈ 150 MeV)","k":"Étape 3 · Confinement","title":"Les quarks s’enferment par trois",
+  "why":"L’univers est encore trop chaud : il doit d’abord passer par l’étape du Higgs.",
+  "text":"Le plasma de quarks et de gluons refroidit assez pour que le champ fort enferme les quarks par trois, une couleur de chaque : uud donne un proton, udd un neutron. Les gluons échangent sans cesse les couleurs. Surprise : la masse donnée aux quarks par le Higgs ne fait qu’environ 1 % de celle du proton ; le reste vient de l’énergie du champ fort.",
+  "proof":"On recrée ce plasma de quarks et de gluons en faisant entrer en collision des noyaux lourds, au RHIC aux États-Unis et au LHC du CERN.",
+  "xp":"Transition quark-hadron vers k_B·T ≈ 150–160 MeV, soit ≈ 1,8 × 10¹² K. Masse du proton 938,3 MeV/c² contre ≈ 9 MeV/c² pour ses trois quarks.",
+  "caption":"Regarde les couleurs tourner dans chaque trio : ce sont les gluons au travail."},
+ {"label":"Fusionner les premiers noyaux","on":[],"req":["fort","faible"],"time":"≈ 1 s → 20 min","temp":"10¹⁰ → 10⁹ K","k":"Étape 4 · Nucléosynthèse primordiale","title":"Les premiers noyaux d’hélium",
+  "why":"Il n’y a pas encore de protons ni de neutrons à fusionner.",
+  "text":"Le champ faible a d’abord fixé le rapport neutrons/protons à environ 1 pour 7. Puis le champ fort soude protons et neutrons en noyaux d’hélium (2 protons, 2 neutrons). Bilan : environ 75 % d’hydrogène et 25 % d’hélium en masse, des traces de deutérium et de lithium. Rien de plus lourd.",
+  "proof":"Les nuages de gaz intacts et les plus vieilles étoiles contiennent environ 25 % d’hélium en masse, exactement comme prévu. La quantité de deutérium mesurée concorde aussi.",
+  "xp":"Fraction d’hélium : Y ≈ 2(n/p) / (1 + n/p) = 2(1/7) / (8/7) = 0,25. Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½.",
+  "caption":"Par groupes de quatre : 2 protons et 2 neutrons forment l’hélium."},
+ {"label":"Capturer les électrons","on":[],"req":["em","higgs"],"time":"≈ 380 000 ans","temp":"≈ 3 000 K","k":"Étape 5 · Recombinaison","title":"Les premiers atomes, et la lumière libérée",
+  "why":"Il faut des noyaux pour capturer des électrons.",
+  "text":"Pendant 380 000 ans, la lumière rebondit sur les électrons libres : l’univers est opaque, comme un brouillard. Vers 3 000 K, le champ électromagnétique retient enfin les électrons autour des noyaux. Les premiers atomes neutres apparaissent et la lumière s’échappe : c’est le fond diffus cosmologique, observé aujourd’hui à 2,7 K.",
+  "proof":"Le fond diffus cosmologique, découvert en 1965 par Penzias et Wilson, a le spectre d’un corps noir quasi parfait à 2,725 K, mesuré par le satellite COBE.",
+  "xp":"L’hydrogène s’ionise à 13,6 eV (≈ 158 000 K), mais il y a environ 1,6 milliard de photons par proton : les photons les plus énergétiques empêchent les atomes jusqu’à ≈ 0,26 eV, soit ≈ 3 000 K. Décalage vers le rouge z ≈ 1 100 : 3 000 / 1 101 ≈ 2,7 K aujourd’hui.",
+  "caption":"Le brouillard se lève : l’univers devient transparent."},
+ {"label":"Allumer les étoiles","on":["grav"],"req":["em"],"time":"≈ 100 à 200 millions d’années","temp":"≈ 60 K (rayonnement de fond)","k":"Étape 6 · Gravitation","title":"Les étoiles forgeronnes",
+  "why":"Il faut d’abord un gaz d’atomes neutres à rassembler.",
+  "text":"La gravitation rassemble le gaz en nuages, puis en étoiles. Dans leur cœur, la fusion forge le carbone, l’oxygène, le fer ; elle a besoin du champ faible, qui change un proton en neutron. Les étoiles massives explosent en supernovae et dispersent ces éléments. Le calcium de nos os et le fer de notre sang viennent de là. L’acte 3 te laisse piloter une étoile.",
+  "proof":"Le télescope James Webb observe des galaxies déjà formées quelques centaines de millions d’années après le Big Bang. Les spectres des étoiles montrent les éléments qu’elles fabriquent.",
+  "xp":"Fusion de l’hydrogène : 4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV. Environ 0,7 % de la masse devient énergie (E = mc²).",
+  "caption":"Le gaz s’effondre et s’allume : les premières étoiles."},
+ {"label":"Former le système solaire","on":[],"req":["grav","faible"],"time":"≈ 9,2 milliards d’années","temp":"aujourd’hui : 2,7 K","k":"Étape 7 · Naissance du Soleil","title":"Le Soleil et ses planètes",
+  "why":"Il faut des étoiles qui forgent les éléments lourds dont sont faites les planètes.",
+  "text":"Il y a environ 4,6 milliards d’années, un nuage enrichi par les étoiles mortes s’effondre. Au centre naît le Soleil ; dans le disque autour, la poussière s’agrège en planètes. Tu peux maintenant prendre les commandes du système solaire.",
+  "proof":"Les plus vieux minéraux des météorites, des inclusions riches en calcium et en aluminium, sont datés de 4,567 milliards d’années par radioactivité.",
+  "xp":"Datation uranium-plomb : ²³⁸U → ²⁰⁶Pb, demi-vie 4,47 milliards d’années ; ²³⁵U → ²⁰⁷Pb, demi-vie 704 millions d’années. Deux horloges qui se vérifient mutuellement.",
+  "caption":"Un nouveau soleil, entouré de son disque de planètes."}
+]</script>
+<script type="application/json" id="d-calendar">[
+ {"ago":13.8e9,"e":"Big Bang"},
+ {"ago":13.79962e9,"e":"Premiers atomes, l’univers devient transparent"},
+ {"ago":13.6e9,"e":"Premières étoiles"},
+ {"ago":4.6e9,"e":"Naissance du Soleil et des planètes"},
+ {"ago":3.5e9,"e":"Plus anciennes traces de vie sûres (stromatolithes)"},
+ {"ago":2.4e9,"e":"L’oxygène s’accumule dans l’atmosphère"},
+ {"ago":5.8e8,"e":"Premiers animaux complexes"},
+ {"ago":6.6e7,"e":"Disparition des dinosaures"},
+ {"ago":3.0e5,"e":"Homo sapiens (fossiles de Jebel Irhoud, Maroc)"},
+ {"ago":5200,"e":"Invention de l’écriture"},
+ {"ago":791,"e":"Fondation de l’Empire du Mali","id":"mali"},
+ {"ago":0,"e":"Aujourd’hui"}
+]</script>
+<script type="application/json" id="d-stars">{
+ "massive":{"name":"Étoile de 25 masses solaires","stages":[
+  {"label":"Fusionner l’hydrogène","el":"H","col":"#7fb2ff","T":"≈ 40 millions K","dur":"≈ 7 millions d’années","title":"Hydrogène → hélium","text":"Dans une étoile massive, l’hydrogène fusionne surtout par le cycle CNO, où le carbone sert de catalyseur. L’étoile brille 100 000 fois plus que le Soleil.","xp":"Cycle CNO : 4 ¹H → ⁴He + 26,7 MeV, catalysé par ¹²C, ¹³N, ¹⁴N, ¹⁵O.","req":["grav","fort","faible"]},
+  {"label":"Fusionner l’hélium","el":"He","col":"#ffe08a","T":"≈ 200 millions K","dur":"≈ 700 000 ans","title":"Hélium → carbone et oxygène","text":"Trois noyaux d’hélium se soudent en carbone : c’est la réaction triple alpha. Un quatrième donne de l’oxygène. L’étoile gonfle en supergéante.","xp":"3 ⁴He → ¹²C + 7,27 MeV (triple alpha), puis ¹²C + ⁴He → ¹⁶O.","why":"Il faut d’abord un cœur d’hélium."},
+  {"label":"Fusionner le carbone","el":"C","col":"#b0b8c8","T":"≈ 800 millions K","dur":"≈ 600 ans","title":"Carbone → néon, sodium, magnésium","text":"Les noyaux de carbone fusionnent entre eux. Désormais, l’étoile perd l’essentiel de son énergie sous forme de neutrinos : tout s’accélère.","xp":"¹²C + ¹²C → ²⁰Ne + ⁴He, ou ²³Na + p, ou ²³Mg + n.","why":"Il faut d’abord un cœur de carbone."},
+  {"label":"Fusionner le néon","el":"Ne","col":"#ff7bd0","T":"≈ 1,5 milliard K","dur":"≈ 1 an","title":"Néon → oxygène, magnésium","text":"La lumière du cœur est si énergétique qu’elle brise des noyaux de néon ; les morceaux sont recapturés.","xp":"²⁰Ne + γ → ¹⁶O + ⁴He, puis ²⁰Ne + ⁴He → ²⁴Mg.","why":"Il faut d’abord un cœur de néon."},
+  {"label":"Fusionner l’oxygène","el":"O","col":"#ff8a70","T":"≈ 2 milliards K","dur":"≈ 6 mois","title":"Oxygène → silicium, soufre","text":"L’oxygène fusionne en silicium et en soufre, les éléments des roches et des volcans.","xp":"¹⁶O + ¹⁶O → ²⁸Si + ⁴He, ou ³¹P + p, ou ³²S + γ.","why":"Il faut d’abord un cœur d’oxygène."},
+  {"label":"Fusionner le silicium","el":"Si","col":"#c9a46b","T":"≈ 3,5 milliards K","dur":"≈ 1 jour","title":"Silicium → fer et nickel","text":"En une seule journée, le silicium devient du nickel-56, qui se désintègre en fer. Le cœur de fer, inerte, grossit.","xp":"Captures successives de ⁴He sur ²⁸Si jusqu’à ⁵⁶Ni, qui donne ⁵⁶Co puis ⁵⁶Fe par désintégrations bêta.","why":"Il faut d’abord un cœur de silicium."},
+  {"label":"Tenter de fusionner le fer","el":"Fe","col":"#8c97a8","T":"≈ 10 milliards K","dur":"moins d’une seconde","title":"Le fer refuse : supernova","text":"Fusionner le fer coûte de l’énergie au lieu d’en produire. Le cœur ne résiste plus à la gravitation : il s’effondre en moins d’une seconde en étoile à neutrons. L’onde de choc souffle l’étoile : c’est une supernova. Ses neutrons fabriquent des éléments plus lourds que le fer, comme l’iode ou le baryum.","xp":"Le cœur dépasse ≈ 1,4 masse solaire (limite de Chandrasekhar) et s’effondre. Capture rapide de neutrons (processus r) dans les explosions, et surtout dans les fusions d’étoiles à neutrons.","why":"Il faut d’abord un cœur de fer.","boom":true,
+   "proof":"La supernova SN 1987A a été vue à l’œil nu en 1987, et ses neutrinos détectés sur Terre quelques heures avant la lumière. En 2017, la fusion de deux étoiles à neutrons (GW170817) a montré la fabrication d’éléments lourds comme l’or."}
+ ]},
+ "sun":{"name":"Le Soleil (1 masse solaire)","stages":[
+  {"label":"Fusionner l’hydrogène","el":"H","col":"#ffd36b","T":"≈ 15 millions K","dur":"≈ 10 milliards d’années (4,6 déjà écoulés)","title":"Hydrogène → hélium","text":"Le Soleil fusionne 600 millions de tonnes d’hydrogène par seconde, par la chaîne proton-proton. La première étape exige la force faible, qui change un proton en neutron : c’est pour cela que le Soleil brûle si lentement.","xp":"p + p → ²H + e⁺ + νₑ (force faible), puis ²H + p → ³He, puis ³He + ³He → ⁴He + 2p.","req":["grav","fort","faible"],
+   "proof":"Les neutrinos produits par ces réactions au cœur du Soleil sont détectés sur Terre depuis les années 1960 (expérience de Ray Davis, puis Super-Kamiokande, Borexino)."},
+  {"label":"Fusionner l’hélium","el":"He","col":"#ff9a5a","T":"≈ 100 millions K","dur":"≈ 100 millions d’années","title":"Géante rouge : hélium → carbone","text":"Dans environ 5 milliards d’années, le Soleil gonflera en géante rouge et engloutira peut-être la Terre. Son cœur fusionnera l’hélium en carbone et en oxygène.","xp":"3 ⁴He → ¹²C + 7,27 MeV. Le Soleil est trop léger (moins de ≈ 8 masses solaires) pour atteindre les ≈ 600 millions K nécessaires à la fusion du carbone.","why":"Il faut d’abord un cœur d’hélium."},
+  {"label":"Finir en douceur","el":"C","col":"#e8ecff","T":"refroidissement","dur":"des milliards d’années","title":"Nébuleuse planétaire et naine blanche","text":"Le Soleil souffle ses couches externes en une nébuleuse colorée. Il reste un cœur de carbone et d’oxygène de la taille de la Terre : une naine blanche, qui refroidit lentement. Pas de supernova pour lui.","xp":"Une naine blanche ne peut pas dépasser ≈ 1,4 masse solaire (limite de Chandrasekhar) : la pression des électrons la soutient.","why":"Il faut d’abord avoir fusionné l’hélium.","nebula":true,
+   "proof":"Le télescope Hubble a photographié des centaines de nébuleuses planétaires, comme la nébuleuse de l’Anneau ou celle de l’Œil de chat."}
+ ]}
+}</script>
+<script type="application/json" id="d-planets">[
+ {"name":"Mercure","el":[0.38709927,0.00000037,0.20563593,0.00001906,252.25032350,149472.67411175,77.45779628,0.16047689],"year":88.0,"rot":1407.6,"day":4222.6,"tilt":0.034,"R":2440,"col":"#a39a91","kind":"rock"},
+ {"name":"Vénus","el":[0.72333566,0.00000390,0.00677672,-0.00004107,181.97909950,58517.81538729,131.60246718,0.00268329],"year":224.7,"rot":-5832.5,"day":2802.0,"tilt":177.4,"R":6052,"col":"#e6c88e","kind":"cloud"},
+ {"name":"Terre","el":[1.00000261,0.00000562,0.01671123,-0.00004392,100.46457166,35999.37244981,102.93768193,0.32327364],"year":365.2,"rot":23.9345,"day":24.0,"tilt":23.44,"R":6378,"col":"#3b6fd6","kind":"earth"},
+ {"name":"Mars","el":[1.52371034,0.00001847,0.09339410,0.00007882,-4.55343205,19140.30268499,-23.94362959,0.44441088],"year":687.0,"rot":24.6229,"day":24.66,"tilt":25.19,"R":3396,"col":"#c4532b","kind":"rock"},
+ {"name":"Jupiter","el":[5.20288700,-0.00011607,0.04838624,-0.00013253,34.39644051,3034.74612775,14.72847983,0.21252668],"year":4331,"rot":9.925,"day":9.93,"tilt":3.13,"R":71492,"col":"#d6b28a","kind":"bands"},
+ {"name":"Saturne","el":[9.53667594,-0.00125060,0.05386179,-0.00050991,49.95424423,1222.49362201,92.59887831,-0.41897216],"year":10747,"rot":10.656,"day":10.66,"tilt":26.73,"R":60268,"col":"#e3d09a","kind":"bands","ring":true},
+ {"name":"Uranus","el":[19.18916464,-0.00196176,0.04725744,-0.00004397,313.23810451,428.48202785,170.95427630,0.40805281],"year":30589,"rot":-17.24,"day":17.24,"tilt":97.77,"R":25559,"col":"#9fd8e0","kind":"ice"},
+ {"name":"Neptune","el":[30.06992276,0.00026291,0.00859048,0.00005105,-55.12002969,218.45945325,44.96476227,-0.32241464],"year":59800,"rot":16.11,"day":16.11,"tilt":28.32,"R":24764,"col":"#4f6fe0","kind":"ice"}
+]</script>
+<script type="application/json" id="d-elements">["H Hydrogène 1","He Hélium 4","Li Lithium 7","Be Béryllium 9","B Bore 11","C Carbone 12","N Azote 14","O Oxygène 16","F Fluor 19","Ne Néon 20","Na Sodium 23","Mg Magnésium 24","Al Aluminium 27","Si Silicium 28","P Phosphore 31","S Soufre 32","Cl Chlore 35","Ar Argon 40","K Potassium 39","Ca Calcium 40","Sc Scandium 45","Ti Titane 48","V Vanadium 51","Cr Chrome 52","Mn Manganèse 55","Fe Fer 56","Co Cobalt 59","Ni Nickel 58","Cu Cuivre 63","Zn Zinc 64","Ga Gallium 69","Ge Germanium 74","As Arsenic 75","Se Sélénium 80","Br Brome 79","Kr Krypton 84","Rb Rubidium 85","Sr Strontium 88","Y Yttrium 89","Zr Zirconium 90","Nb Niobium 93","Mo Molybdène 98","Tc Technétium 98","Ru Ruthénium 102","Rh Rhodium 103","Pd Palladium 106","Ag Argent 107","Cd Cadmium 114","In Indium 115","Sn Étain 120","Sb Antimoine 121","Te Tellure 130","I Iode 127","Xe Xénon 132","Cs Césium 133","Ba Baryum 138","La Lanthane 139","Ce Cérium 140","Pr Praséodyme 141","Nd Néodyme 142","Pm Prométhium 145","Sm Samarium 152","Eu Europium 153","Gd Gadolinium 158","Tb Terbium 159","Dy Dysprosium 164","Ho Holmium 165","Er Erbium 166","Tm Thulium 169","Yb Ytterbium 174","Lu Lutécium 175","Hf Hafnium 180","Ta Tantale 181","W Tungstène 184","Re Rhénium 187","Os Osmium 192","Ir Iridium 193","Pt Platine 195","Au Or 197","Hg Mercure 202","Tl Thallium 205","Pb Plomb 208","Bi Bismuth 209","Po Polonium 209","At Astate 210","Rn Radon 222","Fr Francium 223","Ra Radium 226","Ac Actinium 227","Th Thorium 232","Pa Protactinium 231","U Uranium 238","Np Neptunium 237","Pu Plutonium 244","Am Américium 243","Cm Curium 247","Bk Berkélium 247","Cf Californium 251","Es Einsteinium 252","Fm Fermium 257","Md Mendélévium 258","No Nobélium 259","Lr Lawrencium 266","Rf Rutherfordium 267","Db Dubnium 268","Sg Seaborgium 269","Bh Bohrium 270","Hs Hassium 269","Mt Meitnérium 278","Ds Darmstadtium 281","Rg Roentgenium 282","Cn Copernicium 285","Nh Nihonium 286","Fl Flérovium 289","Mc Moscovium 290","Lv Livermorium 293","Ts Tennesse 294","Og Oganesson 294"]</script>
+<script type="application/json" id="d-mols">{"h2o":{"name":"Eau","formula":"H2O","mw":18.02,"atoms":[["O",0.01,0.4,0.0],["H",-0.77,-0.18,0.0],["H",0.76,-0.21,0.0]],"bonds":[[0,1,1],[0,2,1]]},"co2":{"name":"Dioxyde de carbone","formula":"CO2","mw":44.01,"atoms":[["O",-1.4,0.08,0.0],["C",-0.0,0.0,0.0],["O",1.4,-0.08,0.0]],"bonds":[[0,1,2],[1,2,2]]},"nh3":{"name":"Ammoniac","formula":"H3N","mw":17.03,"atoms":[["N",0.0,-0.0,0.3],["H",-0.58,-0.74,-0.11],["H",-0.35,0.87,-0.09],["H",0.93,-0.13,-0.1]],"bonds":[[0,1,1],[0,2,1],[0,3,1]]},"ch4":{"name":"Méthane","formula":"CH4","mw":16.04,"atoms":[["C",0.0,-0.0,-0.0],["H",-0.71,-0.28,-0.78],["H",0.12,1.09,0.01],["H",-0.37,-0.33,0.97],["H",0.97,-0.47,-0.2]],"bonds":[[0,1,1],[0,2,1],[0,3,1],[0,4,1]]},"o2":{"name":"Dioxygène","formula":"O2","mw":32.0,"atoms":[["O",0.57,0.0,0.0],["O",-0.57,0.0,0.0]],"bonds":[[0,1,2]]},"n2":{"name":"Diazote","formula":"N2","mw":28.01,"atoms":[["N",0.73,0.0,0.0],["N",-0.73,0.0,0.0]],"bonds":[[0,1,3]]},"ethanol":{"name":"Éthanol","formula":"C2H6O","mw":46.07,"atoms":[["C",-0.85,0.22,0.19],["C",0.39,-0.36,-0.45],["O",1.53,0.38,-0.05],["H",-1.75,-0.33,-0.11],["H",-0.97,1.28,-0.08],["H",-0.78,0.19,1.29],["H",0.53,-1.4,-0.16],["H",0.31,-0.31,-1.54],["H",1.6,0.33,0.91]],"bonds":[[0,1,1],[1,2,1],[0,3,1],[0,4,1],[0,5,1],[1,6,1],[1,7,1],[2,8,1]]},"glucose":{"name":"Glucose","formula":"C6H12O6","mw":180.16,"atoms":[["O",2.03,-2.76,0.2],["C",1.75,-1.46,0.71],["C",0.94,-0.65,-0.31],["O",-0.32,-1.29,-0.61],["C",-1.44,-0.78,0.1],["O",-1.25,-0.95,1.49],["C",-1.69,0.71,-0.25],["O",-2.58,0.84,-1.39],["C",-0.39,1.44,-0.6],["O",-0.48,2.83,-0.27],["C",0.79,0.82,0.15],["O",1.98,1.56,-0.13],["H",2.59,-3.21,0.86],["H",1.2,-1.59,1.65],["H",2.7,-0.97,0.93],["H",1.5,-0.68,-1.25],["H",-2.32,-1.37,-0.19],["H",-1.4,-1.89,1.65],["H",-2.2,1.2,0.58],["H",-2.23,0.26,-2.09],["H",-0.2,1.41,-1.68],["H",-1.3,3.15,-0.7],["H",0.62,0.89,1.23],["H",1.71,2.5,-0.07]],"bonds":[[0,1,1],[1,2,1],[2,3,1],[3,4,1],[4,5,1],[4,6,1],[6,7,1],[6,8,1],[8,9,1],[8,10,1],[10,11,1],[10,2,1],[0,12,1],[1,13,1],[1,14,1],[2,15,1],[4,16,1],[5,17,1],[6,18,1],[7,19,1],[8,20,1],[9,21,1],[10,22,1],[11,23,1]]},"paracetamol":{"name":"Paracétamol","formula":"C8H9NO2","mw":151.17,"atoms":[["C",-3.66,-0.58,0.09],["C",-2.21,-0.9,-0.16],["O",-1.88,-1.97,-0.65],["N",-1.38,0.15,0.19],["C",0.03,0.21,0.08],["C",0.81,-0.84,-0.4],["C",2.21,-0.71,-0.47],["C",2.81,0.47,-0.06],["O",4.16,0.64,-0.11],["C",2.04,1.52,0.42],["C",0.65,1.39,0.49],["H",-4.06,-0.01,-0.76],["H",-4.23,-1.51,0.2],["H",-3.78,0.0,1.01],["H",-1.82,0.98,0.55],["H",0.38,-1.78,-0.73],["H",2.79,-1.55,-0.85],["H",4.56,-0.18,-0.47],["H",2.52,2.44,0.74],["H",0.07,2.23,0.87]],"bonds":[[0,1,1],[1,2,2],[1,3,1],[3,4,1],[4,5,1.5],[5,6,1.5],[6,7,1.5],[7,8,1],[7,9,1.5],[9,10,1.5],[10,4,1.5],[0,11,1],[0,12,1],[0,13,1],[3,14,1],[5,15,1],[6,16,1],[8,17,1],[9,18,1],[10,19,1]]},"amlodipine":{"name":"Amlodipine","formula":"C20H25ClN2O5","mw":408.88,"atoms":[["C",-0.59,1.7,-4.48],["C",0.37,0.55,-4.26],["O",0.15,-0.05,-2.98],["C",0.78,0.54,-1.93],["O",1.52,1.5,-2.0],["C",0.46,-0.18,-0.68],["C",1.36,-0.25,0.33],["C",2.76,0.33,0.28],["O",3.57,-0.36,1.25],["C",4.95,0.0,1.18],["C",5.25,1.45,1.62],["N",4.74,1.75,2.96],["N",1.02,-0.91,1.51],["C",-0.13,-1.65,1.69],["C",-0.18,-2.48,2.95],["C",-1.09,-1.62,0.74],["C",-0.94,-0.81,-0.54],["C",-2.03,0.26,-0.63],["C",-2.04,1.33,0.3],["C",-3.01,2.32,0.26],["C",-4.01,2.27,-0.7],["C",-4.04,1.23,-1.62],["C",-3.06,0.22,-1.59],["Cl",-3.19,-1.03,-2.77],["C",-2.33,-2.41,0.84],["O",-2.68,-3.24,0.01],["O",-3.03,-2.04,1.95],["C",-4.28,-2.7,2.08],["H",-0.45,2.48,-3.73],["H",-0.45,2.14,-5.47],["H",-1.63,1.36,-4.39],["H",1.41,0.87,-4.37],["H",0.19,-0.23,-5.01],["H",3.21,0.19,-0.71],["H",2.72,1.39,0.53],["H",5.49,-0.69,1.84],["H",5.33,-0.17,0.16],["H",4.81,2.16,0.91],["H",6.34,1.6,1.6],["H",5.1,2.65,3.27],["H",5.07,1.05,3.62],["H",1.81,-1.05,2.14],["H",-0.35,-1.84,3.82],["H",0.77,-3.01,3.1],["H",-0.96,-3.25,2.93],["H",-1.02,-1.53,-1.36],["H",-1.27,1.38,1.07],["H",-2.99,3.13,0.98],["H",-4.78,3.05,-0.74],["H",-4.83,1.19,-2.37],["H",-4.77,-2.33,2.99],["H",-4.93,-2.48,1.23],["H",-4.14,-3.78,2.19]],"bonds":[[0,1,1],[1,2,1],[2,3,1],[3,4,2],[3,5,1],[5,6,2],[6,7,1],[7,8,1],[8,9,1],[9,10,1],[10,11,1],[6,12,1],[12,13,1],[13,14,1],[13,15,2],[15,16,1],[16,17,1],[17,18,1.5],[18,19,1.5],[19,20,1.5],[20,21,1.5],[21,22,1.5],[22,23,1],[15,24,1],[24,25,2],[24,26,1],[26,27,1],[16,5,1],[22,17,1.5],[0,28,1],[0,29,1],[0,30,1],[1,31,1],[1,32,1],[7,33,1],[7,34,1],[9,35,1],[9,36,1],[10,37,1],[10,38,1],[11,39,1],[11,40,1],[12,41,1],[14,42,1],[14,43,1],[14,44,1],[16,45,1],[18,46,1],[19,47,1],[20,48,1],[21,49,1],[27,50,1],[27,51,1],[27,52,1]]},"perindopril":{"name":"Périndopril","formula":"C19H32N2O5","mw":368.47,"atoms":[["C",3.05,-3.19,-2.9],["C",2.86,-2.64,-1.49],["C",2.42,-1.17,-1.52],["C",2.13,-0.61,-0.12],["C",3.43,-0.51,0.7],["O",3.88,-1.41,1.39],["O",4.05,0.69,0.5],["C",5.28,0.85,1.22],["C",5.82,2.23,0.93],["N",1.5,0.73,-0.31],["C",0.83,1.22,0.93],["C",0.49,2.7,0.79],["C",-0.39,0.35,1.32],["O",-0.35,-0.24,2.41],["N",-1.47,0.21,0.48],["C",-2.55,-0.73,0.83],["C",-3.4,-0.25,2.01],["C",-4.73,-0.98,2.06],["C",-5.56,-0.79,0.78],["C",-4.75,-0.28,-0.41],["C",-3.36,-0.94,-0.46],["C",-2.47,-0.37,-1.57],["C",-1.64,0.72,-0.88],["C",-2.35,2.07,-0.92],["O",-2.68,2.77,0.03],["O",-2.58,2.51,-2.17],["H",2.12,-3.14,-3.47],["H",3.36,-4.24,-2.85],["H",3.82,-2.62,-3.44],["H",3.8,-2.75,-0.94],["H",2.11,-3.24,-0.97],["H",1.52,-1.09,-2.14],["H",3.2,-0.57,-2.01],["H",1.44,-1.28,0.41],["H",5.09,0.74,2.29],["H",6.0,0.09,0.89],["H",6.76,2.4,1.46],["H",5.1,3.0,1.23],["H",5.99,2.36,-0.15],["H",2.25,1.38,-0.54],["H",1.54,1.15,1.76],["H",-0.2,3.02,1.58],["H",0.05,2.94,-0.18],["H",1.4,3.31,0.88],["H",-2.07,-1.68,1.1],["H",-2.87,-0.4,2.95],["H",-3.58,0.83,1.94],["H",-5.32,-0.66,2.93],["H",-4.54,-2.06,2.19],["H",-6.04,-1.74,0.53],["H",-6.38,-0.08,0.98],["H",-4.66,0.81,-0.33],["H",-5.3,-0.48,-1.33],["H",-3.52,-2.01,-0.63],["H",-1.8,-1.16,-1.91],["H",-3.04,-0.02,-2.44],["H",-0.68,0.84,-1.38],["H",-3.01,3.38,-2.04]],"bonds":[[0,1,1],[1,2,1],[2,3,1],[3,4,1],[4,5,2],[4,6,1],[6,7,1],[7,8,1],[3,9,1],[9,10,1],[10,11,1],[10,12,1],[12,13,2],[12,14,1],[14,15,1],[15,16,1],[16,17,1],[17,18,1],[18,19,1],[19,20,1],[20,21,1],[21,22,1],[22,23,1],[23,24,2],[23,25,1],[22,14,1],[20,15,1],[0,26,1],[0,27,1],[0,28,1],[1,29,1],[1,30,1],[2,31,1],[2,32,1],[3,33,1],[7,34,1],[7,35,1],[8,36,1],[8,37,1],[8,38,1],[9,39,1],[10,40,1],[11,41,1],[11,42,1],[11,43,1],[15,44,1],[16,45,1],[16,46,1],[17,47,1],[17,48,1],[18,49,1],[18,50,1],[19,51,1],[19,52,1],[20,53,1],[21,54,1],[21,55,1],[22,56,1],[25,57,1]]}}</script>
+<script type="application/json" id="d-moltext">{
+ "h2o":"Molécule coudée : les deux paires d’électrons libres de l’oxygène repoussent les liaisons. D’où un angle d’environ 104,5° et une molécule polaire, capable de dissoudre le sel.",
+ "co2":"Molécule linéaire à deux doubles liaisons. Produite par la respiration et la combustion, elle retient la chaleur dans l’atmosphère.",
+ "nh3":"Une pyramide : l’azote garde une paire d’électrons libre au sommet. Point de départ de la plupart des engrais.",
+ "ch4":"Un tétraèdre parfait : le carbone partage ses quatre électrons de valence. C’est le principal composant du gaz naturel.",
+ "hf":"Une seule liaison : le fluor, l’atome le plus électronégatif, attire fortement l’électron partagé.",
+ "o2":"Deux oxygènes unis par une double liaison. Produit par la photosynthèse, il a envahi l’atmosphère il y a environ 2,4 milliards d’années.",
+ "n2":"Une triple liaison, parmi les plus solides de la chimie : c’est pourquoi l’azote, 78 % de l’air, réagit si peu.",
+ "ethanol":"L’alcool des boissons et des solutions hydroalcooliques : deux carbones et un groupe –OH.",
+ "glucose":"Le sucre que nos cellules brûlent pour produire leur énergie, ici sous sa forme cyclique, la plus fréquente dans l’eau.",
+ "paracetamol":"Antalgique et antipyrétique : un cycle aromatique portant un groupe –OH et un groupe amide.",
+ "amlodipine":"Inhibiteur calcique (dihydropyridine) : le cycle central, partiellement saturé, porte le phényle chloré qui s’ancre dans le canal calcique.",
+ "perindopril":"Inhibiteur de l’enzyme de conversion. L’ester éthylique (à gauche) est coupé dans l’organisme : la molécule devient le périndoprilate, la forme active.",
+ "nacl":"Le sel de cuisine n’est pas une molécule mais un cristal : des ions Na⁺ et Cl⁻ alternés dans un réseau cubique, tenus par l’attraction électrique."
+}</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s);
+const J = id => JSON.parse(document.getElementById(id).textContent);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { red:css('--q-red'), green:css('--q-green'), blue:css('--q-blue'), proton:css('--proton'), neutron:css('--neutron'), electron:css('--electron'), accent:css('--accent'), muted:css('--muted'), line:css('--line'), fg:css('--fg'), cool:css('--cool'), xp:css('--xp'), deep:css('--deep') };
+const QCOL = [C.red, C.green, C.blue], QNAME = ['rouge','vert','bleu'];
+const D2R = Math.PI/180;
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const ease = t => t<0?0:t>1?1:1-Math.pow(1-t,3);
+const lerp = (a,b,t) => a+(b-a)*t;
+function rng(seed){ let s = seed>>>0 || 1; return () => { s ^= s<<13; s>>>=0; s ^= s>>>17; s ^= s<<5; s>>>=0; return s/4294967296; }; }
+const fmt = (x,d=1) => x.toLocaleString('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:0});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SUB = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+const subF = f => f.replace(/\d/g, c => SUB[c]);
+function hiDPI(cv, light){
+  const r = cv.getBoundingClientRect(), d = light ? 1 : Math.min(2, window.devicePixelRatio||1);
+  const W = Math.max(1,r.width), H = Math.max(1,r.height);
+  cv.width = Math.round(W*d); cv.height = Math.round(H*d);
+  const ctx = cv.getContext('2d'); ctx.setTransform(d,0,0,d,0,0);
+  return {W,H,ctx};
+}
+
+/* ---------- Shared state ---------- */
+const state = {
+  light: store.get('ac-light', false),
+  expert: store.get('ac-expert', false),
+  fields: { inflaton:true, higgs:true, fort:true, faible:true, em:true, grav:true },
+  offAt: {}, tab: 'big-bang'
+};
+const FIELDS = { inflaton:{name:'Inflaton'}, higgs:{name:'Higgs'}, fort:{name:'Fort (gluons)'}, faible:{name:'Faible (W, Z)'}, em:{name:'Électromagnétique (photon)'}, grav:{name:'Gravitation'} };
+const fieldListeners = [];
+function setField(k, v){
+  if(state.fields[k] === v) return;
+  state.fields[k] = v;
+  if(!v) state.offAt[k] = performance.now()/1000;
+  fieldListeners.forEach(f => f(k));
+}
+function renderChips(el, keys, interactive){
+  el.innerHTML = '';
+  keys.forEach(k => {
+    const b = document.createElement('button');
+    b.type='button'; b.className='chip'; b.textContent = FIELDS[k].name;
+    b.setAttribute('aria-pressed', state.fields[k] ? 'true' : 'false');
+    if(interactive){ b.title = state.fields[k] ? 'Éteindre' : 'Allumer'; b.addEventListener('click', () => setField(k, !state.fields[k])); }
+    else { b.dataset.static=''; b.tabIndex=-1; }
+    el.appendChild(b);
+  });
+}
+
+/* ---------- Défis ---------- */
+const DEFIS = [
+  {id:'proton', t:'Former un proton', w:'Trois quarks uud, une couleur de chaque.', tab:'matiere'},
+  {id:'neutron', t:'Former un neutron', w:'Trois quarks udd.', tab:'matiere'},
+  {id:'delta', t:'Créer une particule éphémère', w:'Un trio qui n’existe que 10⁻²³ seconde.', tab:'matiere'},
+  {id:'bigbang', t:'Raconter le Big Bang jusqu’au Soleil', w:'Les sept étapes, dans l’ordre.', tab:'big-bang'},
+  {id:'mali', t:'Situer l’Empire du Mali dans le calendrier cosmique', w:'À quelle seconde du 31 décembre ?', tab:'big-bang'},
+  {id:'c12', t:'Construire le carbone-12 neutre', w:'L’atome de la vie.', tab:'matiere'},
+  {id:'ion', t:'Construire l’ion sodium Na⁺', w:'Un électron de moins que de protons.', tab:'matiere'},
+  {id:'radio', t:'Construire un isotope radioactif', w:'Par exemple le carbone-14 de la datation.', tab:'matiere'},
+  {id:'fe56', t:'Construire le fer-56', w:'Le noyau où s’arrêtent les étoiles.', tab:'matiere'},
+  {id:'nofort', t:'Éteindre le champ fort et voir le noyau se défaire', w:'Dans l’atelier de la matière.', tab:'matiere'},
+  {id:'supernova', t:'Mener une étoile massive jusqu’à la supernova', w:'Six fusions, puis le fer.', tab:'etoiles'},
+  {id:'whitedwarf', t:'Conduire le Soleil jusqu’à la naine blanche', w:'Une fin sans explosion.', tab:'etoiles'},
+  {id:'water', t:'Assembler l’eau avec la règle de valence', w:'Combien d’hydrogènes pour l’oxygène ?', tab:'molecules'},
+  {id:'drug', t:'Examiner les deux molécules de l’Amloperin', w:'Amlodipine et périndopril en 3D.', tab:'molecules'},
+  {id:'noseason', t:'Supprimer les saisons de la Terre', w:'Redresse son axe à 0°.', tab:'systeme-solaire'},
+  {id:'uranus', t:'Coucher la Terre comme Uranus', w:'Plus de 90° d’inclinaison.', tab:'systeme-solaire'},
+  {id:'polar', t:'Observer une nuit polaire', w:'Choisis la bonne latitude et la bonne saison.', tab:'systeme-solaire'},
+  {id:'newton', t:'Éteindre la gravitation', w:'Et voir partir les planètes en ligne droite.', tab:'systeme-solaire'}
+];
+const won = new Set(store.get('ac-defis', []).filter(id => DEFIS.some(d => d.id===id)));
+let toastTimer = null;
+function win(id){
+  if(won.has(id)) return;
+  const d = DEFIS.find(x => x.id===id); if(!d) return;
+  won.add(id); store.set('ac-defis', [...won]);
+  const t = $('#toast'); $('#toast-t').textContent = 'Défi réussi : ' + d.t; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+  renderDefis();
+}
+function renderDefis(){
+  $('#defi-count').textContent = `${won.size}/${DEFIS.length}`;
+  $('#defi-score').textContent = `${won.size} / ${DEFIS.length}`;
+  $('#defi-meter').style.width = (won.size/DEFIS.length*100)+'%';
+  const ul = $('#defi-list'); ul.innerHTML = '';
+  DEFIS.forEach((d,i) => {
+    const li = document.createElement('li'); const ok = won.has(d.id);
+    li.className = 'defi' + (ok ? ' won' : '');
+    li.innerHTML = `<span class="ck">${ok?'✓':i+1}</span><span><span class="t">${esc(d.t)}</span><br><span class="w">${esc(d.w)}</span><br><a href="#${d.tab}">Y aller</a></span>`;
+    ul.appendChild(li);
+  });
+}
+$('#defi-reset').addEventListener('click', () => { won.clear(); store.set('ac-defis', []); renderDefis(); });
+
+/* ---------- Tabs & toggles ---------- */
+const TABS = ['big-bang','matiere','etoiles','molecules','systeme-solaire','defis'];
+function showTab(id){
+  if(!TABS.includes(id)) id = 'big-bang';
+  state.tab = id;
+  TABS.forEach(t => { $('#panel-'+t).hidden = (t !== id); $('#tab-'+t).setAttribute('aria-selected', t===id ? 'true':'false'); });
+  if(id === 'systeme-solaire') SOL.ensure();
+  requestAnimationFrame(resizeAll);
+}
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+  const id = b.dataset.tab; if(location.hash.slice(1) === id) showTab(id); else location.hash = id;
+}));
+window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+const lightBox = $('#light-mode'), xpBox = $('#expert-mode');
+lightBox.checked = !!state.light; xpBox.checked = !!state.expert;
+document.body.classList.toggle('expert', !!state.expert);
+lightBox.addEventListener('change', () => { state.light = lightBox.checked; store.set('ac-light', state.light); BB.rebuild(); SOL.applyLight(); resizeAll(); });
+xpBox.addEventListener('change', () => { state.expert = xpBox.checked; store.set('ac-expert', state.expert); document.body.classList.toggle('expert', state.expert); });
+
+/* ---------- Shared pseudo-3D canvas (drag to rotate) ---------- */
+function orbitView(cv){
+  const v = { cv, ctx:null, W:1, H:1, yaw:.6, pitch:.35, drag:null };
+  cv.addEventListener('pointerdown', e => { v.drag = {x:e.clientX, y:e.clientY, yaw:v.yaw, pitch:v.pitch}; try{ cv.setPointerCapture(e.pointerId); }catch(_){} });
+  cv.addEventListener('pointermove', e => { if(!v.drag) return; v.yaw = v.drag.yaw + (e.clientX-v.drag.x)*.01; v.pitch = Math.max(-1.45, Math.min(1.45, v.drag.pitch + (e.clientY-v.drag.y)*.01)); });
+  const end = () => { v.drag = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  v.resize = () => { const r = hiDPI(cv, state.light); v.ctx=r.ctx; v.W=r.W; v.H=r.H; };
+  v.rot = p => {
+    const [x,y,z] = p, cy=Math.cos(v.yaw), sy=Math.sin(v.yaw);
+    const x1 = x*cy + z*sy, z1 = -x*sy + z*cy, cp=Math.cos(v.pitch), sp=Math.sin(v.pitch);
+    return [x1, y*cp - z1*sp, y*sp + z1*cp];
+  };
+  v.proj = (p, scale, persp=900) => { const r = v.rot(p), f = persp/(persp - r[2]); return {x:v.W/2 + r[0]*f*scale, y:v.H/2 + r[1]*f*scale, z:r[2], f}; };
+  v.spin = dt => { if(!v.drag && !reduced) v.yaw += dt*.22; };
+  return v;
+}
+function ball(ctx, x, y, r, col){
+  const g = ctx.createRadialGradient(x - r*.35, y - r*.35, r*.1, x, y, r);
+  g.addColorStop(0,'#ffffff'); g.addColorStop(.28,col); g.addColorStop(1,'rgba(0,0,0,.85)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,r,0,6.283); ctx.fill();
+}
+
+/* =========================================================
+   ACTE 1 — Big Bang
+   ========================================================= */
+const BB = (function(){
+  const cv = $('#bb-canvas'); let ctx = cv.getContext('2d'), W=1, H=1;
+  const TRANS = reduced ? 0.4 : 2.6;
+  const STEPS = J('d-steps');
+  let cur = -1, phaseStart = 0;
+  let quarks=[], electrons=[], nucleons=[], atoms=[];
+  const STARS = [{x:.5,y:.5},{x:.2,y:.28},{x:.8,y:.7},{x:.78,y:.24},{x:.24,y:.76}];
+  const INTRO = 'Personne ne sait ce qui a déclenché le Big Bang. Le multivers et les fluctuations du vide sont des hypothèses, pas des faits établis. Ce récit commence juste après, là où la physique sait décrire l’univers. En lançant le récit, tous les champs s’éteignent ; tu les rallumes dans l’ordre de l’histoire.';
+
+  function build(){
+    const R = rng(1977), G = state.light ? 32 : 64, nN = G/8;
+    quarks=[]; electrons=[]; nucleons=[]; atoms=[];
+    for(let i=0;i<G;i++) nucleons.push({type: i<nN?'n':'p', seed:R(), x:R(), y:R(), vx:R()-.5, vy:R()-.5});
+    let pi = nN; const sq = .0075;
+    for(let h=0;h<nN/2;h++){
+      const mem = [nucleons[2*h], nucleons[2*h+1], nucleons[pi++], nucleons[pi++]];
+      const offs = [[-sq,-sq],[sq,sq],[sq,-sq],[-sq,sq]];
+      atoms.push({kind:'He', members:mem}); mem.forEach((m,j) => { m.off = offs[j]; });
+    }
+    while(pi<G){ const m = nucleons[pi++]; m.off=[0,0]; atoms.push({kind:'H', members:[m]}); }
+    atoms.forEach(a => {
+      a.x=R(); a.y=R(); a.vx=R()-.5; a.vy=R()-.5; a.star = Math.floor(R()*STARS.length);
+      const ang=R()*6.283, rr=Math.sqrt(R()); a.jx=Math.cos(ang)*rr*.035; a.jy=Math.sin(ang)*rr*.035;
+      a.members.forEach(m => { m.atom = a; });
+      for(let k=0;k<(a.kind==='He'?2:1);k++) electrons.push({atom:a, x:R(), y:R(), vx:R()-.5, vy:R()-.5, ph:R()*6.283 + k*Math.PI, r:k});
+    });
+    nucleons.forEach(n => {
+      const fl = n.type==='p' ? ['u','u','d'] : ['u','d','d'];
+      for(let s=0;s<3;s++){ const a = s*2.094 - 1.571; quarks.push({nuc:n, slot:s, f:fl[s], c0:Math.floor(R()*3), x:R(), y:R(), vx:R()-.5, vy:R()-.5, ox:Math.cos(a)*.0055, oy:Math.sin(a)*.0055}); }
+    });
+  }
+  function resize(){ const r = hiDPI(cv, state.light); ctx=r.ctx; W=r.W; H=r.H; }
+  const BG = [[0,0,0],[70,30,16],[46,18,28],[32,16,40],[22,16,42],[10,11,24],[8,9,19],[7,8,16]];
+  const move = (list, sp, dt) => { for(const o of list){ o.x=(o.x+o.vx*sp*dt+1)%1; o.y=(o.y+o.vy*sp*dt+1)%1; } };
+
+  function frame(now, dt){
+    const p = Math.min(1,(now-phaseStart)/TRANS), e = ease(p);
+    const fac = i => cur<i ? 0 : cur===i ? e : 1;
+    const infl=fac(0), mass=fac(1), bindQ=fac(2), bindHe=fac(3), bindE=fac(4), grav=fac(5), sol=fac(6);
+    const freeSp = lerp(.35,.035,mass);
+    move(quarks,freeSp,dt); move(electrons,freeSp*1.2,dt); move(nucleons,.014,dt); move(atoms,.01,dt);
+    const ia = Math.min(BG.length-1,cur+1), ib = Math.max(0,ia-1), bgT = cur<0 ? 1 : e;
+    const bg = BG[ia].map((v,i) => Math.round(lerp(BG[ib][i], v, bgT)));
+    ctx.fillStyle = `rgb(${bg[0]},${bg[1]},${bg[2]})`; ctx.fillRect(0,0,W,H);
+    const S = Math.min(W,H), cx=W/2, cy=H/2;
+    if(cur<0){
+      const pulse = 1 + Math.sin(now*3)*.15, R = S*.06*pulse;
+      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,R);
+      g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.3,'rgba(255,220,160,.8)'); g.addColorStop(1,'rgba(255,140,60,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.fill(); return;
+    }
+    const free = o => [cx + (o.x*W - cx)*infl, cy + (o.y*H - cy)*infl];
+    for(const a of atoms){
+      const f = free(a);
+      if(grav<=0){ a.px=f; continue; }
+      const s = STARS[a.star]; a.px = [lerp(f[0], s.x*W + a.jx*S, grav), lerp(f[1], s.y*H + a.jy*S, grav)];
+    }
+    for(const n of nucleons){
+      const a = n.atom; if(a.kind==='H'){ n.px=a.px; continue; }
+      const f = free(n); n.px = [lerp(f[0], a.px[0]+n.off[0]*S, bindHe), lerp(f[1], a.px[1]+n.off[1]*S, bindHe)];
+    }
+    const fadeAll = (1-.82*grav)*(1-sol), base = S/430;
+    if(bindQ>.55 && fadeAll>.02){
+      for(const n of nucleons){ ctx.globalAlpha = Math.min(.42,bindQ-.55)*fadeAll; ctx.fillStyle = n.type==='p'?C.proton:C.neutron; ctx.beginPath(); ctx.arc(n.px[0],n.px[1],S*.0105,0,6.283); ctx.fill(); }
+    }
+    const qpos = new Map();
+    for(const q of quarks){ const f=free(q), np=q.nuc.px; qpos.set(q,[lerp(f[0],np[0]+q.ox*S,bindQ), lerp(f[1],np[1]+q.oy*S,bindQ)]); }
+    if(bindQ>.15 && fadeAll>.02){
+      ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1; ctx.globalAlpha=bindQ*fadeAll;
+      for(let i=0;i<quarks.length;i+=3){ const a=qpos.get(quarks[i]), b=qpos.get(quarks[i+1]), c=qpos.get(quarks[i+2]); ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.lineTo(c[0],c[1]); ctx.closePath(); ctx.stroke(); }
+    }
+    if(fadeAll>.02){
+      for(const q of quarks){
+        const pos=qpos.get(q), ci = bindQ>.5 ? (q.slot + Math.floor(now*1.4 + q.nuc.seed*7))%3 : q.c0, r = base*(1+1.3*mass);
+        ctx.globalAlpha=fadeAll*(1-mass); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(pos[0],pos[1],r,0,6.283); ctx.fill();
+        ctx.globalAlpha=fadeAll*mass; ctx.fillStyle=QCOL[ci]; ctx.beginPath(); ctx.arc(pos[0],pos[1],r,0,6.283); ctx.fill();
+      }
+      for(const el of electrons){
+        const f=free(el), a=el.atom.px, rr=S*(.022+el.r*.008), ang=now*(1.8-el.r*.5)+el.ph;
+        const x=lerp(f[0], a[0]+Math.cos(ang)*rr, bindE), y=lerp(f[1], a[1]+Math.sin(ang)*rr*.75, bindE);
+        if(bindE>.3){ ctx.globalAlpha=.18*bindE*fadeAll; ctx.strokeStyle=C.electron; ctx.beginPath(); ctx.ellipse(a[0],a[1],rr,rr*.75,0,0,6.283); ctx.stroke(); }
+        ctx.globalAlpha=fadeAll*(1-mass); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x,y,base*.8,0,6.283); ctx.fill();
+        ctx.globalAlpha=fadeAll*mass; ctx.fillStyle=C.electron; ctx.beginPath(); ctx.arc(x,y,base*.8,0,6.283); ctx.fill();
+      }
+    }
+    ctx.globalAlpha=1;
+    const fog = cur<4 ? .13 : cur===4 ? .13*(1-e) : 0;
+    if(fog>0){ ctx.fillStyle=`rgba(255,170,110,${fog})`; ctx.fillRect(0,0,W,H); }
+    if(grav>0){
+      const counts = STARS.map(()=>0); atoms.forEach(a => counts[a.star]++);
+      STARS.forEach((s,i) => {
+        const keep = i===0 ? 1 : 1-sol*.85, rad = S*(.015+.045*grav*Math.sqrt(counts[i]/(atoms.length/STARS.length)));
+        const g = ctx.createRadialGradient(s.x*W,s.y*H,0,s.x*W,s.y*H,rad*2.4);
+        g.addColorStop(0,`rgba(255,250,235,${.95*grav*keep})`); g.addColorStop(.25,`rgba(255,210,120,${.7*grav*keep})`); g.addColorStop(1,'rgba(255,140,60,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(s.x*W,s.y*H,rad*2.4,0,6.283); ctx.fill();
+      });
+    }
+    if(sol>0){
+      const orbits=[.09,.125,.16,.2,.28,.35,.42,.48]; ctx.lineWidth=1;
+      orbits.forEach((r,i) => {
+        const R=r*S; ctx.globalAlpha=.25*sol; ctx.strokeStyle=C.muted; ctx.beginPath(); ctx.ellipse(cx,cy,R,R*.42,0,0,6.283); ctx.stroke();
+        const ang = now*(.9/Math.pow(r/.09,1.5)) + i*1.7;
+        ctx.globalAlpha=sol; ctx.fillStyle = i===2 ? C.cool : i<4 ? '#d9b38c' : '#e8d6a8';
+        ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*R, cy+Math.sin(ang)*R*.42, base*(i<4?1.8:3),0,6.283); ctx.fill();
+      });
+      ctx.globalAlpha=1;
+    }
+    if(cur===0 && p<1){ ctx.fillStyle=`rgba(255,255,255,${Math.pow(1-p,2)*.9})`; ctx.fillRect(0,0,W,H); }
+  }
+
+  const listEl = $('#bb-steps');
+  function renderSteps(){
+    listEl.innerHTML='';
+    STEPS.forEach((s,i) => {
+      const li=document.createElement('li'), b=document.createElement('button');
+      b.type='button'; b.className='step'; b.dataset.state = i<=cur?'done':i===cur+1?'next':'locked';
+      b.innerHTML = `<span class="num">${i<=cur?'✓':i+1}</span><span><span class="t">${esc(s.label)}</span><br><span class="w">${esc(s.time)}</span></span>`;
+      b.addEventListener('click', () => go(i)); li.appendChild(b); listEl.appendChild(li);
+    });
+    if(cur===STEPS.length-1){
+      const li=document.createElement('li');
+      li.innerHTML = '<div class="row"><a class="btn btn-primary" href="#etoiles">Piloter une étoile →</a><a class="btn" href="#systeme-solaire">Système solaire →</a></div>';
+      listEl.appendChild(li);
+    }
+    renderChips($('#bb-fields'), Object.keys(FIELDS), false);
+  }
+  function alertBox(kind, html){ const a=$('#bb-alert'); if(!kind){ a.hidden=true; a.innerHTML=''; return; } a.hidden=false; a.className='alert '+kind; a.innerHTML=html; }
+  function go(i){
+    if(i<=cur){ alertBox('ok','Étape déjà franchie. Pour la revoir, reviens à l’instant zéro.'); return; }
+    if(i>cur+1){ alertBox('bad', `<strong>Pas encore possible.</strong> ${esc(STEPS[i].why||'')} Prochaine étape : « ${esc(STEPS[cur+1].label)} ».`); return; }
+    const s = STEPS[i];
+    if(i===0) Object.keys(state.fields).forEach(k => setField(k,false));
+    const missing = s.req.filter(k => !state.fields[k]);
+    if(missing.length){
+      alertBox('warn', `<span>Le champ <strong>${missing.map(k=>esc(FIELDS[k].name)).join(', ')}</strong> est éteint : sans lui, cette étape est impossible.</span><span><button class="btn" id="bb-relight">Le rallumer</button></span>`);
+      $('#bb-relight').addEventListener('click', () => { missing.forEach(k => setField(k,true)); go(i); }); return;
+    }
+    alertBox(null); s.on.forEach(k => setField(k,true));
+    cur=i; phaseStart=performance.now()/1000;
+    $('#bb-time').textContent='t ≈ '+s.time; $('#bb-temp').textContent=s.temp; $('#bb-caption').textContent=s.caption;
+    $('#bb-story-k').textContent=s.k; $('#bb-story-t').textContent=s.title; $('#bb-story-p').textContent=s.text;
+    const pr=$('#bb-proof'); pr.hidden=false; pr.querySelector('span').textContent=s.proof;
+    $('#bb-xp').textContent=s.xp;
+    if(i===STEPS.length-1) win('bigbang');
+    renderSteps();
+  }
+  function reset(){
+    cur=-1; build(); alertBox(null);
+    $('#bb-time').textContent='t = 0'; $('#bb-temp').textContent='inconnue';
+    $('#bb-caption').textContent='Un point minuscule, infiniment chaud. Appuie sur « Déclencher l’inflation ».';
+    $('#bb-story-k').textContent='Instant zéro'; $('#bb-story-t').textContent='Avant tout'; $('#bb-story-p').textContent=INTRO;
+    $('#bb-proof').hidden=true; $('#bb-xp').textContent='Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½. Conversion : 1 eV ↔ 11 605 K.';
+    renderSteps();
+  }
+  $('#bb-reset').addEventListener('click', reset);
+  fieldListeners.push(() => renderChips($('#bb-fields'), Object.keys(FIELDS), false));
+  build(); reset();
+
+  /* Cosmic calendar */
+  const CAL = J('d-calendar'), AGE = 13.8e9, YEAR_S = 365*86400;
+  const calEl = $('#cal');
+  const fmtAgo = a => a===0 ? 'maintenant' : a>=1e9 ? `il y a ${fmt(a/1e9,1)} milliards d’années` : a>=1e6 ? `il y a ${fmt(a/1e6,0)} millions d’années` : `il y a ${fmt(a,0)} ans`;
+  CAL.forEach(ev => {
+    const sec = (1 - ev.ago/AGE)*YEAR_S;
+    const d = new Date(Date.UTC(2001,0,1) + Math.min(sec, YEAR_S-0.001)*1000);
+    let lab = d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'});
+    const near = ev.ago < 2e8 || ev.ago > 13.5e9;
+    if(near) lab += ' · ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'});
+    if(ev.ago===0) lab = '31 déc. · 24:00:00';
+    const li=document.createElement('li'), b=document.createElement('button');
+    b.type='button'; b.setAttribute('aria-pressed','false');
+    b.innerHTML = `<span class="d">${esc(lab)}</span><span class="e">${esc(ev.e)}<span class="ago">${esc(fmtAgo(ev.ago))}</span></span>`;
+    b.addEventListener('click', () => { calEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); if(ev.id==='mali') win('mali'); });
+    li.appendChild(b); calEl.appendChild(li);
+  });
+  return { frame, resize, rebuild(){ build(); } };
+})();
+
+/* =========================================================
+   ACTE 2 — Matière : quarks, puis atomes
+   ========================================================= */
+const ELEMENTS = J('d-elements').map((s,i) => { const [sym,name,a] = s.split(' '); return {z:i+1, sym, name, a:+a}; });
+const STABLE_LIGHT = {1:[0,1],2:[1,2],3:[3,4],4:[5],5:[5,6],6:[6,7],7:[7,8],8:[8,9,10],9:[10],10:[10,11,12],11:[12],12:[12,13,14],13:[14],14:[14,15,16],15:[16],16:[16,17,18,20],17:[18,20],18:[18,20,22],19:[20,22],20:[20,22,23,24,26,28]};
+function stability(z, n){
+  const el = ELEMENTS[z-1], nref = el.a - z;
+  if(z>1 && n===0) return {lvl:'bad', txt:'N’existe pas', why:'Sans neutron, les protons se repoussent : le noyau n’est pas lié.', exact:true};
+  if(STABLE_LIGHT[z]){
+    if(STABLE_LIGHT[z].includes(n)) return {lvl:'ok', txt:'Stable', why:'Cet isotope existe et ne se désintègre pas.', exact:true};
+    const d = Math.min(...STABLE_LIGHT[z].map(x => Math.abs(x-n)));
+    if(d<=4) return {lvl:'warn', txt:'Radioactif', why:'Cet isotope se désintègre, en général par désintégration bêta.', exact:true, radio:true};
+    return {lvl:'bad', txt:'Hors de la carte des noyaux', why:'Trop de neutrons ou pas assez : ce noyau se désagrège presque aussitôt, ou n’existe pas.', exact:false};
+  }
+  const d = Math.abs(n-nref), noStable = z===43 || z===61 || z>=84;
+  if(noStable){
+    if(d<=3) return {lvl:'warn', txt:'Radioactif', why:'Aucun isotope stable n’existe pour cet élément.', exact:true, radio:true};
+    if(d<=8) return {lvl:'warn', txt:'Radioactif, vie courte probable', why:'Loin de l’isotope de référence : durée de vie probablement très courte.', exact:false};
+    return {lvl:'bad', txt:'Hors de la carte des noyaux', why:'Ce noyau se désagrège presque aussitôt, ou n’existe pas.', exact:false};
+  }
+  if(d<=3) return {lvl:'ok', txt:'Zone de stabilité', why:'Proche de l’isotope le plus courant : probablement stable ou à très longue vie.', exact:false};
+  if(d<=8) return {lvl:'warn', txt:'Radioactif probable', why:'Hors de la vallée de stabilité : se désintègre probablement.', exact:false};
+  return {lvl:'bad', txt:'Hors de la carte des noyaux', why:'Ce noyau se désagrège presque aussitôt, ou n’existe pas.', exact:false};
+}
+function semf(Z, N){
+  const A = Z+N; if(A<2) return 0;
+  let d = 0; if(Z%2===0 && N%2===0) d = 11.18/Math.sqrt(A); else if(Z%2===1 && N%2===1) d = -11.18/Math.sqrt(A);
+  return 15.75*A - 17.8*Math.pow(A,2/3) - .711*Z*(Z-1)/Math.cbrt(A) - 23.7*(A-2*Z)*(A-2*Z)/A + d;
+}
+const ORB = [['1s',1,2],['2s',2,2],['2p',2,6],['3s',3,2],['3p',3,6],['4s',4,2],['3d',3,10],['4p',4,6],['5s',5,2],['4d',4,10],['5p',5,6],['6s',6,2],['4f',4,14],['5d',5,10],['6p',6,6],['7s',7,2],['5f',5,14],['6d',6,10],['7p',7,6]];
+const SUP = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const sup = n => String(n).split('').map(c => SUP[c]).join('');
+function config(e){
+  let rest=Math.min(e,118); const parts=[], shells=[0,0,0,0,0,0,0,0];
+  for(const [lab,n,cap] of ORB){ if(rest<=0) break; const k=Math.min(cap,rest); parts.push(lab+sup(k)); shells[n]+=k; rest-=k; }
+  return {txt:parts.join(' ')||'—', shells:shells.slice(1)};
+}
+function ptPos(z){
+  if(z===1) return [1,1]; if(z===2) return [1,18];
+  if(z<=10) return [2, z<=4?z-2:z+8]; if(z<=18) return [3, z<=12?z-10:z];
+  if(z<=36) return [4,z-18]; if(z<=54) return [5,z-36]; if(z<=56) return [6,z-54];
+  if(z<=71) return [9,z-54]; if(z<=86) return [6,z-68]; if(z<=88) return [7,z-86];
+  if(z<=103) return [10,z-86]; return [7,z-100];
+}
+
+const AT = (function(){
+  const atom = {z:6,n:6,e:6};
+  let slots=[], last=null;
+  const slotsEl = $('#q-slots');
+  function renderSlots(){
+    slotsEl.innerHTML='';
+    for(let i=0;i<3;i++){
+      const q=slots[i], d=document.createElement('div');
+      if(!q){ d.className='slot'; d.innerHTML='<span class="muted small">vide</span>'; slotsEl.appendChild(d); continue; }
+      d.className='slot filled c'+q.c; d.setAttribute('role','button'); d.tabIndex=0;
+      d.setAttribute('aria-label',`Quark ${q.f==='u'?'up':'down'}, couleur ${QNAME[q.c]}. Toucher pour changer la couleur.`);
+      d.innerHTML=`<span class="f">${q.f}</span><span class="q">${q.f==='u'?'+2/3':'−1/3'} · ${QNAME[q.c]}</span>`;
+      const x=document.createElement('button'); x.className='x'; x.type='button'; x.textContent='×'; x.setAttribute('aria-label','Retirer ce quark');
+      x.addEventListener('click', ev => { ev.stopPropagation(); slots.splice(i,1); renderSlots(); }); d.appendChild(x);
+      const cyc = () => { q.c=(q.c+1)%3; renderSlots(); };
+      d.addEventListener('click',cyc); d.addEventListener('keydown', ev => { if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); cyc(); } });
+      slotsEl.appendChild(d);
+    }
+  }
+  const add = f => { if(slots.length<3){ slots.push({f,c:0}); renderSlots(); } };
+  $('#q-add-u').addEventListener('click', () => add('u'));
+  $('#q-add-d').addEventListener('click', () => add('d'));
+  $('#q-clear').addEventListener('click', () => { slots=[]; renderSlots(); });
+  const resEl = $('#q-result');
+  const result = (kind, html) => { resEl.innerHTML = '<span class="label">Résultat</span>' + `<div class="alert ${kind}">${html}</div>`; };
+  $('#q-form').addEventListener('click', () => {
+    last=null;
+    if(slots.length<3){ result('warn','Il faut trois quarks pour former un baryon, comme le proton ou le neutron. (Un quark et un antiquark forment un méson : ce sera pour une prochaine version.)'); return; }
+    if(!state.fields.fort){ result('bad','<strong>Champ fort éteint.</strong> Sans gluons, rien ne retient les quarks ensemble : ils restent séparés.'); return; }
+    if(new Set(slots.map(q=>q.c)).size<3){ result('bad',`<strong>Interdit par la nature.</strong> Couleurs : ${slots.map(q=>QNAME[q.c]).join(' + ')}. Le trio doit contenir rouge + vert + bleu pour être « blanc » (neutre de couleur). Touche un quark pour changer sa couleur.`); return; }
+    const u=slots.filter(q=>q.f==='u').length, d=3-u, mq=u*2.16+d*4.70;
+    if(u===2){ last='p'; show('Proton','uud','+1',938.27,mq,'Stable : sa durée de vie dépasse de très loin l’âge de l’Univers.'); win('proton'); }
+    else if(u===1){ last='n'; show('Neutron','udd','0',939.57,mq, state.fields.faible ? 'Seul, il se désintègre en proton en environ 15 minutes (champ faible). Dans un noyau, il peut être stable.' : 'Champ faible éteint : le neutron libre deviendrait stable, faute de désintégration bêta.'); win('neutron'); }
+    else if(u===3){ show('Delta⁺⁺ (Δ⁺⁺)','uuu','+2',1232,mq,'Cette particule existe, mais se désintègre en environ 10⁻²³ seconde. Elle ne forme pas de matière durable.',true); win('delta'); }
+    else { show('Delta⁻ (Δ⁻)','ddd','−1',1232,mq,'Cette particule existe, mais se désintègre en environ 10⁻²³ seconde. Elle ne forme pas de matière durable.',true); win('delta'); }
+  });
+  function show(name, comp, ch, m, mq, life, unstable){
+    const pct = mq/m*100;
+    resEl.innerHTML = `<span class="label">Résultat</span>
+      <div class="alert ${unstable?'warn':'ok'}"><strong>${esc(name)}</strong><span class="mono small">${comp} · charge ${ch} · ${fmt(m,2)} MeV/c²</span><span class="small">${esc(life)}</span></div>
+      <span class="small">D’où vient sa masse ?</span>
+      <div class="bar" role="img" aria-label="Part de la masse due au Higgs : environ ${fmt(pct,1)} pour cent"><span style="width:${Math.max(.8,pct)}%;background:var(--accent)"></span><span style="flex:1;background:var(--cool);opacity:.55"></span></div>
+      <span class="small muted"><span style="color:var(--accent)">■</span> Masse des quarks, donnée par le Higgs : ${fmt(mq,1)} MeV/c², soit ≈ ${fmt(pct,1)} %. <span style="color:var(--cool)">■</span> Le reste : énergie du champ fort qui lie les quarks (E = mc²).</span>
+      <div class="xp">Masses « courantes » des quarks (Particle Data Group) : u ≈ 2,16 MeV/c², d ≈ 4,70 MeV/c². Charges : u = +⅔ e, d = −⅓ e. Somme des charges de ${comp} : ${ch} e.</div>
+      ${(name==='Proton'||name==='Neutron') ? '<div class="row"><button class="btn btn-primary" id="q-send">Ajouter au noyau ci-dessous</button></div>' : ''}`;
+    const sb=$('#q-send');
+    if(sb) sb.addEventListener('click', () => {
+      if(last==='p') setAtom(Math.min(118,atom.z+1), atom.n, atom.e);
+      if(last==='n') setAtom(atom.z, Math.min(200,atom.n+1), atom.e);
+      $('#atom-stage').scrollIntoView({behavior: reduced?'auto':'smooth', block:'center'});
+    });
+  }
+  renderSlots();
+
+  const inZ=$('#at-z'), inN=$('#at-n'), inE=$('#at-e');
+  let nucPts=[];
+  function buildNucleus(){
+    const total=atom.z+atom.n, shown=Math.min(total, state.light?50:90), R=rng(atom.z*1000+atom.n), types=[];
+    const pShown=Math.round(shown*atom.z/total);
+    for(let i=0;i<shown;i++) types.push(i<pShown?'p':'n');
+    for(let i=types.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [types[i],types[j]]=[types[j],types[i]]; }
+    nucPts=[]; const ga=Math.PI*(3-Math.sqrt(5));
+    for(let i=0;i<shown;i++){
+      const y = shown===1?0:1-(i/(shown-1))*2, rr=Math.sqrt(Math.max(0,1-y*y)), th=ga*i, rad = shown===1?0:Math.cbrt((i+.5)/shown);
+      nucPts.push({p:[Math.cos(th)*rr*rad, y*rad, Math.sin(th)*rr*rad], t:types[i], dx:R()-.5, dy:R()-.5, dz:R()-.5});
+    }
+    nucPts.shown=shown; nucPts.total=total;
+  }
+  function setAtom(z,n,e){
+    z=Math.max(1,Math.min(118,Math.round(z)||1)); n=Math.max(0,Math.min(200,Math.round(n)||0)); e=Math.max(0,Math.min(z+3,Math.round(e)||0));
+    const changed = z!==atom.z || n!==atom.n;
+    atom.z=z; atom.n=n; atom.e=e; inZ.value=z; inN.value=n; inE.value=e; inE.max=z+3;
+    if(changed || !nucPts.length) buildNucleus();
+    renderInfo(); renderPT(); checkWins();
+  }
+  let live=false;
+  function checkWins(){
+    if(!live) return;
+    const {z,n,e}=atom;
+    if(z===6&&n===6&&e===6) win('c12');
+    if(z===11&&n===12&&e===10) win('ion');
+    if(z===26&&n===30) win('fe56');
+    if(stability(z,n).radio) win('radio');
+  }
+  document.querySelectorAll('#panel-matiere .stepper button').forEach(b => b.addEventListener('click', () => {
+    const k=b.dataset.k, d=+b.dataset.d;
+    setAtom(atom.z+(k==='z'?d:0), atom.n+(k==='n'?d:0), atom.e+(k==='e'?d:0));
+  }));
+  [inZ,inN,inE].forEach(i => i.addEventListener('change', () => setAtom(+inZ.value, +inN.value, +inE.value)));
+
+  function renderInfo(){
+    const el=ELEMENTS[atom.z-1], A=atom.z+atom.n, ch=atom.z-atom.e, st=stability(atom.z,atom.n), cf=config(atom.e);
+    const shellsTxt = cf.shells.map((k,i) => k?`${'KLMNOPQ'[i]} ${k}`:'').filter(Boolean).join(' · ') || '—';
+    const chTxt = ch===0 ? '' : (Math.abs(ch)===1?'':Math.abs(ch)) + (ch>0?'+':'−');
+    const ion = ch===0 ? 'Atome neutre' : ch>0 ? `Ion positif (cation) : ${ch} électron${ch>1?'s':''} en moins` : `Ion négatif (anion) : ${-ch} électron${-ch>1?'s':''} en trop`;
+    const notes=[];
+    if(ch<-2) notes.push(['warn','Un ion isolé avec plus de deux électrons en trop ne tient pas : les électrons en excès sont repoussés.']);
+    if(!state.fields.higgs) notes.push(['bad','<strong>Higgs éteint :</strong> l’électron n’a plus de masse. Il file à la vitesse de la lumière et ne peut pas rester autour du noyau : aucun atome possible.']);
+    else if(!state.fields.em) notes.push(['bad','<strong>Électromagnétisme éteint :</strong> rien ne retient les électrons. Il ne reste qu’un noyau nu.']);
+    if(!state.fields.fort && A>1) notes.push(['bad','<strong>Champ fort éteint :</strong> les protons se repoussent et les nucléons se dispersent. Seul l’hydrogène (un proton) survivrait.']);
+    if(!state.fields.faible) notes.push(['warn','<strong>Champ faible éteint :</strong> plus de désintégration bêta. Certains noyaux radioactifs deviendraient stables, et le Soleil ne pourrait plus fusionner son hydrogène.']);
+    const B = semf(atom.z, atom.n), Rn = 1.2*Math.cbrt(A);
+    $('#atom-info').innerHTML = `
+      <div class="idcard">
+        <div class="nuclide" aria-label="${esc(el.name)} ${A}"><span class="ix"><span>${A}</span><span>${atom.z}</span></span>${esc(el.sym)}${chTxt?`<span class="chg">${chTxt}</span>`:''}</div>
+        <div><div class="idname">${esc(el.name)}-${A}</div><div class="small muted">${esc(ion)}</div></div>
+      </div>
+      <div class="row"><span class="pill ${st.lvl}">${esc(st.txt)}</span><span class="small muted">${st.exact?'donnée exacte':'estimation'}</span></div>
+      <p class="small">${esc(st.why)}</p>
+      <dl class="kv">
+        <dt>Nombre de masse</dt><dd>A = ${atom.z} + ${atom.n} = ${A}</dd>
+        <dt>Isotope courant</dt><dd>${esc(el.name)}-${el.a} (${el.a-atom.z} neutrons)</dd>
+        <dt>Couches</dt><dd>${shellsTxt}</dd>
+        <dt>Configuration</dt><dd>${cf.txt}</dd>
+      </dl>
+      <p class="small muted">Remplissage selon la règle de Klechkowski ; quelques éléments font exception (chrome, cuivre…). En réalité, le noyau est environ 100 000 fois plus petit que l’atome.</p>
+      <div class="xp">Énergie de liaison (formule de Weizsäcker) : B ≈ ${A<2?'0':fmt(B,1)} MeV, soit ${A<2?'0':fmt(B/A,2)} MeV par nucléon${A<20?' (formule peu précise pour A < 20)':''}.<br>Défaut de masse : Δm = B / c² ≈ ${A<2?'0':fmt(B/931.494,3)} u.<br>Rayon du noyau : R ≈ 1,2 fm × A^⅓ ≈ ${fmt(Rn,2)} fm (1 fm = 10⁻¹⁵ m).</div>
+      ${notes.map(([k,t]) => `<div class="alert ${k}">${t}</div>`).join('')}`;
+  }
+  const ptEl=$('#pt');
+  ELEMENTS.forEach(el => {
+    const [r,c]=ptPos(el.z), b=document.createElement('button');
+    b.type='button'; b.className='el '+(r>=9?'f':(c<=2||el.z===2)?'s':c>=13?'p':'d');
+    b.style.gridRow=r; b.style.gridColumn=c; b.title=`${el.name} (Z = ${el.z})`;
+    b.setAttribute('aria-label',`${el.name}, numéro atomique ${el.z}`);
+    b.innerHTML=`<span class="z">${el.z}</span>${el.sym}`;
+    b.addEventListener('click', () => setAtom(el.z, el.a-el.z, el.z));
+    el.btn=b; ptEl.appendChild(b);
+  });
+  function renderPT(){ ELEMENTS.forEach(el => el.btn.setAttribute('aria-current', el.z===atom.z?'true':'false')); }
+  function renderFieldsUI(){
+    const keys=['higgs','fort','faible','em'];
+    renderChips($('#at-fields'), keys, true);
+    const off=keys.filter(k => !state.fields[k]), a=$('#at-fields-alert');
+    if(off.length){
+      a.hidden=false; a.className='alert warn';
+      a.innerHTML=`<span>Champ${off.length>1?'s':''} éteint${off.length>1?'s':''} : ${off.map(k=>esc(FIELDS[k].name)).join(', ')}. Regarde ce que devient l’atome.</span><span><button class="btn" id="at-all-on">Tout rallumer (univers actuel)</button></span>`;
+      $('#at-all-on').addEventListener('click', () => Object.keys(FIELDS).forEach(k => setField(k,true)));
+    } else { a.hidden=true; a.innerHTML=''; }
+    renderInfo();
+  }
+  fieldListeners.push(k => { renderFieldsUI(); if(k==='fort' && !state.fields.fort && state.tab==='matiere') win('nofort'); });
+
+  const V = orbitView($('#atom-canvas'));
+  function frame(now, dt){
+    V.spin(dt); const ctx=V.ctx; if(!ctx) return;
+    ctx.fillStyle=C.deep; ctx.fillRect(0,0,V.W,V.H);
+    const S=Math.min(V.W,V.H), shown=nucPts.shown||1;
+    const rn=Math.max(4,Math.min(11,S/(32+shown*.35))), Rn=rn*1.15*Math.cbrt(shown);
+    const shells=config(atom.e).shells; let maxn=0; shells.forEach((k,i)=>{ if(k) maxn=i+1; });
+    const ringR = n => Rn + 20 + n*Math.max(14,S*.045);
+    const outer = maxn ? ringR(maxn) : Rn, scale = Math.min(1,(S*.46)/outer);
+    const tOff = k => state.fields[k] ? 0 : (now - (state.offAt[k]||now));
+    const spread = state.fields.fort ? 0 : Math.min(8, tOff('fort')*1.6);
+    const items=[];
+    for(const q of nucPts){
+      const sx = (atom.z+atom.n>1) ? spread : 0;
+      const pr = V.proj([q.p[0]*Rn+q.dx*sx*Rn, q.p[1]*Rn+q.dy*sx*Rn, q.p[2]*Rn+q.dz*sx*Rn], scale);
+      items.push({z:pr.z, draw(){ ball(ctx, pr.x, pr.y, rn*pr.f*scale, q.t==='p'?C.proton:C.neutron); }});
+    }
+    const fly = !state.fields.higgs ? Math.min(30,1+tOff('higgs')*6) : !state.fields.em ? Math.min(30,1+tOff('em')*.9) : 1;
+    shells.forEach((k,idx) => {
+      if(!k) return;
+      const n=idx+1, R=ringR(n)*fly, inc=.35+n*.62, node=n*1.25;
+      const ringPt = a => {
+        let x=Math.cos(a)*R, y=0, z=Math.sin(a)*R;
+        const ci=Math.cos(inc), si=Math.sin(inc); [y,z]=[y*ci-z*si, y*si+z*ci];
+        const cn=Math.cos(node), sn=Math.sin(node); [x,z]=[x*cn+z*sn, -x*sn+z*cn];
+        return [x,y,z];
+      };
+      if(fly<1.5){
+        ctx.strokeStyle=C.electron; ctx.globalAlpha=.18; ctx.lineWidth=1; ctx.beginPath();
+        for(let i=0;i<=64;i++){ const pr=V.proj(ringPt(i/64*6.283),scale); i?ctx.lineTo(pr.x,pr.y):ctx.moveTo(pr.x,pr.y); }
+        ctx.stroke(); ctx.globalAlpha=1;
+      }
+      const w = reduced ? .2 : 1.4/Math.pow(n,.8);
+      for(let j=0;j<k;j++){
+        const pr=V.proj(ringPt(j/k*6.283 + now*w), scale);
+        items.push({z:pr.z, draw(){
+          const r=Math.max(2.2,3.6*pr.f*scale), g=ctx.createRadialGradient(pr.x,pr.y,0,pr.x,pr.y,r*2.6);
+          g.addColorStop(0,'#ffffff'); g.addColorStop(.3,C.electron); g.addColorStop(1,'rgba(111,227,255,0)');
+          ctx.fillStyle=g; ctx.beginPath(); ctx.arc(pr.x,pr.y,r*2.6,0,6.283); ctx.fill();
+        }});
+      }
+    });
+    items.sort((a,b)=>a.z-b.z).forEach(i=>i.draw());
+    if(nucPts.total>nucPts.shown){ ctx.fillStyle=C.muted; ctx.font='12px "IBM Plex Mono", monospace'; ctx.fillText(`noyau : ${nucPts.total} nucléons (${nucPts.shown} dessinés)`,12,20); }
+  }
+  atom.z=0; setAtom(6,6,6); renderFieldsUI(); live=true;
+  return { frame, resize: V.resize };
+})();
+
+/* =========================================================
+   ACTE 3 — Étoiles
+   ========================================================= */
+const ST = (function(){
+  const DATA = J('d-stars');
+  let type = 'massive', cur = -1, t0 = 0, boomAt = null, nebAt = null;
+  const cv=$('#star-canvas'); let ctx=cv.getContext('2d'), W=1, H=1;
+  const R0 = rng(77), debris = [];
+  const HEAVY = ['Au','Ag','Pt','U','I','Ba','Sr','Pb','Xe','Fe','Ni','O','Si','Ca','S','Mg'];
+  for(let i=0;i<70;i++) debris.push({a:R0()*6.283, s:.5+R0(), el:HEAVY[Math.floor(R0()*HEAVY.length)]});
+  function resize(){ const r=hiDPI(cv,state.light); ctx=r.ctx; W=r.W; H=r.H; }
+  const typesEl=$('#st-types');
+  function renderTypes(){
+    typesEl.innerHTML='';
+    [['massive','Étoile massive (25 M☉)'],['sun','Le Soleil (1 M☉)']].forEach(([k,l]) => {
+      const b=document.createElement('button'); b.type='button'; b.className='pchip'; b.textContent=l;
+      b.setAttribute('aria-pressed', type===k?'true':'false');
+      b.addEventListener('click', () => { type=k; reset(); });
+      typesEl.appendChild(b);
+    });
+  }
+  const stepsEl=$('#st-steps');
+  function renderSteps(){
+    stepsEl.innerHTML='';
+    DATA[type].stages.forEach((s,i) => {
+      const li=document.createElement('li'), b=document.createElement('button');
+      b.type='button'; b.className='step'; b.dataset.state=i<=cur?'done':i===cur+1?'next':'locked';
+      b.innerHTML=`<span class="num">${i<=cur?'✓':i+1}</span><span><span class="t">${esc(s.label)}</span><br><span class="w">${esc(s.dur)}</span></span>`;
+      b.addEventListener('click', () => go(i)); li.appendChild(b); stepsEl.appendChild(li);
+    });
+  }
+  function alertBox(kind, html){ const a=$('#st-alert'); if(!kind){ a.hidden=true; a.innerHTML=''; return; } a.hidden=false; a.className='alert '+kind; a.innerHTML=html; }
+  function go(i){
+    const st=DATA[type].stages;
+    if(i<=cur){ alertBox('ok','Fusion déjà réalisée.'); return; }
+    if(i>cur+1){ alertBox('bad',`<strong>Pas encore.</strong> ${esc(st[i].why||'')} Prochaine étape : « ${esc(st[cur+1].label)} ».`); return; }
+    const req = st[i].req || [];
+    const miss = req.filter(k => !state.fields[k]);
+    if(miss.length){
+      const why = miss.includes('grav') ? 'Sans gravitation, rien ne comprime le gaz : aucune étoile ne se forme.' : miss.includes('faible') ? 'Sans champ faible, impossible de changer un proton en neutron : l’hydrogène ne fusionne pas, l’étoile ne s’allume jamais.' : 'Sans champ fort, les noyaux ne se soudent pas.';
+      alertBox('warn',`<span>${why}</span><span><button class="btn" id="st-relight">Rallumer ${miss.map(k=>esc(FIELDS[k].name)).join(', ')}</button></span>`);
+      $('#st-relight').addEventListener('click', () => { miss.forEach(k => setField(k,true)); go(i); }); return;
+    }
+    alertBox(null); cur=i; t0=performance.now()/1000;
+    const s=st[i];
+    if(s.boom){ boomAt=t0; win('supernova'); }
+    if(s.nebula){ nebAt=t0; win('whitedwarf'); }
+    $('#st-k').textContent=`${DATA[type].name} · étape ${i+1}`; $('#st-t').textContent=s.title; $('#st-p').textContent=s.text;
+    $('#st-temp').textContent=s.T; $('#st-dur').textContent=s.dur;
+    $('#st-caption').textContent = s.boom ? 'Supernova : les éléments forgés sont projetés dans l’espace.' : s.nebula ? 'La nébuleuse s’étend ; au centre, une naine blanche.' : `Nouvelle couche : ${s.el}. Chaque fusion se fait au cœur, plus chaud et plus dense.`;
+    $('#st-xp').textContent=s.xp;
+    const pr=$('#st-proof'); if(s.proof){ pr.hidden=false; pr.querySelector('span').textContent=s.proof; } else pr.hidden=true;
+    renderSteps();
+  }
+  function reset(){
+    cur=-1; boomAt=null; nebAt=null; alertBox(null);
+    $('#st-k').textContent=DATA[type].name; $('#st-t').textContent='Une boule d’hydrogène';
+    $('#st-p').textContent='La gravitation comprime le gaz jusqu’à ce que le cœur atteigne des millions de degrés. Lance la première fusion.';
+    $('#st-temp').textContent='—'; $('#st-dur').textContent='—'; $('#st-proof').hidden=true;
+    $('#st-caption').textContent='Coupe de l’étoile : chaque couche est le produit d’une fusion.';
+    $('#st-xp').textContent='4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV : 0,7 % de la masse devient énergie (E = mc²).';
+    renderTypes(); renderSteps();
+  }
+  $('#st-reset').addEventListener('click', reset);
+
+  function frame(now){
+    ctx.fillStyle=C.deep; ctx.fillRect(0,0,W,H);
+    const S=Math.min(W,H), cx=W/2, cy=H/2+10, stages=DATA[type].stages;
+    const giant = type==='sun' ? (cur>=1?1.55:1) : (cur>=1?1.3:1);
+    const pulse = reduced ? 1 : 1 + Math.sin(now*1.3)*.012;
+    let R = S*.27*giant*pulse; R = Math.min(R, S*.42);
+    const shell = type==='sun' ? (cur>=1?'#ff7a45':'#ffcf5a') : (cur>=1?'#ffb090':'#9cc4ff');
+    if(boomAt!==null){
+      const t = now-boomAt;
+      const flash = Math.max(0, 1 - t/1.2);
+      const rad = S*.05 + t*S*.16;
+      if(t<9){
+        ctx.globalAlpha = Math.max(0, 1 - t/9);
+        const g=ctx.createRadialGradient(cx,cy,rad*.6,cx,cy,rad);
+        g.addColorStop(0,'rgba(255,140,90,0)'); g.addColorStop(.8,'rgba(255,170,120,.35)'); g.addColorStop(1,'rgba(140,170,255,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,rad,0,6.283); ctx.fill();
+      }
+      ctx.font='600 12px "IBM Plex Mono", monospace'; ctx.textAlign='center';
+      debris.forEach(d => {
+        const r = Math.min(rad*d.s, S*.48*d.s);
+        ctx.globalAlpha = Math.max(.15, 1 - t/14); ctx.fillStyle = d.el==='Au' ? C.accent : C.xp;
+        ctx.fillText(d.el, cx+Math.cos(d.a)*r, cy+Math.sin(d.a)*r);
+      });
+      ctx.globalAlpha=1;
+      const g2=ctx.createRadialGradient(cx,cy,0,cx,cy,14); g2.addColorStop(0,'#ffffff'); g2.addColorStop(1,'rgba(160,190,255,0)');
+      ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(cx,cy,14,0,6.283); ctx.fill();
+      ctx.fillStyle=C.muted; ctx.fillText('étoile à neutrons', cx, cy+30);
+      if(flash>0){ ctx.fillStyle=`rgba(255,255,255,${flash*.9})`; ctx.fillRect(0,0,W,H); }
+      ctx.textAlign='start'; return;
+    }
+    if(nebAt!==null){
+      const t = now-nebAt, r = Math.min(S*.44, S*.1 + t*S*.035);
+      ctx.lineWidth = Math.max(6, S*.04);
+      ctx.strokeStyle='rgba(111,227,255,.28)'; ctx.beginPath(); ctx.arc(cx,cy,r,0,6.283); ctx.stroke();
+      ctx.lineWidth = Math.max(3, S*.018); ctx.strokeStyle='rgba(255,110,140,.32)'; ctx.beginPath(); ctx.arc(cx,cy,r*1.06,0,6.283); ctx.stroke();
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,10); g.addColorStop(0,'#ffffff'); g.addColorStop(1,'rgba(220,230,255,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,10,0,6.283); ctx.fill();
+      ctx.fillStyle=C.muted; ctx.font='12px "IBM Plex Mono", monospace'; ctx.textAlign='center'; ctx.fillText('naine blanche (carbone, oxygène)', cx, cy+26); ctx.textAlign='start';
+      return;
+    }
+    const glow=ctx.createRadialGradient(cx,cy,R*.8,cx,cy,R*1.5);
+    glow.addColorStop(0,shell+'66'); glow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(cx,cy,R*1.5,0,6.283); ctx.fill();
+    ctx.fillStyle=shell; ctx.globalAlpha=.9; ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.fill(); ctx.globalAlpha=1;
+    // layers: outer H envelope always; each completed stage adds its ash core
+    const layers = [{el:'H', col:stages[0].col}];
+    for(let i=0;i<=cur;i++){
+      const s=stages[i]; const prod = type==='sun' ? (i===0?{el:'He',col:'#ffe08a'}:{el:'C, O',col:'#b0b8c8'}) : (stages[i+1] ? {el:stages[i+1].el, col:stages[i+1].col} : null);
+      if(prod) layers.push(prod);
+    }
+    const n=layers.length;
+    layers.forEach((L,i) => {
+      if(i===0) return;
+      const fr = 1 - i*(.78/Math.max(6,n));
+      const grow = i===n-1 ? ease((now-t0)/1.5) : 1;
+      const rr = R*.92*fr*grow;
+      ctx.fillStyle=L.col; ctx.globalAlpha=.92; ctx.beginPath(); ctx.arc(cx,cy,rr,0,6.283); ctx.fill(); ctx.globalAlpha=1;
+      ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=1; ctx.stroke();
+    });
+    ctx.font='600 13px "IBM Plex Mono", monospace'; ctx.fillStyle='#0b0b12'; ctx.textAlign='center';
+    layers.forEach((L,i) => {
+      const frOut = i===0 ? 1 : 1 - i*(.78/Math.max(6,n)), frIn = i===n-1 ? 0 : 1 - (i+1)*(.78/Math.max(6,n));
+      const rm = i===0 ? R*(.96+ (1 - .78/Math.max(6,n))*.92)/2 : R*.92*(frOut+frIn)/2;
+      ctx.fillText(L.el, cx, cy - rm + 5);
+    });
+    ctx.textAlign='start';
+    if(cur>=0 && !reduced){
+      ctx.globalAlpha = .5 + .5*Math.sin(now*6); const cr = R*.92*(1 - (n-1)*(.78/Math.max(6,n)))*.35;
+      ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(cx,cy,Math.max(3,cr),0,6.283); ctx.fill(); ctx.globalAlpha=1;
+    }
+  }
+
+  /* Binding energy chart */
+  const bc=$('#be-chart'); let bctx=null, bW=1, bH=1;
+  const PTS=[[2,1.112,'²H'],[4,7.074,'⁴He'],[12,7.680,'¹²C'],[16,7.976,'¹⁶O'],[56,8.790,'⁵⁶Fe'],[238,7.570,'²³⁸U']];
+  function chart(){
+    const r=hiDPI(bc,state.light); bctx=r.ctx; bW=r.W; bH=r.H;
+    const g=bctx, L=44, Rm=14, T=12, Bm=34, w=bW-L-Rm, h=bH-T-Bm;
+    const X = a => L + a/250*w, Y = b => T + h - b/9*h;
+    g.clearRect(0,0,bW,bH);
+    g.strokeStyle=C.line; g.lineWidth=1; g.fillStyle=C.muted; g.font='11px "IBM Plex Mono", monospace';
+    for(let b=0;b<=9;b+=3){ g.beginPath(); g.moveTo(L,Y(b)); g.lineTo(L+w,Y(b)); g.stroke(); g.fillText(String(b), L-22, Y(b)+4); }
+    for(let a=0;a<=250;a+=50){ g.fillText(String(a), X(a)-8, T+h+16); }
+    g.fillText('nombre de masse A', L+w/2-60, bH-4);
+    g.save(); g.translate(12, T+h/2+50); g.rotate(-Math.PI/2); g.fillText('MeV par nucléon', 0, 0); g.restore();
+    g.fillStyle='rgba(244,195,90,.12)'; g.fillRect(X(50),T,X(64)-X(50),h);
+    g.strokeStyle=C.cool; g.lineWidth=2; g.beginPath();
+    for(let A=10;A<=245;A++){ const Z=Math.round(A/(1.98+.0155*Math.pow(A,2/3))); const be=semfNoPair(Z,A-Z)/A; const x=X(A), y=Y(be); A===10?g.moveTo(x,y):g.lineTo(x,y); }
+    g.stroke();
+    PTS.forEach(([a,b,l]) => { g.fillStyle=C.accent; g.beginPath(); g.arc(X(a),Y(b),4,0,6.283); g.fill(); g.fillStyle=C.fg; g.fillText(l, X(a)+6, Y(b)-6); });
+    g.fillStyle=C.muted; g.fillText('← la fusion libère de l’énergie', X(70), Y(1.6));
+    g.fillText('la fission libère →', X(150), Y(.7));
+  }
+  const semfNoPair = (Z,N) => { const A=Z+N; return 15.75*A - 17.8*Math.pow(A,2/3) - .711*Z*(Z-1)/Math.cbrt(A) - 23.7*(A-2*Z)*(A-2*Z)/A; };
+  fieldListeners.push(() => {});
+  reset();
+  return { frame, resize(){ resize(); chart(); } };
+})();
+
+/* =========================================================
+   ACTE 4 — Molécules
+   ========================================================= */
+const MOL = (function(){
+  const DB = J('d-mols'), TXT = J('d-moltext');
+  DB.hf = {name:'Fluorure d’hydrogène', formula:'HF', mw:20.01, atoms:[['F',-.05,0,0],['H',.87,0,0]], bonds:[[0,1,1]]};
+  (function(){ const atoms=[], d=2.82; for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) for(let k=-1;k<=1;k++){ atoms.push([(i+j+k+3)%2===0?'Na':'Cl', i*d, j*d, k*d]); } DB.nacl = {name:'Chlorure de sodium (cristal)', formula:'NaCl', mw:58.44, atoms, bonds:[], lattice:true}; })();
+  const ORDER = ['h2o','co2','nh3','ch4','o2','n2','ethanol','glucose','paracetamol','nacl','amlodipine','perindopril'];
+  const COL = {H:'#e8ecf5', C:'#5a6070', N:'#4f7dff', O:'#ff5d5d', F:'#7fe38a', Cl:'#4fd18b', Na:'#b07cff', S:'#f4d35a'};
+  const RAD = {H:.31, C:.5, N:.48, O:.47, F:.45, Cl:.62, Na:.55};
+  const NAMES = {H:'Hydrogène', C:'Carbone', N:'Azote', O:'Oxygène', F:'Fluor', Cl:'Chlore', Na:'Sodium'};
+  let key='h2o'; const seen=new Set();
+  const V = orbitView($('#mol-canvas'));
+  const chipsEl=$('#mol-chips');
+  ORDER.forEach(k => {
+    const b=document.createElement('button'); b.type='button'; b.className='pchip'; b.dataset.k=k;
+    b.textContent = DB[k].name.replace(' (cristal)',''); b.addEventListener('click', () => show(k)); chipsEl.appendChild(b);
+  });
+  document.querySelectorAll('[data-mol]').forEach(b => b.addEventListener('click', () => { show(b.dataset.mol); $('#mol-stage').scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'}); }));
+  const dist = (a,b) => Math.hypot(a[1]-b[1], a[2]-b[2], a[3]-b[3]);
+  function angle(m,i,j,k){ const a=m.atoms[i], b=m.atoms[j], c=m.atoms[k]; const u=[a[1]-b[1],a[2]-b[2],a[3]-b[3]], v=[c[1]-b[1],c[2]-b[2],c[3]-b[3]]; const d=(u[0]*v[0]+u[1]*v[1]+u[2]*v[2])/(Math.hypot(...u)*Math.hypot(...v)); return Math.acos(Math.max(-1,Math.min(1,d)))/D2R; }
+  const MEAS = { h2o:[1,0,2,104.5,'H–O–H'], nh3:[1,0,2,107.8,'H–N–H'], ch4:[1,0,2,109.5,'H–C–H'], co2:[0,1,2,180,'O=C=O'] };
+  function show(k){
+    key=k; seen.add(k);
+    if(seen.has('amlodipine') && seen.has('perindopril')) win('drug');
+    const m=DB[k];
+    chipsEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k===k?'true':'false'));
+    $('#mol-name').textContent = `${m.name} · ${subF(m.formula)}`;
+    const els=[...new Set(m.atoms.map(a=>a[0]))];
+    $('#mol-legend').innerHTML = els.map(e => `<span><i class="dot" style="background:${COL[e]||'#ccc'}"></i>${esc(NAMES[e]||e)}</span>`).join('');
+    // measurements
+    const groups={};
+    m.bonds.forEach(([i,j,o]) => { const a=m.atoms[i][0], b=m.atoms[j][0]; const lab=[a,b].sort().join('–')+(o===2?' (double)':o===3?' (triple)':o===1.5?' (aromatique)':''); (groups[lab]=groups[lab]||[]).push(dist(m.atoms[i],m.atoms[j])); });
+    let xp = Object.entries(groups).slice(0,6).map(([l,v]) => `${l} : ${fmt(v.reduce((s,x)=>s+x,0)/v.length,2)} Å (×${v.length})`).join('<br>');
+    if(MEAS[k]){ const [i,j,kk,ref,lab]=MEAS[k]; xp = `Angle ${lab} calculé : ${fmt(angle(m,i,j,kk),1)}° (mesuré : ${fmt(ref,1)}°)<br>` + xp; }
+    if(m.lattice) xp = 'Distance Na⁺–Cl⁻ dans le cristal : 2,82 Å. Chaque ion est entouré de 6 voisins de signe opposé.';
+    xp += '<br>Géométrie : RDKit (ETKDG) + champ de force MMFF94, sauf HF et NaCl (valeurs de référence).';
+    $('#mol-info').innerHTML = `
+      <div class="row" style="justify-content:space-between"><h3 style="font-size:18px">${esc(m.name)}</h3><span class="mono">${subF(m.formula)}</span></div>
+      <p class="small">${esc(TXT[k]||'')}</p>
+      <dl class="kv"><dt>Masse molaire</dt><dd>${fmt(m.mw,2)} g/mol</dd><dt>Atomes</dt><dd>${m.atoms.length}</dd>${m.lattice?'':`<dt>Liaisons</dt><dd>${m.bonds.length}</dd>`}</dl>
+      <div class="xp">${xp}</div>`;
+  }
+  // valence
+  const VAL={C:4,N:3,O:2,F:1}, MAP={C:'ch4',N:'nh3',O:'h2o',F:'hf'};
+  const vh=$('#val-h');
+  $('#val-m').addEventListener('click', () => { vh.value=Math.max(0,+vh.value-1); });
+  $('#val-p').addEventListener('click', () => { vh.value=Math.min(5,+vh.value+1); });
+  $('#val-go').addEventListener('click', () => {
+    const c=$('#val-c').value, h=+vh.value, need=VAL[c], out=$('#val-out');
+    if(h===need){ out.innerHTML=`<div class="alert ok"><strong>Réussi : ${subF(DB[MAP[c]].formula)}, ${esc(DB[MAP[c]].name.toLowerCase())}.</strong><span class="small">${esc(NAMES[c])} forme exactement ${need} liaison${need>1?'s':''}.</span></div>`; show(MAP[c]); if(c==='O') win('water'); }
+    else out.innerHTML=`<div class="alert bad"><strong>Impossible.</strong><span class="small">${esc(NAMES[c])} a ${need} électron${need>1?'s':''} célibataire${need>1?'s':''} à partager : il forme ${need} liaison${need>1?'s':''}, pas ${h}. ${h>need?'Un hydrogène en trop ne trouverait pas d’électron avec qui s’apparier.':'Il resterait des électrons non appariés : la molécule serait instable (un radical).'}</span></div>`;
+  });
+  function frame(now, dt){
+    V.spin(dt); const ctx=V.ctx; if(!ctx) return;
+    ctx.fillStyle=C.deep; ctx.fillRect(0,0,V.W,V.H);
+    const m=DB[key]; let maxR=0; m.atoms.forEach(a => { maxR=Math.max(maxR, Math.hypot(a[1],a[2],a[3]) + (RAD[a[0]]||.5)); });
+    const S=Math.min(V.W,V.H), scale=(S*.42)/Math.max(1.2,maxR);
+    const P = m.atoms.map(a => V.proj([a[1],a[2],a[3]], scale, 2600));
+    const items=[];
+    m.bonds.forEach(([i,j,o]) => {
+      const a=P[i], b=P[j];
+      items.push({z:(a.z+b.z)/2 - 0.01, draw(){
+        const dx=b.x-a.x, dy=b.y-a.y, L=Math.hypot(dx,dy)||1, nx=-dy/L, ny=dx/L, wdt=Math.max(2,scale*.09);
+        const lines = o===2 ? [-1,1] : o===3 ? [-1.6,0,1.6] : o===1.5 ? [-0.9,0.9] : [0];
+        lines.forEach((s,idx) => {
+          ctx.strokeStyle = '#8b90a8'; ctx.lineWidth = wdt*(o>1?.7:1);
+          if(o===1.5 && idx===1) ctx.setLineDash([4,4]); else ctx.setLineDash([]);
+          const off=s*wdt*.9; ctx.beginPath(); ctx.moveTo(a.x+nx*off,a.y+ny*off); ctx.lineTo(b.x+nx*off,b.y+ny*off); ctx.stroke();
+        });
+        ctx.setLineDash([]);
+      }});
+    });
+    m.atoms.forEach((a,i) => { const p=P[i]; items.push({z:p.z, draw(){ ball(ctx, p.x, p.y, (m.lattice ? (a[0]==='Cl'?.95:.6) : (RAD[a[0]]||.5)*.55)*scale*p.f, COL[a[0]]||'#ccc'); }}); });
+    items.sort((a,b)=>a.z-b.z).forEach(i=>i.draw());
+  }
+  show('h2o');
+  return { frame, resize:V.resize };
+})();
+
+/* =========================================================
+   ACTE 5 — Système solaire (Three.js, repli 2D)
+   ========================================================= */
+const PLANETS = J('d-planets');
+const SPEEDS = [{v:1/24,l:'1 heure / s'},{v:.25,l:'6 heures / s'},{v:1,l:'1 jour / s'},{v:7,l:'1 semaine / s'},{v:30,l:'1 mois / s'},{v:91.3,l:'3 mois / s'},{v:365.25,l:'1 an / s'}];
+const GM = 2.9591220828e-4, AUD_KMS = 1731.456837;
+const jdOf = ms => ms/86400000 + 2440587.5;
+function kepler(p, jd){
+  const T=(jd-2451545)/36525, el=p.el;
+  const a=el[0]+el[1]*T, e=el[2]+el[3]*T, L=el[4]+el[5]*T, w=el[6]+el[7]*T;
+  let M=((L-w)%360+540)%360-180; M*=D2R;
+  let E=M+e*Math.sin(M); for(let i=0;i<8;i++) E -= (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E));
+  const xv=a*(Math.cos(E)-e), yv=a*Math.sqrt(1-e*e)*Math.sin(E);
+  return {r:Math.hypot(xv,yv), lon:Math.atan2(yv,xv)+w*D2R, a, e, w:w*D2R};
+}
+const SOL = (function(){
+  const cv=$('#sol-canvas');
+  let ready=false, gl=false, renderer, scene, camera, controls, starPts;
+  let simDays=0, playing=true, speedIdx=2, sel=2, flying=0, realScale=false, showAxes=true, gravOffAt=null, gravV=null;
+  const startMs = Date.now();
+  const objs=[];
+  PLANETS.forEach(p => { p.tiltNow=p.tilt; });
+  const mapR = r => realScale ? r*26 : 8 + 11*Math.sqrt(r);
+  const size = p => (realScale?.5:1)*(.32+.58*Math.cbrt(p.R/6378));
+  const jdAt = d => jdOf(startMs + d*86400000);
+  function orbPos(p,d){ const k=kepler(p, jdAt(d)), R=mapR(k.r); return [R*Math.cos(k.lon), 0, -R*Math.sin(k.lon)]; }
+  function posAt(p,i,d){
+    if(gravOffAt===null) return orbPos(p,d);
+    const p0=gravV[i].p0, v=gravV[i].v, t=d-gravOffAt; return [p0[0]+v[0]*t, 0, p0[2]+v[2]*t];
+  }
+  function texture(p){
+    const c=document.createElement('canvas'); c.width=256; c.height=128; const g=c.getContext('2d'), R=rng(p.R);
+    g.fillStyle=p.col; g.fillRect(0,0,256,128);
+    if(p.kind==='bands'){ for(let y=0;y<128;y+=4){ g.fillStyle=`rgba(${R()<.5?'255,240,220':'120,80,50'},${R()*.22})`; g.fillRect(0,y,256,2+R()*5); } if(p.name==='Jupiter'){ g.fillStyle='rgba(190,90,60,.85)'; g.beginPath(); g.ellipse(170,84,18,9,0,0,6.283); g.fill(); } }
+    else if(p.kind==='earth'){ g.fillStyle='#1f4fa8'; g.fillRect(0,0,256,128); for(let i=0;i<26;i++){ g.fillStyle=R()<.6?'#3c8a4a':'#9a8a5a'; g.beginPath(); g.ellipse(R()*256,20+R()*88,8+R()*26,5+R()*16,R()*3,0,6.283); g.fill(); } g.fillStyle='#eef3ff'; g.fillRect(0,0,256,10); g.fillRect(0,118,256,10); for(let i=0;i<30;i++){ g.fillStyle='rgba(255,255,255,.35)'; g.beginPath(); g.ellipse(R()*256,R()*128,10+R()*30,2+R()*4,0,0,6.283); g.fill(); } }
+    else if(p.kind==='ice'){ for(let y=0;y<128;y+=8){ g.fillStyle=`rgba(255,255,255,${R()*.08})`; g.fillRect(0,y,256,4); } }
+    else { for(let i=0;i<70;i++){ g.fillStyle=`rgba(${R()<.5?'0,0,0':'255,255,255'},${R()*.18})`; g.beginPath(); g.arc(R()*256,R()*128,2+R()*10,0,6.283); g.fill(); } }
+    return new THREE.CanvasTexture(c);
+  }
+  function glowTex(){ const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'), gr=g.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba(255,240,200,1)'); gr.addColorStop(.25,'rgba(255,200,100,.6)'); gr.addColorStop(1,'rgba(255,150,50,0)'); g.fillStyle=gr; g.fillRect(0,0,128,128); return new THREE.CanvasTexture(c); }
+  let ctx2=null, fw=1, fh=1;
+  function init(){
+    ready=true;
+    try{ if(!window.THREE) throw new Error('three'); renderer=new THREE.WebGLRenderer({canvas:cv, antialias:!state.light}); gl=true; }catch(e){ gl=false; }
+    if(!gl){ $('#sol-fallback').hidden=false; ctx2=cv.getContext('2d'); bindFallbackPick(); resize(); return; }
+    scene=new THREE.Scene(); camera=new THREE.PerspectiveCamera(50,1,.05,6000); camera.position.set(0,55,88);
+    if(THREE.OrbitControls){ controls=new THREE.OrbitControls(camera, renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.08; controls.minDistance=2; controls.maxDistance=1800; controls.addEventListener('start', () => { flying=0; }); }
+    scene.add(new THREE.AmbientLight(0xffffff,.07)); scene.add(new THREE.PointLight(0xfff2dd,1.6,0,0));
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(4,32,24), new THREE.MeshBasicMaterial({color:0xffcf6b})));
+    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(), blending:THREE.AdditiveBlending, transparent:true, depthWrite:false})); glow.scale.set(22,22,1); scene.add(glow);
+    buildStars();
+    PLANETS.forEach((p,i) => {
+      const group=new THREE.Group(), tiltG=new THREE.Group(), r=size(p);
+      const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,32,20), new THREE.MeshLambertMaterial({map:texture(p)})); tiltG.add(mesh);
+      const hit=new THREE.Mesh(new THREE.SphereGeometry(Math.max(r*1.6,1.6),8,6), new THREE.MeshBasicMaterial({visible:false})); hit.userData.idx=i; group.add(hit);
+      const north=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,r*1.9,0)]), new THREE.LineBasicMaterial({color:0xf4c35a}));
+      const south=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,-r*1.9,0)]), new THREE.LineBasicMaterial({color:0x8aa9ff, transparent:true, opacity:.6}));
+      const eq=[]; for(let k=0;k<=48;k++){ const a=k/48*Math.PI*2; eq.push(new THREE.Vector3(Math.cos(a)*r*1.06,0,Math.sin(a)*r*1.06)); }
+      const equator=new THREE.Line(new THREE.BufferGeometry().setFromPoints(eq), new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:.35}));
+      tiltG.add(north,south,equator);
+      if(p.ring){ const rg=new THREE.Mesh(new THREE.RingGeometry(r*1.3,r*2.3,64), new THREE.MeshBasicMaterial({color:0xd9c79c, side:THREE.DoubleSide, transparent:true, opacity:.55})); rg.rotation.x=-Math.PI/2; tiltG.add(rg); }
+      group.add(tiltG); scene.add(group);
+      const orbit=new THREE.LineLoop(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({color:0x2e3360})); scene.add(orbit);
+      let moon=null; if(p.name==='Terre'){ moon=new THREE.Mesh(new THREE.SphereGeometry(r*.27,16,12), new THREE.MeshLambertMaterial({color:0xb8b8b8})); group.add(moon); }
+      objs.push({p,group,tiltG,mesh,hit,axes:[north,south,equator],orbit,moon,r});
+    });
+    rebuildOrbits();
+    const ray=new THREE.Raycaster(), mv=new THREE.Vector2(); let down=null;
+    cv.addEventListener('pointerdown', e => { down={x:e.clientX,y:e.clientY}; });
+    cv.addEventListener('pointerup', e => {
+      if(!down || Math.hypot(e.clientX-down.x,e.clientY-down.y)>6) return;
+      const rc=cv.getBoundingClientRect(); mv.x=(e.clientX-rc.left)/rc.width*2-1; mv.y=-(e.clientY-rc.top)/rc.height*2+1;
+      ray.setFromCamera(mv,camera); const hits=ray.intersectObjects(objs.map(o=>o.hit)); if(hits.length) select(hits[0].object.userData.idx,true);
+    });
+    applyLight(); resize();
+  }
+  function buildStars(){
+    if(!gl) return; if(starPts){ scene.remove(starPts); starPts.geometry.dispose(); }
+    const n=state.light?600:1600, R=rng(99), arr=new Float32Array(n*3);
+    for(let i=0;i<n;i++){ const u=R()*2-1, t=R()*6.283, s=Math.sqrt(1-u*u), d=2500; arr[i*3]=s*Math.cos(t)*d; arr[i*3+1]=u*d; arr[i*3+2]=s*Math.sin(t)*d; }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(arr,3));
+    starPts=new THREE.Points(g, new THREE.PointsMaterial({color:0xcfd6ff, size:2.2, sizeAttenuation:false})); scene.add(starPts);
+  }
+  function rebuildOrbits(){
+    if(!gl) return;
+    objs.forEach(o => {
+      const k=kepler(o.p, jdAt(simDays)), pts=[];
+      for(let s=0;s<200;s++){ const E=s/200*6.283, r=k.a*(1-k.e*Math.cos(E)), nu=Math.atan2(Math.sqrt(1-k.e*k.e)*Math.sin(E), Math.cos(E)-k.e), lon=nu+k.w, R=mapR(r); pts.push(new THREE.Vector3(R*Math.cos(lon),0,-R*Math.sin(lon))); }
+      o.orbit.geometry.dispose(); o.orbit.geometry=new THREE.BufferGeometry().setFromPoints(pts);
+      const s=size(o.p)/o.r; o.tiltG.scale.setScalar(s); o.hit.scale.setScalar(Math.max(1,s));
+    });
+  }
+  function applyLight(){ if(gl&&renderer){ renderer.setPixelRatio(state.light?1:Math.min(2,window.devicePixelRatio||1)); buildStars(); resize(); } }
+  function resize(){
+    if(!ready) return;
+    const r=cv.getBoundingClientRect(), w=Math.max(1,r.width), h=Math.max(1,r.height);
+    if(gl){ renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+    else { const d=state.light?1:Math.min(2,window.devicePixelRatio||1); cv.width=Math.round(w*d); cv.height=Math.round(h*d); ctx2.setTransform(d,0,0,d,0,0); fw=w; fh=h; }
+  }
+  const fbScale = () => Math.min(fw,fh)*.46/mapR(30.4);
+  function bindFallbackPick(){
+    cv.addEventListener('click', e => {
+      const rc=cv.getBoundingClientRect(), x=e.clientX-rc.left, y=e.clientY-rc.top, k=fbScale(); let best=-1, bd=24;
+      PLANETS.forEach((p,i) => { const q=posAt(p,i,simDays), d=Math.hypot(fw/2+q[0]*k-x, fh/2+q[2]*k-y); if(d<bd){ bd=d; best=i; } });
+      if(best>=0) select(best,false);
+    });
+  }
+  function drawFallback(){
+    const g=ctx2, k=fbScale(), cx=fw/2, cy=fh/2;
+    g.fillStyle=C.deep; g.fillRect(0,0,fw,fh);
+    g.fillStyle='#ffcf6b'; g.beginPath(); g.arc(cx,cy,8,0,6.283); g.fill();
+    PLANETS.forEach((p,i) => { const q=posAt(p,i,simDays), x=cx+q[0]*k, y=cy+q[2]*k; g.fillStyle=p.col; g.beginPath(); g.arc(x,y,Math.max(3,size(p)*3),0,6.283); g.fill(); if(i===sel){ g.strokeStyle=C.accent; g.beginPath(); g.arc(x,y,Math.max(3,size(p)*3)+5,0,6.283); g.stroke(); } });
+  }
+  /* UI */
+  const chipsEl=$('#sol-chips');
+  PLANETS.forEach((p,i) => { const b=document.createElement('button'); b.type='button'; b.className='pchip'; b.innerHTML=`<i class="dot" style="background:${p.col}"></i>${esc(p.name)}`; b.addEventListener('click', () => select(i,true)); p.chip=b; chipsEl.appendChild(b); });
+  function select(i, fly){ sel=i; flying = fly&&gl ? 1.6 : 0; PLANETS.forEach((p,j) => p.chip.setAttribute('aria-pressed', j===i?'true':'false')); renderInfo(true); }
+  $('#sol-overview').addEventListener('click', () => { flying=0; if(gl){ camera.position.set(0, realScale?420:55, realScale?640:88); if(controls){ controls.target.set(0,0,0); controls.update(); } } });
+  const playB=$('#sol-play');
+  playB.addEventListener('click', () => { playing=!playing; playB.textContent=playing?'❚❚':'▶'; playB.setAttribute('aria-label', playing?'Pause':'Lecture'); });
+  $('#sol-speed').addEventListener('input', e => { speedIdx=+e.target.value; $('#sol-speed-l').textContent=SPEEDS[speedIdx].l; });
+  $('#sol-today').addEventListener('click', () => { simDays=(Date.now()-startMs)/86400000; if(gravOffAt!==null) setField('grav',true); rebuildOrbits(); });
+  $('#sol-real').addEventListener('change', e => { realScale=e.target.checked; if(gravOffAt!==null) freezeVel(); rebuildOrbits(); $('#sol-overview').click(); renderInfo(true); });
+  $('#sol-axes').addEventListener('change', e => { showAxes=e.target.checked; });
+  function freezeVel(){ gravV = PLANETS.map(p => { const a=orbPos(p,gravOffAt-.5), b=orbPos(p,gravOffAt+.5), p0=orbPos(p,gravOffAt); return {p0, v:[b[0]-a[0],0,b[2]-a[2]]}; }); }
+  function renderGrav(){
+    renderChips($('#sol-fields'), ['grav'], true);
+    const a=$('#sol-grav-alert');
+    if(!state.fields.grav){
+      if(gravOffAt===null){ gravOffAt=simDays; freezeVel(); }
+      a.hidden=false; a.className='alert warn';
+      a.innerHTML='<span><strong>Gravitation éteinte :</strong> plus rien ne courbe les trajectoires. Chaque planète file tout droit à la vitesse qu’elle avait : c’est la première loi de Newton.</span><span><button class="btn" id="sol-grav-on">Rallumer la gravitation</button></span>';
+      $('#sol-grav-on').addEventListener('click', () => setField('grav',true));
+    } else { gravOffAt=null; gravV=null; a.hidden=true; a.innerHTML=''; }
+  }
+  fieldListeners.push(k => { if(k==='grav'){ renderGrav(); if(!state.fields.grav && state.tab==='systeme-solaire') win('newton'); } });
+
+  const info=$('#sol-info'); let lastInfo=0, latV=store.get('ac-lat',14.7);
+  function decl(p,i){
+    const q=posAt(p,i,simDays), L=Math.hypot(q[0],q[2])||1, t=p.tiltNow*D2R;
+    return Math.asin(Math.max(-1,Math.min(1, Math.sin(t)*q[2]/L)))/D2R;
+  }
+  const dayFrac = (lat, dec) => { const x=-Math.tan(lat*D2R)*Math.tan(dec*D2R); return x<=-1?1:x>=1?0:Math.acos(x)/Math.PI; };
+  function fmtH(h){ if(h>=72) return fmt(h/24,1)+' jours terrestres'; const H=Math.floor(h), M=Math.round((h-H)*60); return M===60?`${H+1} h 00`:`${H} h ${String(M).padStart(2,'0')}`; }
+  function renderInfo(full){
+    const p=PLANETS[sel];
+    if(full){
+      info.innerHTML=`
+        <div class="row" style="justify-content:space-between"><h3 style="font-size:18px">${esc(p.name)}</h3><span class="label">données NASA · JPL</span></div>
+        <dl class="kv">
+          <dt>Distance au Soleil</dt><dd id="si-r"></dd>
+          <dt>Une année</dt><dd>${p.year>=1000?fmt(p.year/365.25,1)+' ans terrestres':fmt(p.year,1)+' jours'}</dd>
+          <dt>Un jour (soleil à soleil)</dt><dd>${fmtH(p.day)}</dd>
+          <dt>Rotation</dt><dd>${p.rot<0?'rétrograde (sens inverse)':'directe'}</dd>
+          <dt>Inclinaison réelle</dt><dd>${fmt(p.tilt,2)}°</dd>
+        </dl>
+        <div class="range-row">
+          <div class="range-head"><label for="sol-tilt">Inclinaison de l’axe</label><span class="mono" id="sol-tilt-v">${fmt(p.tiltNow,1)}°</span></div>
+          <input type="range" id="sol-tilt" min="0" max="180" step="0.5" value="${p.tiltNow}">
+          <div class="row"><button class="btn" id="sol-tilt-reset">Valeur réelle</button><button class="btn" id="sol-tilt-0">0°</button><button class="btn" id="sol-tilt-90">90°</button></div>
+        </div>
+        <div class="card" style="background:var(--panel-2);padding:12px">
+          <span class="label">Ce qui se passe maintenant</span>
+          <span class="season" id="sol-season"></span>
+          <span class="small" id="sol-subsolar"></span>
+          <span class="small muted" id="sol-polar"></span>
+          <div class="range-row" style="margin-top:6px">
+            <div class="range-head"><label for="sol-lat">Latitude d’un observateur</label><span class="mono" id="sol-lat-v"></span></div>
+            <input type="range" id="sol-lat" min="-90" max="90" step="0.1" value="${latV}">
+          </div>
+          <span class="small" id="sol-daylen"></span>
+        </div>
+        <div class="xp" id="sol-xp"></div>
+        <p class="small muted">Le jour et la nuit viennent de la rotation. L’inclinaison, elle, décide des saisons et de la durée du jour selon la latitude.</p>`;
+      const tIn=$('#sol-tilt');
+      const setT = v => { p.tiltNow=v; tIn.value=v; $('#sol-tilt-v').textContent=fmt(v,1)+'°'; if(p.name==='Terre'){ if(v===0) win('noseason'); if(v>90) win('uranus'); } renderLive(); };
+      tIn.addEventListener('input', () => setT(+tIn.value));
+      $('#sol-tilt-reset').addEventListener('click', () => setT(p.tilt)); $('#sol-tilt-0').addEventListener('click', () => setT(0)); $('#sol-tilt-90').addEventListener('click', () => setT(90));
+      $('#sol-lat').addEventListener('input', e => { latV=+e.target.value; store.set('ac-lat',latV); renderLive(); });
+    }
+    renderLive();
+  }
+  function renderLive(){
+    const p=PLANETS[sel], se=$('#sol-season'); if(!se) return;
+    const k=kepler(p, jdAt(simDays)), dec=decl(p,sel);
+    $('#si-r').textContent = `${fmt(k.r,3)} UA (${fmt(k.r*149.598,1)} millions de km)`;
+    se.textContent = !state.fields.grav ? 'Plus d’orbite : la planète s’éloigne du Soleil' : dec>1.5 ? 'Été dans l’hémisphère nord, hiver au sud' : dec<-1.5 ? 'Hiver dans l’hémisphère nord, été au sud' : 'Proche d’un équinoxe : jour ≈ nuit partout';
+    $('#sol-subsolar').textContent = `Soleil au zénith à la latitude ${fmt(Math.abs(dec),1)}° ${dec>=0?'N':'S'}`;
+    const te = p.tiltNow>90 ? 180-p.tiltNow : p.tiltNow;
+    $('#sol-polar').textContent = te<.5 ? 'Axe droit : pas de saisons, pas de jour polaire.' : `Cercles polaires à ${fmt(90-te,1)}° : au-delà, le Soleil peut rester levé, ou couché, des jours entiers.`;
+    $('#sol-lat-v').textContent = `${fmt(Math.abs(latV),1)}° ${latV>=0?'N':'S'}${Math.abs(latV-14.7)<.05?' (Dakar)':''}`;
+    const f=dayFrac(latV,dec);
+    $('#sol-daylen').textContent = f>=1 ? 'Jour polaire : le Soleil ne se couche pas.' : f<=0 ? 'Nuit polaire : le Soleil ne se lève pas.' : `Durée du jour ici : ${fmtH(f*p.day)} de lumière sur ${fmtH(p.day)}.`;
+    if(f<=0 && state.fields.grav) win('polar');
+    const v = Math.sqrt(GM*(2/k.r - 1/k.a))*AUD_KMS, Tk = Math.pow(k.a,1.5)*365.25;
+    const xp=$('#sol-xp');
+    if(xp) xp.innerHTML = `Orbite (JPL) : a = ${fmt(k.a,4)} UA, e = ${fmt(k.e,4)}. Périhélie ${fmt(k.a*(1-k.e),3)} UA, aphélie ${fmt(k.a*(1+k.e),3)} UA.<br>Vitesse orbitale (vis-viva) : v = √(GM☉(2/r − 1/a)) ≈ ${fmt(v,2)} km/s.<br>3e loi de Kepler : T = a^1,5 ans ≈ ${fmt(Tk,1)} jours (année réelle : ${fmt(p.year,1)} j).<br>Déclinaison du Soleil : δ = arcsin(sin ε · sin λ) ≈ ${fmt(dec,2)}° ; durée du jour : cos H₀ = −tan φ · tan δ.`;
+  }
+  /* Moon */
+  const SYN=29.530588853, NM0=2451550.26;
+  const mc=$('#moon-canvas'), mctx=mc.getContext('2d');
+  function moon(){
+    const jd=jdAt(simDays), age=(((jd-NM0)%SYN)+SYN)%SYN, ph=age/SYN, illum=(1-Math.cos(2*Math.PI*ph))/2;
+    const names=['Nouvelle lune','Premier croissant','Premier quartier','Gibbeuse croissante','Pleine lune','Gibbeuse décroissante','Dernier quartier','Dernier croissant'];
+    $('#moon-name').textContent = names[Math.floor(((ph*8)+.5)%8)];
+    $('#moon-sub').textContent = `Éclairée à ${fmt(illum*100,0)} % · ${fmt(age,1)} jours depuis la nouvelle lune`;
+    $('#moon-xp').textContent = `Mois synodique : ${fmt(SYN,4)} jours. Fraction éclairée : (1 − cos 2πφ) / 2 avec φ = âge / mois synodique. Référence : nouvelle lune du 6 janvier 2000.`;
+    const g=mctx, r=50, c=56; g.clearRect(0,0,112,112);
+    g.fillStyle='#1a1d33'; g.beginPath(); g.arc(c,c,r,0,6.283); g.fill();
+    const waxing = ph<.5, kx=Math.cos(2*Math.PI*ph);
+    g.fillStyle='#e8e4d6'; g.beginPath(); g.arc(c,c,r,-Math.PI/2,Math.PI/2, !waxing); g.fill();
+    g.fillStyle = illum<.5 ? '#1a1d33' : '#e8e4d6'; g.beginPath(); g.ellipse(c,c,Math.abs(kx)*r,r,0,0,6.283); g.fill();
+    return ph;
+  }
+  const tmpV=window.THREE?new THREE.Vector3():null, tmpT=window.THREE?new THREE.Vector3():null;
+  let moonPh=0;
+  function frame(now, dt){
+    if(!ready) return;
+    if(playing) simDays += dt*SPEEDS[speedIdx].v;
+    const ms=startMs+simDays*86400000, yr=new Date(ms).getUTCFullYear();
+    $('#sol-date').textContent = new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}) + ((yr<1800||yr>2050)?' · hors validité JPL':'');
+    if(now-lastInfo>.2){ lastInfo=now; renderLive(); moonPh=moon(); }
+    if(!gl){ drawFallback(); return; }
+    const hours=simDays*24;
+    objs.forEach((o,i) => {
+      const q=posAt(o.p,i,simDays); o.group.position.set(q[0],q[1],q[2]);
+      o.tiltG.rotation.x = -o.p.tiltNow*D2R;
+      o.mesh.rotation.y = 2*Math.PI*hours/o.p.rot;
+      o.axes.forEach(a => { a.visible = showAxes || i===sel; });
+      o.orbit.visible = state.fields.grav;
+      if(o.moon){ const sunAng=Math.atan2(-q[2], -q[0]); const m=sunAng - 2*Math.PI*moonPh, d=size(o.p)*2.6+.8; o.moon.position.set(d*Math.cos(m),0,d*Math.sin(m)); }
+    });
+    if(controls){
+      if(flying>0){
+        flying-=dt; const o=objs[sel]; o.group.getWorldPosition(tmpV);
+        controls.target.lerp(tmpV,.12);
+        const dir=tmpT.copy(camera.position).sub(controls.target).normalize();
+        camera.position.lerp(tmpV.clone().add(dir.multiplyScalar(size(o.p)*7+4)),.08);
+      }
+      controls.update();
+    }
+    renderer.render(scene,camera);
+  }
+  return { ensure(){ if(!ready){ init(); select(2,false); renderGrav(); moonPh=moon(); } else resize(); }, frame, resize, applyLight(){ if(ready) applyLight(); } };
+})();
+
+/* ---------- Loop & resize ---------- */
+function resizeAll(){
+  const t=state.tab;
+  if(t==='big-bang') BB.resize(); else if(t==='matiere') AT.resize(); else if(t==='etoiles') ST.resize(); else if(t==='molecules') MOL.resize(); else if(t==='systeme-solaire') SOL.resize();
+}
+if(window.ResizeObserver){ const ro=new ResizeObserver(() => resizeAll()); ['#bb-stage','#atom-stage','#star-stage','#mol-stage','#sol-stage','#be-chart'].forEach(s => ro.observe($(s))); }
+else window.addEventListener('resize', resizeAll);
+let lastT=performance.now()/1000;
+function loop(){
+  const now=performance.now()/1000, dt=Math.min(.05,now-lastT); lastT=now;
+  if(!document.hidden){
+    const t=state.tab;
+    if(t==='big-bang') BB.frame(now,dt); else if(t==='matiere') AT.frame(now,dt); else if(t==='etoiles') ST.frame(now,dt); else if(t==='molecules') MOL.frame(now,dt); else if(t==='systeme-solaire') SOL.frame(now,dt);
+  }
+  requestAnimationFrame(loop);
+}
+renderDefis();
+showTab(location.hash.slice(1) || 'big-bang');
+requestAnimationFrame(loop);
+})();
+</script>
+
+</body></html>
