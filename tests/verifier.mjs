@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 const chrome = process.argv[2] || process.env.CHROME || '/usr/bin/google-chrome';
 const url = pathToFileURL(resolve('index.html')).href;
 const ECRANS = { ordinateur: [1440, 900], tablette: [820, 1180], telephone: [390, 844], telephoneL: [844, 390] };
-const ONGLETS = ['big-bang', 'matiere', 'etoiles', 'molecules', 'systeme-solaire'];
+const ONGLETS = ['big-bang', 'matiere', 'etoiles', 'lumiere', 'galaxies', 'molecules', 'systeme-solaire', 'echelles'];
 const b = await chromium.launch({ executablePath: chrome, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 let echecs = 0;
 const ko = msg => { echecs++; console.log('  ✗ ' + msg); };

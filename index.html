@@ -342,6 +342,19 @@ body.lvl3 .lvl3only{display:block}
   .tabs button{padding:6px 10px}
 }
 @media (max-width:480px){ .tabs button svg.ic{display:none} .tabs button{padding:9px 10px} .readout{font-size:11.5px} }
+
+/* Badges de certitude */
+.cert{display:inline-flex;align-items:center;gap:5px;font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:0;text-transform:none;border:1px solid currentColor;border-radius:999px;padding:0 8px;margin-left:8px;vertical-align:1px;cursor:help}
+.cert::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.cert.etabli{color:var(--ok)}.cert.soutenu{color:var(--cool)}.cert.hypothese{color:var(--warn)}.cert.debat{color:#ff9db0}
+.certwhy{font-size:12.5px;color:var(--muted);font-style:italic}
+body.lvl1 .certwhy{display:none!important}
+/* Listes d'options (comme l'Atelier des Forces) */
+.ropt{display:flex;flex-direction:column;gap:6px}
+.ropt button{text-align:left;border:1px solid var(--line);background:#0b0c1a;border-radius:9px;padding:9px 11px;min-height:42px;font-weight:600;color:var(--fg)}
+.ropt button.on{border-color:var(--accent);background:#2a2208;color:#fff}
+#sim-lumiere,#sim-galaxies,#sim-echelles{--bh:clamp(190px,33vh,310px);--bcols:minmax(0,1fr) minmax(0,1fr)}
+.bcard .proof,.bcard .xp{flex-shrink:0}
 </style>
 </head>
 <body>
@@ -377,8 +390,11 @@ body.lvl3 .lvl3only{display:block}
   <button data-tab="big-bang"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg><span class="n">1</span>Big Bang</button>
   <button data-tab="matiere"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg><span class="n">2</span>Matière</button>
   <button data-tab="etoiles"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg><span class="n">3</span>Étoiles</button>
-  <button data-tab="molecules"><svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="10" cy="18" r="2.5"/><path d="M8.5 6.4l7 1.2M7 8.3l2.2 7.3M16.6 10l-5 6"/></svg><span class="n">4</span>Molécules</button>
-  <button data-tab="systeme-solaire"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="5"/><circle cx="20.5" cy="10.5" r="1.3"/></svg><span class="n">5</span>Système solaire</button>
+  <button data-tab="lumiere"><svg class="ic" viewBox="0 0 24 24"><path d="M3 18 12 4l9 14z"/><path d="M14 13l7-2M14.5 14.5l6.5 1M15 16l5 4"/></svg><span class="n">4</span>Lumière</button>
+  <button data-tab="galaxies"><svg class="ic" viewBox="0 0 24 24"><path d="M12 12c0-3 3-5 6-4M12 12c3 0 5 3 4 6M12 12c0 3-3 5-6 4M12 12c-3 0-5-3-4-6"/><circle cx="12" cy="12" r="1.5"/></svg><span class="n">5</span>Galaxies</button>
+  <button data-tab="molecules"><svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="10" cy="18" r="2.5"/><path d="M8.5 6.4l7 1.2M7 8.3l2.2 7.3M16.6 10l-5 6"/></svg><span class="n">6</span>Molécules</button>
+  <button data-tab="systeme-solaire"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="5"/><circle cx="20.5" cy="10.5" r="1.3"/></svg><span class="n">7</span>Système solaire</button>
+  <button data-tab="echelles"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="9.5"/></svg><span class="n">8</span>Échelles</button>
   <button data-tab="defis"><svg class="ic" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>Défis <span class="cnt" id="defi-count">0</span></button>
 </nav>
 
@@ -426,9 +442,10 @@ body.lvl3 .lvl3only{display:block}
       <div class="view">
         <canvas id="bb-canvas" aria-label="Animation de l’univers primordial"></canvas>
         <div class="ov info"><div class="ib">
-          <div class="ik" id="bb-story-k">Instant zéro</div>
+          <div class="ik"><span id="bb-story-k">Instant zéro</span><span class="cert" id="bb-cert" hidden></span></div>
           <div class="t" id="bb-story-t" title="Cliquer pour réduire / agrandir">Avant tout</div>
           <div class="d"><p id="bb-story-p"></p>
+            <p class="certwhy" id="bb-certwhy" hidden></p>
             <div class="proof" id="bb-proof" hidden><b>Comment le sait-on ?</b><span></span></div>
             <div class="xp" id="bb-xp">Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½. Conversion : 1 eV ↔ 11 605 K.</div></div>
           <div class="status" id="bb-caption">Un point minuscule, infiniment chaud. Appuie sur « Déclencher l’inflation ».</div>
@@ -538,9 +555,10 @@ body.lvl3 .lvl3only{display:block}
       <div class="view">
         <canvas id="star-canvas" aria-label="Coupe d’une étoile en fusion"></canvas>
         <div class="ov info"><div class="ib">
-          <div class="ik" id="st-k">Prête</div>
+          <div class="ik"><span id="st-k">Prête</span><span class="cert" id="st-cert" hidden></span></div>
           <div class="t" id="st-t" title="Cliquer pour réduire / agrandir">Une boule d’hydrogène</div>
           <div class="d"><p id="st-p">La gravitation comprime le gaz jusqu’à ce que le cœur atteigne des millions de degrés. Lance la première fusion.</p>
+            <p class="certwhy" id="st-certwhy" hidden></p>
             <div class="proof" id="st-proof" hidden><b>Comment le sait-on ?</b><span></span></div>
             <div class="xp" id="st-xp">4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV : 0,7 % de la masse devient énergie (E = mc²).</div></div>
           <div class="status" id="st-caption">Coupe de l’étoile : chaque couche est le produit d’une fusion.</div>
@@ -565,7 +583,92 @@ body.lvl3 .lvl3only{display:block}
   </div>
 </section>
 
-<!-- ======================= ACTE 4 : MOLÉCULES ======================= -->
+
+<!-- ======================= ACTE 4 : LUMIÈRE ======================= -->
+<section class="sim" id="sim-lumiere" data-sh="reglages" hidden>
+  <nav class="sheetTabs" aria-label="Volet"><button data-sh="exemples">📚 Exemples</button><button data-sh="reglages" class="on">⚙ Réglages</button><button data-sh="b" data-b="exp">Explication</button><button data-sh="b" data-b="ref">Empreintes</button><button class="sheetSize" aria-label="Agrandir le volet"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></nav>
+  <aside class="panel">
+    <div class="card exhead"><div class="seg full exseg"><button data-pane="exemples">📚 Exemples</button><button data-pane="reglages" class="on">⚙ Réglages</button></div><div class="extag"></div></div>
+    <div class="pane" data-pane="exemples" hidden></div>
+    <div class="pane" data-pane="reglages">
+      <div class="depart"><h3>Le principe</h3><p>On ne peut pas aller sur les étoiles. Mais leur lumière, décomposée en arc-en-ciel, dit de quoi elles sont faites, quelle est leur température et à quelle vitesse elles s’éloignent.</p></div>
+      <div class="rstep"><h3><span class="num">1</span>Type de spectre</h3><p class="shelp">Quatre façons de faire parler la lumière.</p>
+        <div class="ropt" id="lum-modes"></div></div>
+      <div class="rstep"><h3><span class="num">2</span>Réglages du spectre</h3><p class="shelp" id="lum-opts-help"></p>
+        <div id="lum-opts" style="display:flex;flex-direction:column;gap:10px"></div></div>
+    </div>
+  </aside>
+  <div class="center">
+    <div class="stage" id="lum-stage">
+      <div class="view">
+        <canvas id="lum-canvas" aria-label="Spectre de la lumière"></canvas>
+        <div class="ov info"><div class="ib">
+          <div class="ik"><span id="lum-k">Spectroscopie</span><span class="cert" id="lum-cert" hidden></span></div>
+          <div class="t" id="lum-t" title="Cliquer pour réduire / agrandir">—</div>
+          <div class="status" id="lum-status"></div>
+          <div id="lum-alert" hidden></div>
+        </div></div>
+      </div>
+      <div class="transport">
+        <button class="tb" data-do="reset" title="Revenir au spectre de l’hydrogène (R)" aria-label="Recommencer"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+        <button class="tb primary" id="lum-main" data-do="main" title="Action principale (barre d’espace)"></button>
+        <span class="readout" id="lum-readout"></span>
+        <button class="tb fsBtn" data-do="fs" title="Scène en plein écran (F ; Échap pour revenir)" aria-label="Plein écran"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="card bcard cur" data-b="exp"><div class="btitle"><span>Explication</span></div><p id="lum-p"></p><p class="certwhy" id="lum-certwhy" hidden></p>
+            <div class="proof" id="lum-proof"><b>Comment le sait-on ?</b><span></span></div>
+            <div class="xp" id="lum-xp"></div></div>
+      <div class="card bcard chart" data-b="ref">
+        <div class="btitle"><span>Les empreintes des éléments (raies d’émission visibles)</span><span style="text-transform:none;letter-spacing:0">touche une ligne pour l’afficher</span></div>
+        <div class="chart-box"><canvas id="lum-ref" aria-label="Spectres de référence des éléments"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ACTE 5 : GALAXIES ======================= -->
+<section class="sim" id="sim-galaxies" data-sh="reglages" hidden>
+  <nav class="sheetTabs" aria-label="Volet"><button data-sh="exemples">📚 Exemples</button><button data-sh="reglages" class="on">⚙ Réglages</button><button data-sh="b" data-b="exp">Explication</button><button data-sh="b" data-b="chiffres">En chiffres</button><button class="sheetSize" aria-label="Agrandir le volet"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></nav>
+  <aside class="panel">
+    <div class="card exhead"><div class="seg full exseg"><button data-pane="exemples">📚 Exemples</button><button data-pane="reglages" class="on">⚙ Réglages</button></div><div class="extag"></div></div>
+    <div class="pane" data-pane="exemples" hidden></div>
+    <div class="pane" data-pane="reglages">
+      <div class="depart"><h3>Le principe</h3><p>Le Soleil n’est qu’une étoile parmi des centaines de milliards, dans une galaxie parmi des centaines de milliards. Et la plus grande partie de l’univers ne se voit pas.</p></div>
+      <div class="rstep"><h3><span class="num">1</span>Que regarder ?</h3><p class="shelp">De notre galaxie jusqu’au contenu de tout l’univers.</p>
+        <div class="ropt" id="gal-views"></div></div>
+      <div class="rstep"><h3><span class="num">2</span>Réglages de la vue</h3><p class="shelp" id="gal-opts-help"></p>
+        <div id="gal-opts" style="display:flex;flex-direction:column;gap:10px"></div></div>
+    </div>
+  </aside>
+  <div class="center">
+    <div class="stage" id="gal-stage">
+      <div class="view">
+        <canvas id="gal-canvas" aria-label="Galaxies"></canvas>
+        <div class="ov info"><div class="ib">
+          <div class="ik"><span id="gal-k">Galaxies</span><span class="cert" id="gal-cert" hidden></span></div>
+          <div class="t" id="gal-t" title="Cliquer pour réduire / agrandir">—</div>
+          <div class="status" id="gal-status"></div>
+        </div></div>
+      </div>
+      <div class="transport">
+        <button class="tb" data-do="reset" title="Revenir à la Voie lactée vue de dessus (R)" aria-label="Recommencer"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+        <button class="tb" id="gal-main" data-do="main" title="Animation : lecture / pause (barre d’espace)"></button>
+        <span class="readout" id="gal-readout"></span>
+        <button class="tb fsBtn" data-do="fs" title="Scène en plein écran (F ; Échap pour revenir)" aria-label="Plein écran"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="card bcard cur" data-b="exp"><div class="btitle"><span>Explication</span></div><p id="gal-p"></p><p class="certwhy" id="gal-certwhy" hidden></p>
+            <div class="proof" id="gal-proof"><b>Comment le sait-on ?</b><span></span></div>
+            <div class="xp" id="gal-xp"></div></div>
+      <div class="card bcard" data-b="chiffres"><div class="btitle"><span id="gal-ft">En chiffres</span></div><dl class="kv" id="gal-facts"></dl><p class="small muted" id="gal-src"></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ACTE 6 : MOLÉCULES ======================= -->
 <section class="sim" id="sim-molecules" data-sh="reglages" hidden>
   <nav class="sheetTabs" aria-label="Volet"><button data-sh="exemples">📚 Exemples</button><button data-sh="reglages" class="on">⚙ Réglages</button><button data-sh="b" data-b="fiche">Fiche</button><button data-sh="b" data-b="drug">Amloperin</button><button class="sheetSize" aria-label="Agrandir le volet"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></nav>
   <aside class="panel">
@@ -679,6 +782,52 @@ body.lvl3 .lvl3only{display:block}
   </div>
 </section>
 
+
+<!-- ======================= ACTE 8 : ÉCHELLES ======================= -->
+<section class="sim" id="sim-echelles" data-sh="reglages" hidden>
+  <nav class="sheetTabs" aria-label="Volet"><button data-sh="exemples">📚 Exemples</button><button data-sh="reglages" class="on">⚙ Réglages</button><button data-sh="b" data-b="exp">Explication</button><button data-sh="b" data-b="regle">Règle</button><button class="sheetSize" aria-label="Agrandir le volet"><svg class="ic" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></nav>
+  <aside class="panel">
+    <div class="card exhead"><div class="seg full exseg"><button data-pane="exemples">📚 Exemples</button><button data-pane="reglages" class="on">⚙ Réglages</button></div><div class="extag"></div></div>
+    <div class="pane" data-pane="exemples" hidden></div>
+    <div class="pane" data-pane="reglages">
+      <div class="depart"><h3>Le principe</h3><p>Du quark à l’univers observable : 45 puissances de dix. À chaque cran de la molette, la vue devient dix fois plus grande.</p></div>
+      <div class="rstep"><h3><span class="num">1</span>Taille de la vue</h3><p class="shelp">Glisse, ou utilise la molette sur la scène.</p>
+        <div class="range-row"><div class="range-head"><label for="ech-e">Largeur de la vue</label><span class="mono" id="ech-e-v"></span></div>
+          <input type="range" id="ech-e" min="-18" max="27" step="0.01" value="0"></div></div>
+      <div class="rstep"><h3><span class="num">2</span>Aller voir un objet</h3><p class="shelp">Un clic : le zoom t’y emmène.</p>
+        <div class="chips" id="ech-objs"></div></div>
+    </div>
+  </aside>
+  <div class="center">
+    <div class="stage" id="ech-stage">
+      <div class="view">
+        <canvas id="ech-canvas" aria-label="Zoom des tailles, du quark à l’univers observable"></canvas>
+        <div class="ov info"><div class="ib">
+          <div class="ik"><span id="ech-k">Échelle</span><span class="cert" id="ech-cert" hidden></span></div>
+          <div class="t" id="ech-t" title="Cliquer pour réduire / agrandir">—</div>
+          <div class="status" id="ech-status"></div>
+        </div></div>
+      </div>
+      <div class="transport">
+        <button class="tb" data-do="reset" title="Revenir à l’échelle humaine (R)" aria-label="Recommencer"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+        <button class="tb primary" id="ech-main" data-do="main" title="Le grand voyage : du quark à l’univers (barre d’espace)"></button>
+        <span class="readout" id="ech-readout"></span>
+        <button class="tb fsBtn" data-do="fs" title="Scène en plein écran (F ; Échap pour revenir)" aria-label="Plein écran"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="card bcard cur" data-b="exp"><div class="btitle"><span>Explication</span></div><p id="ech-p"></p><p class="certwhy" id="ech-certwhy" hidden></p>
+            <div class="proof" id="ech-proof"><b>Comment le sait-on ?</b><span></span></div>
+            <div class="xp" id="ech-xp"></div></div>
+      <div class="card bcard chart" data-b="regle">
+        <div class="btitle"><span>La règle des puissances de dix</span><span style="text-transform:none;letter-spacing:0">touche la règle pour y aller</span></div>
+        <div class="chart-box" style="min-height:110px"><canvas id="ech-ruler" aria-label="Règle logarithmique des tailles"></canvas></div>
+        <div class="xp">Unités : 1 fm = 10⁻¹⁵ m · 1 nm = 10⁻⁹ m · 1 µm = 10⁻⁶ m · 1 UA (distance Terre–Soleil) ≈ 1,496 × 10¹¹ m · 1 année-lumière ≈ 9,46 × 10¹⁵ m · 1 parsec ≈ 3,26 al ≈ 3,09 × 10¹⁶ m.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ======================= DÉFIS ======================= -->
 <section class="page" id="sim-defis" hidden>
   <div class="wrap">
@@ -693,6 +842,8 @@ body.lvl3 .lvl3only{display:block}
       <span class="label">Sources et simplifications</span>
       <span>Positions des planètes : <a href="https://ssd.jpl.nasa.gov/planets/approx_pos.html" target="_blank" rel="noopener">éléments képlériens du JPL</a> (valides de 1800 à 2050). Données physiques : <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noopener">fiches de la NASA</a>. Masses des particules : <a href="https://pdg.lbl.gov" target="_blank" rel="noopener">Particle Data Group</a>. Structure du périndopril : <a href="https://pubchem.ncbi.nlm.nih.gov/compound/107807" target="_blank" rel="noopener">PubChem</a>.</span>
       <span>Version bêta pédagogique : orbites dans un même plan, tailles non à l’échelle, axes de toutes les planètes orientés comme celui de la Terre. Stabilité des noyaux exacte jusqu’au calcium, estimée au-delà. Durées stellaires : ordres de grandeur des modèles d’évolution.</span>
+      <span><b>Badges de certitude.</b> Établi : confirmé par de nombreuses observations indépendantes. Bien soutenu : de solides indices convergent, des points restent à confirmer. Hypothèse : cohérente avec certaines observations, pas encore démontrée. Débattu : les spécialistes ne sont pas d’accord.</span>
+      <span>Lumière et galaxies : raies de Fraunhofer et longueurs d’onde (tables de référence) ; composition de l’univers : mission <a href="https://svs.gsfc.nasa.gov/12307" target="_blank" rel="noopener">Planck (NASA)</a> ; Voie lactée : NASA, NRAO, Gaia ; Andromède : <a href="https://esahubble.org/news/heic2508/" target="_blank" rel="noopener">ESA/Hubble 2025</a>. La courbe de rotation est schématique.</span>
       <span>Licence MIT — © 2026 Dr Oumar Sow. Three.js r128 (licence MIT) est intégré au fichier : l’atelier fonctionne sans connexion.</span>
     </footer>
   </div>
@@ -701,47 +852,142 @@ body.lvl3 .lvl3only{display:block}
 
 <!-- ======== DONNÉES (modifiables sans toucher au code) ======== -->
 <script type="application/json" id="d-steps">[
- {"label":"Déclencher l’inflation","on":["inflaton"],"req":[],"time":"10⁻³⁶ → 10⁻³² s","temp":"≈ 10²⁸ K","k":"Étape 1 · Inflation","title":"L’espace se dilate",
-  "text":"Un champ hypothétique, l’inflaton, dilate l’espace d’un facteur d’au moins 10²⁶ en une infime fraction de seconde. Ses fluctuations quantiques deviendront les germes des galaxies. L’inflation est soutenue par les observations ; son mécanisme exact reste une hypothèse.",
-  "proof":"Le fond diffus cosmologique est uniforme dans tout le ciel à 1 sur 100 000 près, et ses minuscules variations ont la forme prédite par l’inflation (satellites COBE, WMAP, Planck).",
-  "xp":"Facteur d’expansion ≥ e⁶⁰ ≈ 10²⁶ (au moins 60 « e-folds »). L’échelle d’énergie exacte dépend du modèle d’inflation.",
-  "caption":"L’espace gonfle. Les particules naissent de l’énergie de l’inflaton."},
- {"label":"Allumer le champ de Higgs","on":["higgs","faible","em"],"req":["inflaton"],"time":"≈ 10⁻¹² s","temp":"≈ 10¹⁵ K (≈ 160 GeV)","k":"Étape 2 · Brisure électrofaible","title":"Les particules prennent une masse",
-  "why":"Il faut d’abord un espace où les particules existent : déclenche l’inflation.",
-  "text":"Jusqu’ici, les particules n’ont pas de masse et filent à la vitesse de la lumière. Le champ de Higgs prend une valeur non nulle partout : quarks, électrons et bosons W et Z acquièrent une masse. La force électrofaible se sépare en deux : la force faible, de très courte portée, et l’électromagnétisme, porté par le photon sans masse.",
-  "proof":"Le boson de Higgs a été découvert au CERN en 2012 par les expériences ATLAS et CMS, avec une masse d’environ 125 GeV.",
-  "xp":"Valeur du champ de Higgs dans le vide : v ≈ 246 GeV. Transition vers k_B·T ≈ 160 GeV, soit ≈ 1,9 × 10¹⁵ K (1 GeV ≈ 1,16 × 10¹³ K).",
-  "caption":"Les particules ralentissent : elles ont désormais une masse."},
- {"label":"Laisser agir le champ fort","on":["fort"],"req":["higgs"],"time":"≈ 10⁻⁶ s (≈ 20 µs)","temp":"≈ 10¹² K (≈ 150 MeV)","k":"Étape 3 · Confinement","title":"Les quarks s’enferment par trois",
-  "why":"L’univers est encore trop chaud : il doit d’abord passer par l’étape du Higgs.",
-  "text":"Le plasma de quarks et de gluons refroidit assez pour que le champ fort enferme les quarks par trois, une couleur de chaque : uud donne un proton, udd un neutron. Les gluons échangent sans cesse les couleurs. Surprise : la masse donnée aux quarks par le Higgs ne fait qu’environ 1 % de celle du proton ; le reste vient de l’énergie du champ fort.",
-  "proof":"On recrée ce plasma de quarks et de gluons en faisant entrer en collision des noyaux lourds, au RHIC aux États-Unis et au LHC du CERN.",
-  "xp":"Transition quark-hadron vers k_B·T ≈ 150–160 MeV, soit ≈ 1,8 × 10¹² K. Masse du proton 938,3 MeV/c² contre ≈ 9 MeV/c² pour ses trois quarks.",
-  "caption":"Regarde les couleurs tourner dans chaque trio : ce sont les gluons au travail."},
- {"label":"Fusionner les premiers noyaux","on":[],"req":["fort","faible"],"time":"≈ 1 s → 20 min","temp":"10¹⁰ → 10⁹ K","k":"Étape 4 · Nucléosynthèse primordiale","title":"Les premiers noyaux d’hélium",
-  "why":"Il n’y a pas encore de protons ni de neutrons à fusionner.",
-  "text":"Le champ faible a d’abord fixé le rapport neutrons/protons à environ 1 pour 7. Puis le champ fort soude protons et neutrons en noyaux d’hélium (2 protons, 2 neutrons). Bilan : environ 75 % d’hydrogène et 25 % d’hélium en masse, des traces de deutérium et de lithium. Rien de plus lourd.",
-  "proof":"Les nuages de gaz intacts et les plus vieilles étoiles contiennent environ 25 % d’hélium en masse, exactement comme prévu. La quantité de deutérium mesurée concorde aussi.",
-  "xp":"Fraction d’hélium : Y ≈ 2(n/p) / (1 + n/p) = 2(1/7) / (8/7) = 0,25. Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½.",
-  "caption":"Par groupes de quatre : 2 protons et 2 neutrons forment l’hélium."},
- {"label":"Capturer les électrons","on":[],"req":["em","higgs"],"time":"≈ 380 000 ans","temp":"≈ 3 000 K","k":"Étape 5 · Recombinaison","title":"Les premiers atomes, et la lumière libérée",
-  "why":"Il faut des noyaux pour capturer des électrons.",
-  "text":"Pendant 380 000 ans, la lumière rebondit sur les électrons libres : l’univers est opaque, comme un brouillard. Vers 3 000 K, le champ électromagnétique retient enfin les électrons autour des noyaux. Les premiers atomes neutres apparaissent et la lumière s’échappe : c’est le fond diffus cosmologique, observé aujourd’hui à 2,7 K.",
-  "proof":"Le fond diffus cosmologique, découvert en 1965 par Penzias et Wilson, a le spectre d’un corps noir quasi parfait à 2,725 K, mesuré par le satellite COBE.",
-  "xp":"L’hydrogène s’ionise à 13,6 eV (≈ 158 000 K), mais il y a environ 1,6 milliard de photons par proton : les photons les plus énergétiques empêchent les atomes jusqu’à ≈ 0,26 eV, soit ≈ 3 000 K. Décalage vers le rouge z ≈ 1 100 : 3 000 / 1 101 ≈ 2,7 K aujourd’hui.",
-  "caption":"Le brouillard se lève : l’univers devient transparent."},
- {"label":"Allumer les étoiles","on":["grav"],"req":["em"],"time":"≈ 100 à 200 millions d’années","temp":"≈ 60 K (rayonnement de fond)","k":"Étape 6 · Gravitation","title":"Les étoiles forgeronnes",
-  "why":"Il faut d’abord un gaz d’atomes neutres à rassembler.",
-  "text":"La gravitation rassemble le gaz en nuages, puis en étoiles. Dans leur cœur, la fusion forge le carbone, l’oxygène, le fer ; elle a besoin du champ faible, qui change un proton en neutron. Les étoiles massives explosent en supernovae et dispersent ces éléments. Le calcium de nos os et le fer de notre sang viennent de là. L’acte 3 te laisse piloter une étoile.",
-  "proof":"Le télescope James Webb observe des galaxies déjà formées quelques centaines de millions d’années après le Big Bang. Les spectres des étoiles montrent les éléments qu’elles fabriquent.",
-  "xp":"Fusion de l’hydrogène : 4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV. Environ 0,7 % de la masse devient énergie (E = mc²).",
-  "caption":"Le gaz s’effondre et s’allume : les premières étoiles."},
- {"label":"Former le système solaire","on":[],"req":["grav","faible"],"time":"≈ 9,2 milliards d’années","temp":"aujourd’hui : 2,7 K","k":"Étape 7 · Naissance du Soleil","title":"Le Soleil et ses planètes",
-  "why":"Il faut des étoiles qui forgent les éléments lourds dont sont faites les planètes.",
-  "text":"Il y a environ 4,6 milliards d’années, un nuage enrichi par les étoiles mortes s’effondre. Au centre naît le Soleil ; dans le disque autour, la poussière s’agrège en planètes. Tu peux maintenant prendre les commandes du système solaire.",
-  "proof":"Les plus vieux minéraux des météorites, des inclusions riches en calcium et en aluminium, sont datés de 4,567 milliards d’années par radioactivité.",
-  "xp":"Datation uranium-plomb : ²³⁸U → ²⁰⁶Pb, demi-vie 4,47 milliards d’années ; ²³⁵U → ²⁰⁷Pb, demi-vie 704 millions d’années. Deux horloges qui se vérifient mutuellement.",
-  "caption":"Un nouveau soleil, entouré de son disque de planètes."}
+ {
+  "label": "Déclencher l’inflation",
+  "on": [
+   "inflaton"
+  ],
+  "req": [],
+  "time": "10⁻³⁶ → 10⁻³² s",
+  "temp": "≈ 10²⁸ K",
+  "k": "Étape 1 · Inflation",
+  "title": "L’espace se dilate",
+  "text": "Un champ hypothétique, l’inflaton, dilate l’espace d’un facteur d’au moins 10²⁶ en une infime fraction de seconde. Ses fluctuations quantiques deviendront les germes des galaxies. L’inflation est soutenue par les observations ; son mécanisme exact reste une hypothèse.",
+  "proof": "Le fond diffus cosmologique est uniforme dans tout le ciel à 1 sur 100 000 près, et ses minuscules variations ont la forme prédite par l’inflation (satellites COBE, WMAP, Planck).",
+  "xp": "Facteur d’expansion ≥ e⁶⁰ ≈ 10²⁶ (au moins 60 « e-folds »). L’échelle d’énergie exacte dépend du modèle d’inflation.",
+  "caption": "L’espace gonfle. Les particules naissent de l’énergie de l’inflaton.",
+  "cert": "hypothese",
+  "certWhy": "L’inflation explique plusieurs observations (uniformité et petites variations du fond diffus), mais son mécanisme n’est pas démontré."
+ },
+ {
+  "label": "Allumer le champ de Higgs",
+  "on": [
+   "higgs",
+   "faible",
+   "em"
+  ],
+  "req": [
+   "inflaton"
+  ],
+  "time": "≈ 10⁻¹² s",
+  "temp": "≈ 10¹⁵ K (≈ 160 GeV)",
+  "k": "Étape 2 · Brisure électrofaible",
+  "title": "Les particules prennent une masse",
+  "why": "Il faut d’abord un espace où les particules existent : déclenche l’inflation.",
+  "text": "Jusqu’ici, les particules n’ont pas de masse et filent à la vitesse de la lumière. Le champ de Higgs prend une valeur non nulle partout : quarks, électrons et bosons W et Z acquièrent une masse. La force électrofaible se sépare en deux : la force faible, de très courte portée, et l’électromagnétisme, porté par le photon sans masse.",
+  "proof": "Le boson de Higgs a été découvert au CERN en 2012 par les expériences ATLAS et CMS, avec une masse d’environ 125 GeV.",
+  "xp": "Valeur du champ de Higgs dans le vide : v ≈ 246 GeV. Transition vers k_B·T ≈ 160 GeV, soit ≈ 1,9 × 10¹⁵ K (1 GeV ≈ 1,16 × 10¹³ K).",
+  "caption": "Les particules ralentissent : elles ont désormais une masse.",
+  "cert": "soutenu",
+  "certWhy": "Le boson de Higgs est découvert (2012) ; cette transition dans l’univers primordial est calculée par la théorie, pas observée directement."
+ },
+ {
+  "label": "Laisser agir le champ fort",
+  "on": [
+   "fort"
+  ],
+  "req": [
+   "higgs"
+  ],
+  "time": "≈ 10⁻⁶ s (≈ 20 µs)",
+  "temp": "≈ 10¹² K (≈ 150 MeV)",
+  "k": "Étape 3 · Confinement",
+  "title": "Les quarks s’enferment par trois",
+  "why": "L’univers est encore trop chaud : il doit d’abord passer par l’étape du Higgs.",
+  "text": "Le plasma de quarks et de gluons refroidit assez pour que le champ fort enferme les quarks par trois, une couleur de chaque : uud donne un proton, udd un neutron. Les gluons échangent sans cesse les couleurs. Surprise : la masse donnée aux quarks par le Higgs ne fait qu’environ 1 % de celle du proton ; le reste vient de l’énergie du champ fort.",
+  "proof": "On recrée ce plasma de quarks et de gluons en faisant entrer en collision des noyaux lourds, au RHIC aux États-Unis et au LHC du CERN.",
+  "xp": "Transition quark-hadron vers k_B·T ≈ 150–160 MeV, soit ≈ 1,8 × 10¹² K. Masse du proton 938,3 MeV/c² contre ≈ 9 MeV/c² pour ses trois quarks.",
+  "caption": "Regarde les couleurs tourner dans chaque trio : ce sont les gluons au travail.",
+  "cert": "soutenu",
+  "certWhy": "Le plasma de quarks et de gluons est recréé en laboratoire ; son refroidissement dans l’univers primordial est calculé."
+ },
+ {
+  "label": "Fusionner les premiers noyaux",
+  "on": [],
+  "req": [
+   "fort",
+   "faible"
+  ],
+  "time": "≈ 1 s → 20 min",
+  "temp": "10¹⁰ → 10⁹ K",
+  "k": "Étape 4 · Nucléosynthèse primordiale",
+  "title": "Les premiers noyaux d’hélium",
+  "why": "Il n’y a pas encore de protons ni de neutrons à fusionner.",
+  "text": "Le champ faible a d’abord fixé le rapport neutrons/protons à environ 1 pour 7. Puis le champ fort soude protons et neutrons en noyaux d’hélium (2 protons, 2 neutrons). Bilan : environ 75 % d’hydrogène et 25 % d’hélium en masse, des traces de deutérium et de lithium. Rien de plus lourd.",
+  "proof": "Les nuages de gaz intacts et les plus vieilles étoiles contiennent environ 25 % d’hélium en masse, exactement comme prévu. La quantité de deutérium mesurée concorde aussi.",
+  "xp": "Fraction d’hélium : Y ≈ 2(n/p) / (1 + n/p) = 2(1/7) / (8/7) = 0,25. Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½.",
+  "caption": "Par groupes de quatre : 2 protons et 2 neutrons forment l’hélium.",
+  "cert": "etabli",
+  "certWhy": "Les proportions d’hydrogène, d’hélium et de lithium mesurées dans les plus vieux gaz correspondent aux calculs (à une énigme près, celle du lithium)."
+ },
+ {
+  "label": "Capturer les électrons",
+  "on": [],
+  "req": [
+   "em",
+   "higgs"
+  ],
+  "time": "≈ 380 000 ans",
+  "temp": "≈ 3 000 K",
+  "k": "Étape 5 · Recombinaison",
+  "title": "Les premiers atomes, et la lumière libérée",
+  "why": "Il faut des noyaux pour capturer des électrons.",
+  "text": "Pendant 380 000 ans, la lumière rebondit sur les électrons libres : l’univers est opaque, comme un brouillard. Vers 3 000 K, le champ électromagnétique retient enfin les électrons autour des noyaux. Les premiers atomes neutres apparaissent et la lumière s’échappe : c’est le fond diffus cosmologique, observé aujourd’hui à 2,7 K.",
+  "proof": "Le fond diffus cosmologique, découvert en 1965 par Penzias et Wilson, a le spectre d’un corps noir quasi parfait à 2,725 K, mesuré par le satellite COBE.",
+  "xp": "L’hydrogène s’ionise à 13,6 eV (≈ 158 000 K), mais il y a environ 1,6 milliard de photons par proton : les photons les plus énergétiques empêchent les atomes jusqu’à ≈ 0,26 eV, soit ≈ 3 000 K. Décalage vers le rouge z ≈ 1 100 : 3 000 / 1 101 ≈ 2,7 K aujourd’hui.",
+  "caption": "Le brouillard se lève : l’univers devient transparent.",
+  "cert": "etabli",
+  "certWhy": "Le fond diffus cosmologique est observé en détail depuis 1965."
+ },
+ {
+  "label": "Allumer les étoiles",
+  "on": [
+   "grav"
+  ],
+  "req": [
+   "em"
+  ],
+  "time": "≈ 100 à 200 millions d’années",
+  "temp": "≈ 60 K (rayonnement de fond)",
+  "k": "Étape 6 · Gravitation",
+  "title": "Les étoiles forgeronnes",
+  "why": "Il faut d’abord un gaz d’atomes neutres à rassembler.",
+  "text": "La gravitation rassemble le gaz en nuages, puis en étoiles. Dans leur cœur, la fusion forge le carbone, l’oxygène, le fer ; elle a besoin du champ faible, qui change un proton en neutron. Les étoiles massives explosent en supernovae et dispersent ces éléments. Le calcium de nos os et le fer de notre sang viennent de là. L’acte 3 te laisse piloter une étoile.",
+  "proof": "Le télescope James Webb observe des galaxies déjà formées quelques centaines de millions d’années après le Big Bang. Les spectres des étoiles montrent les éléments qu’elles fabriquent.",
+  "xp": "Fusion de l’hydrogène : 4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV. Environ 0,7 % de la masse devient énergie (E = mc²).",
+  "caption": "Le gaz s’effondre et s’allume : les premières étoiles.",
+  "cert": "soutenu",
+  "certWhy": "Le télescope James Webb observe des galaxies très jeunes, mais les toutes premières étoiles n’ont pas encore été vues directement."
+ },
+ {
+  "label": "Former le système solaire",
+  "on": [],
+  "req": [
+   "grav",
+   "faible"
+  ],
+  "time": "≈ 9,2 milliards d’années",
+  "temp": "aujourd’hui : 2,7 K",
+  "k": "Étape 7 · Naissance du Soleil",
+  "title": "Le Soleil et ses planètes",
+  "why": "Il faut des étoiles qui forgent les éléments lourds dont sont faites les planètes.",
+  "text": "Il y a environ 4,6 milliards d’années, un nuage enrichi par les étoiles mortes s’effondre. Au centre naît le Soleil ; dans le disque autour, la poussière s’agrège en planètes. Tu peux maintenant prendre les commandes du système solaire.",
+  "proof": "Les plus vieux minéraux des météorites, des inclusions riches en calcium et en aluminium, sont datés de 4,567 milliards d’années par radioactivité.",
+  "xp": "Datation uranium-plomb : ²³⁸U → ²⁰⁶Pb, demi-vie 4,47 milliards d’années ; ²³⁵U → ²⁰⁷Pb, demi-vie 704 millions d’années. Deux horloges qui se vérifient mutuellement.",
+  "caption": "Un nouveau soleil, entouré de son disque de planètes.",
+  "cert": "etabli",
+  "certWhy": "L’âge du système solaire (≈ 4,57 milliards d’années) est mesuré par la radioactivité des plus vieilles météorites."
+ }
 ]</script>
 <script type="application/json" id="d-calendar">[
  {"ago":13.8e9,"e":"Big Bang"},
@@ -758,23 +1004,157 @@ body.lvl3 .lvl3only{display:block}
  {"ago":0,"e":"Aujourd’hui"}
 ]</script>
 <script type="application/json" id="d-stars">{
- "massive":{"name":"Étoile de 25 masses solaires","stages":[
-  {"label":"Fusionner l’hydrogène","el":"H","col":"#7fb2ff","T":"≈ 40 millions K","dur":"≈ 7 millions d’années","title":"Hydrogène → hélium","text":"Dans une étoile massive, l’hydrogène fusionne surtout par le cycle CNO, où le carbone sert de catalyseur. L’étoile brille 100 000 fois plus que le Soleil.","xp":"Cycle CNO : 4 ¹H → ⁴He + 26,7 MeV, catalysé par ¹²C, ¹³N, ¹⁴N, ¹⁵O.","req":["grav","fort","faible"]},
-  {"label":"Fusionner l’hélium","el":"He","col":"#ffe08a","T":"≈ 200 millions K","dur":"≈ 700 000 ans","title":"Hélium → carbone et oxygène","text":"Trois noyaux d’hélium se soudent en carbone : c’est la réaction triple alpha. Un quatrième donne de l’oxygène. L’étoile gonfle en supergéante.","xp":"3 ⁴He → ¹²C + 7,27 MeV (triple alpha), puis ¹²C + ⁴He → ¹⁶O.","why":"Il faut d’abord un cœur d’hélium."},
-  {"label":"Fusionner le carbone","el":"C","col":"#b0b8c8","T":"≈ 800 millions K","dur":"≈ 600 ans","title":"Carbone → néon, sodium, magnésium","text":"Les noyaux de carbone fusionnent entre eux. Désormais, l’étoile perd l’essentiel de son énergie sous forme de neutrinos : tout s’accélère.","xp":"¹²C + ¹²C → ²⁰Ne + ⁴He, ou ²³Na + p, ou ²³Mg + n.","why":"Il faut d’abord un cœur de carbone."},
-  {"label":"Fusionner le néon","el":"Ne","col":"#ff7bd0","T":"≈ 1,5 milliard K","dur":"≈ 1 an","title":"Néon → oxygène, magnésium","text":"La lumière du cœur est si énergétique qu’elle brise des noyaux de néon ; les morceaux sont recapturés.","xp":"²⁰Ne + γ → ¹⁶O + ⁴He, puis ²⁰Ne + ⁴He → ²⁴Mg.","why":"Il faut d’abord un cœur de néon."},
-  {"label":"Fusionner l’oxygène","el":"O","col":"#ff8a70","T":"≈ 2 milliards K","dur":"≈ 6 mois","title":"Oxygène → silicium, soufre","text":"L’oxygène fusionne en silicium et en soufre, les éléments des roches et des volcans.","xp":"¹⁶O + ¹⁶O → ²⁸Si + ⁴He, ou ³¹P + p, ou ³²S + γ.","why":"Il faut d’abord un cœur d’oxygène."},
-  {"label":"Fusionner le silicium","el":"Si","col":"#c9a46b","T":"≈ 3,5 milliards K","dur":"≈ 1 jour","title":"Silicium → fer et nickel","text":"En une seule journée, le silicium devient du nickel-56, qui se désintègre en fer. Le cœur de fer, inerte, grossit.","xp":"Captures successives de ⁴He sur ²⁸Si jusqu’à ⁵⁶Ni, qui donne ⁵⁶Co puis ⁵⁶Fe par désintégrations bêta.","why":"Il faut d’abord un cœur de silicium."},
-  {"label":"Tenter de fusionner le fer","el":"Fe","col":"#8c97a8","T":"≈ 10 milliards K","dur":"moins d’une seconde","title":"Le fer refuse : supernova","text":"Fusionner le fer coûte de l’énergie au lieu d’en produire. Le cœur ne résiste plus à la gravitation : il s’effondre en moins d’une seconde en étoile à neutrons. L’onde de choc souffle l’étoile : c’est une supernova. Ses neutrons fabriquent des éléments plus lourds que le fer, comme l’iode ou le baryum.","xp":"Le cœur dépasse ≈ 1,4 masse solaire (limite de Chandrasekhar) et s’effondre. Capture rapide de neutrons (processus r) dans les explosions, et surtout dans les fusions d’étoiles à neutrons.","why":"Il faut d’abord un cœur de fer.","boom":true,
-   "proof":"La supernova SN 1987A a été vue à l’œil nu en 1987, et ses neutrinos détectés sur Terre quelques heures avant la lumière. En 2017, la fusion de deux étoiles à neutrons (GW170817) a montré la fabrication d’éléments lourds comme l’or."}
- ]},
- "sun":{"name":"Le Soleil (1 masse solaire)","stages":[
-  {"label":"Fusionner l’hydrogène","el":"H","col":"#ffd36b","T":"≈ 15 millions K","dur":"≈ 10 milliards d’années (4,6 déjà écoulés)","title":"Hydrogène → hélium","text":"Le Soleil fusionne 600 millions de tonnes d’hydrogène par seconde, par la chaîne proton-proton. La première étape exige la force faible, qui change un proton en neutron : c’est pour cela que le Soleil brûle si lentement.","xp":"p + p → ²H + e⁺ + νₑ (force faible), puis ²H + p → ³He, puis ³He + ³He → ⁴He + 2p.","req":["grav","fort","faible"],
-   "proof":"Les neutrinos produits par ces réactions au cœur du Soleil sont détectés sur Terre depuis les années 1960 (expérience de Ray Davis, puis Super-Kamiokande, Borexino)."},
-  {"label":"Fusionner l’hélium","el":"He","col":"#ff9a5a","T":"≈ 100 millions K","dur":"≈ 100 millions d’années","title":"Géante rouge : hélium → carbone","text":"Dans environ 5 milliards d’années, le Soleil gonflera en géante rouge et engloutira peut-être la Terre. Son cœur fusionnera l’hélium en carbone et en oxygène.","xp":"3 ⁴He → ¹²C + 7,27 MeV. Le Soleil est trop léger (moins de ≈ 8 masses solaires) pour atteindre les ≈ 600 millions K nécessaires à la fusion du carbone.","why":"Il faut d’abord un cœur d’hélium."},
-  {"label":"Finir en douceur","el":"C","col":"#e8ecff","T":"refroidissement","dur":"des milliards d’années","title":"Nébuleuse planétaire et naine blanche","text":"Le Soleil souffle ses couches externes en une nébuleuse colorée. Il reste un cœur de carbone et d’oxygène de la taille de la Terre : une naine blanche, qui refroidit lentement. Pas de supernova pour lui.","xp":"Une naine blanche ne peut pas dépasser ≈ 1,4 masse solaire (limite de Chandrasekhar) : la pression des électrons la soutient.","why":"Il faut d’abord avoir fusionné l’hélium.","nebula":true,
-   "proof":"Le télescope Hubble a photographié des centaines de nébuleuses planétaires, comme la nébuleuse de l’Anneau ou celle de l’Œil de chat."}
- ]}
+ "massive": {
+  "name": "Étoile de 25 masses solaires",
+  "stages": [
+   {
+    "label": "Fusionner l’hydrogène",
+    "el": "H",
+    "col": "#7fb2ff",
+    "T": "≈ 40 millions K",
+    "dur": "≈ 7 millions d’années",
+    "title": "Hydrogène → hélium",
+    "text": "Dans une étoile massive, l’hydrogène fusionne surtout par le cycle CNO, où le carbone sert de catalyseur. L’étoile brille 100 000 fois plus que le Soleil.",
+    "xp": "Cycle CNO : 4 ¹H → ⁴He + 26,7 MeV, catalysé par ¹²C, ¹³N, ¹⁴N, ¹⁵O.",
+    "req": [
+     "grav",
+     "fort",
+     "faible"
+    ],
+    "cert": "etabli"
+   },
+   {
+    "label": "Fusionner l’hélium",
+    "el": "He",
+    "col": "#ffe08a",
+    "T": "≈ 200 millions K",
+    "dur": "≈ 700 000 ans",
+    "title": "Hélium → carbone et oxygène",
+    "text": "Trois noyaux d’hélium se soudent en carbone : c’est la réaction triple alpha. Un quatrième donne de l’oxygène. L’étoile gonfle en supergéante.",
+    "xp": "3 ⁴He → ¹²C + 7,27 MeV (triple alpha), puis ¹²C + ⁴He → ¹⁶O.",
+    "why": "Il faut d’abord un cœur d’hélium.",
+    "cert": "etabli"
+   },
+   {
+    "label": "Fusionner le carbone",
+    "el": "C",
+    "col": "#b0b8c8",
+    "T": "≈ 800 millions K",
+    "dur": "≈ 600 ans",
+    "title": "Carbone → néon, sodium, magnésium",
+    "text": "Les noyaux de carbone fusionnent entre eux. Désormais, l’étoile perd l’essentiel de son énergie sous forme de neutrinos : tout s’accélère.",
+    "xp": "¹²C + ¹²C → ²⁰Ne + ⁴He, ou ²³Na + p, ou ²³Mg + n.",
+    "why": "Il faut d’abord un cœur de carbone.",
+    "cert": "soutenu",
+    "certWhy": "Ces fusions ne s’observent pas directement : elles sont calculées par les modèles d’étoiles massives."
+   },
+   {
+    "label": "Fusionner le néon",
+    "el": "Ne",
+    "col": "#ff7bd0",
+    "T": "≈ 1,5 milliard K",
+    "dur": "≈ 1 an",
+    "title": "Néon → oxygène, magnésium",
+    "text": "La lumière du cœur est si énergétique qu’elle brise des noyaux de néon ; les morceaux sont recapturés.",
+    "xp": "²⁰Ne + γ → ¹⁶O + ⁴He, puis ²⁰Ne + ⁴He → ²⁴Mg.",
+    "why": "Il faut d’abord un cœur de néon.",
+    "cert": "soutenu",
+    "certWhy": "Ces fusions ne s’observent pas directement : elles sont calculées par les modèles d’étoiles massives."
+   },
+   {
+    "label": "Fusionner l’oxygène",
+    "el": "O",
+    "col": "#ff8a70",
+    "T": "≈ 2 milliards K",
+    "dur": "≈ 6 mois",
+    "title": "Oxygène → silicium, soufre",
+    "text": "L’oxygène fusionne en silicium et en soufre, les éléments des roches et des volcans.",
+    "xp": "¹⁶O + ¹⁶O → ²⁸Si + ⁴He, ou ³¹P + p, ou ³²S + γ.",
+    "why": "Il faut d’abord un cœur d’oxygène.",
+    "cert": "soutenu",
+    "certWhy": "Ces fusions ne s’observent pas directement : elles sont calculées par les modèles d’étoiles massives."
+   },
+   {
+    "label": "Fusionner le silicium",
+    "el": "Si",
+    "col": "#c9a46b",
+    "T": "≈ 3,5 milliards K",
+    "dur": "≈ 1 jour",
+    "title": "Silicium → fer et nickel",
+    "text": "En une seule journée, le silicium devient du nickel-56, qui se désintègre en fer. Le cœur de fer, inerte, grossit.",
+    "xp": "Captures successives de ⁴He sur ²⁸Si jusqu’à ⁵⁶Ni, qui donne ⁵⁶Co puis ⁵⁶Fe par désintégrations bêta.",
+    "why": "Il faut d’abord un cœur de silicium.",
+    "cert": "soutenu",
+    "certWhy": "Ces fusions ne s’observent pas directement : elles sont calculées par les modèles d’étoiles massives."
+   },
+   {
+    "label": "Tenter de fusionner le fer",
+    "el": "Fe",
+    "col": "#8c97a8",
+    "T": "≈ 10 milliards K",
+    "dur": "moins d’une seconde",
+    "title": "Le fer refuse : supernova",
+    "text": "Fusionner le fer coûte de l’énergie au lieu d’en produire. Le cœur ne résiste plus à la gravitation : il s’effondre en moins d’une seconde en étoile à neutrons. L’onde de choc souffle l’étoile : c’est une supernova. Ses neutrons fabriquent des éléments plus lourds que le fer, comme l’iode ou le baryum.",
+    "xp": "Le cœur dépasse ≈ 1,4 masse solaire (limite de Chandrasekhar) et s’effondre. Capture rapide de neutrons (processus r) dans les explosions, et surtout dans les fusions d’étoiles à neutrons.",
+    "why": "Il faut d’abord un cœur de fer.",
+    "boom": true,
+    "proof": "La supernova SN 1987A a été vue à l’œil nu en 1987, et ses neutrinos détectés sur Terre quelques heures avant la lumière. En 2017, la fusion de deux étoiles à neutrons (GW170817) a montré la fabrication d’éléments lourds comme l’or.",
+    "cert": "etabli",
+    "certWhy": "Des supernovas sont observées ; SN 1987A a même été vue avec ses neutrinos."
+   }
+  ]
+ },
+ "sun": {
+  "name": "Le Soleil (1 masse solaire)",
+  "stages": [
+   {
+    "label": "Fusionner l’hydrogène",
+    "el": "H",
+    "col": "#ffd36b",
+    "T": "≈ 15 millions K",
+    "dur": "≈ 10 milliards d’années (4,6 déjà écoulés)",
+    "title": "Hydrogène → hélium",
+    "text": "Le Soleil fusionne 600 millions de tonnes d’hydrogène par seconde, par la chaîne proton-proton. La première étape exige la force faible, qui change un proton en neutron : c’est pour cela que le Soleil brûle si lentement.",
+    "xp": "p + p → ²H + e⁺ + νₑ (force faible), puis ²H + p → ³He, puis ³He + ³He → ⁴He + 2p.",
+    "req": [
+     "grav",
+     "fort",
+     "faible"
+    ],
+    "proof": "Les neutrinos produits par ces réactions au cœur du Soleil sont détectés sur Terre depuis les années 1960 (expérience de Ray Davis, puis Super-Kamiokande, Borexino).",
+    "cert": "etabli",
+    "certWhy": "Les neutrinos émis par ces fusions au cœur du Soleil sont détectés sur Terre."
+   },
+   {
+    "label": "Fusionner l’hélium",
+    "el": "He",
+    "col": "#ff9a5a",
+    "T": "≈ 100 millions K",
+    "dur": "≈ 100 millions d’années",
+    "title": "Géante rouge : hélium → carbone",
+    "text": "Dans environ 5 milliards d’années, le Soleil gonflera en géante rouge et engloutira peut-être la Terre. Son cœur fusionnera l’hélium en carbone et en oxygène.",
+    "xp": "3 ⁴He → ¹²C + 7,27 MeV. Le Soleil est trop léger (moins de ≈ 8 masses solaires) pour atteindre les ≈ 600 millions K nécessaires à la fusion du carbone.",
+    "why": "Il faut d’abord un cœur d’hélium.",
+    "cert": "soutenu",
+    "certWhy": "Une prévision des modèles d’évolution, confirmée par l’observation de milliers de géantes rouges."
+   },
+   {
+    "label": "Finir en douceur",
+    "el": "C",
+    "col": "#e8ecff",
+    "T": "refroidissement",
+    "dur": "des milliards d’années",
+    "title": "Nébuleuse planétaire et naine blanche",
+    "text": "Le Soleil souffle ses couches externes en une nébuleuse colorée. Il reste un cœur de carbone et d’oxygène de la taille de la Terre : une naine blanche, qui refroidit lentement. Pas de supernova pour lui.",
+    "xp": "Une naine blanche ne peut pas dépasser ≈ 1,4 masse solaire (limite de Chandrasekhar) : la pression des électrons la soutient.",
+    "why": "Il faut d’abord avoir fusionné l’hélium.",
+    "nebula": true,
+    "proof": "Le télescope Hubble a photographié des centaines de nébuleuses planétaires, comme la nébuleuse de l’Anneau ou celle de l’Œil de chat.",
+    "cert": "soutenu",
+    "certWhy": "Une prévision pour le Soleil ; des nébuleuses planétaires et des naines blanches sont observées partout dans la galaxie."
+   }
+  ]
+ }
 }</script>
 <script type="application/json" id="d-planets">[
  {"name":"Mercure","el":[0.38709927,0.00000037,0.20563593,0.00001906,252.25032350,149472.67411175,77.45779628,0.16047689],"year":88.0,"rot":1407.6,"day":4222.6,"tilt":0.034,"R":2440,"col":"#a39a91","kind":"rock"},
@@ -1942,7 +2322,11 @@ const DEFIS = [
   {id:'noseason', t:'Supprimer les saisons de la Terre', w:'Redresse son axe à 0°.', tab:'systeme-solaire'},
   {id:'uranus', t:'Coucher la Terre comme Uranus', w:'Plus de 90° d’inclinaison.', tab:'systeme-solaire'},
   {id:'polar', t:'Observer une nuit polaire', w:'Choisis la bonne latitude et la bonne saison.', tab:'systeme-solaire'},
-  {id:'newton', t:'Éteindre la gravitation', w:'Et voir partir les planètes en ligne droite.', tab:'systeme-solaire'}
+  {id:'newton', t:'Éteindre la gravitation', w:'Et voir partir les planètes en ligne droite.', tab:'systeme-solaire'},
+  {id:'spectre', t:'Identifier les éléments d’une étoile mystère', w:'En comparant ses raies sombres aux empreintes des éléments.', tab:'lumiere'},
+  {id:'hubble', t:'Mesurer la distance d’une galaxie mystère', w:'Grâce au décalage de ses raies vers le rouge.', tab:'lumiere'},
+  {id:'matnoire', t:'Expliquer la rotation de la Voie lactée', w:'Ajoute juste ce qu’il faut de matière noire.', tab:'galaxies'},
+  {id:'zoom', t:'Voyager du proton à l’univers observable', w:'Toutes les puissances de dix, avec le curseur, la molette ou le grand voyage.', tab:'echelles'}
 ];
 const won = new Set(store.get('ac-defis', []).filter(id => DEFIS.some(d => d.id===id)));
 let toastTimer = null;
@@ -1968,7 +2352,7 @@ function renderDefis(){
 $('#defi-reset').addEventListener('click', () => { won.clear(); store.set('ac-defis', []); renderDefis(); });
 
 /* ---------- Onglets ---------- */
-const TABS = ['big-bang','matiere','etoiles','molecules','systeme-solaire','defis'];
+const TABS = ['big-bang','matiere','etoiles','lumiere','galaxies','molecules','systeme-solaire','echelles','defis'];
 function parseHash(){ const parts = location.hash.slice(1).split('&'), o = {tab: parts[0]}; parts.slice(1).forEach(p => { const [k, v] = p.split('='); o[k] = decodeURIComponent(v || ''); }); return o; }
 function showTab(id){
   if(!TABS.includes(id)) id = 'big-bang';
@@ -2153,7 +2537,7 @@ const BB = (function(){
     $('#bb-time').textContent='t '+(/^[≈~]/.test(s.time)?'':'≈ ')+s.time; $('#bb-temp').textContent=s.temp; $('#bb-caption').textContent=s.caption;
     $('#bb-story-k').textContent=s.k; $('#bb-story-t').textContent=s.title; $('#bb-story-p').textContent=s.text;
     const pr=$('#bb-proof'); pr.hidden=false; pr.querySelector('span').textContent=s.proof;
-    $('#bb-xp').textContent=s.xp;
+    $('#bb-xp').textContent=s.xp; setCert('bb', s.cert, s.certWhy);
     if(i===STEPS.length-1) win('bigbang');
     renderSteps();
   }
@@ -2162,7 +2546,7 @@ const BB = (function(){
     $('#bb-time').textContent='t = 0'; $('#bb-temp').textContent='inconnue';
     $('#bb-caption').textContent='Un point minuscule, infiniment chaud. Appuie sur « Déclencher l’inflation ».';
     $('#bb-story-k').textContent='Instant zéro'; $('#bb-story-t').textContent='Avant tout'; $('#bb-story-p').textContent=INTRO;
-    $('#bb-proof').hidden=true; $('#bb-xp').textContent='Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½. Conversion : 1 eV ↔ 11 605 K.';
+    setCert('bb', null); $('#bb-proof').hidden=true; $('#bb-xp').textContent='Ère du rayonnement : T ≈ 10¹⁰ K × (t / 1 s)^−½. Conversion : 1 eV ↔ 11 605 K.';
     renderSteps();
   }
   $('#bb-reset').addEventListener('click', reset);
@@ -2480,7 +2864,7 @@ const ST = (function(){
     $('#st-k').textContent=`${DATA[type].name} · étape ${i+1}`; $('#st-t').textContent=s.title; $('#st-p').textContent=s.text;
     $('#st-temp').textContent=s.T; $('#st-dur').textContent=s.dur;
     $('#st-caption').textContent = s.boom ? 'Supernova : les éléments forgés sont projetés dans l’espace.' : s.nebula ? 'La nébuleuse s’étend ; au centre, une naine blanche.' : `Nouvelle couche : ${s.el}. Chaque fusion se fait au cœur, plus chaud et plus dense.`;
-    $('#st-xp').textContent=s.xp;
+    $('#st-xp').textContent=s.xp; setCert('st', s.cert, s.certWhy);
     const pr=$('#st-proof'); if(s.proof){ pr.hidden=false; pr.querySelector('span').textContent=s.proof; } else pr.hidden=true;
     renderSteps();
   }
@@ -2490,7 +2874,7 @@ const ST = (function(){
     $('#st-p').textContent='La gravitation comprime le gaz jusqu’à ce que le cœur atteigne des millions de degrés. Lance la première fusion.';
     $('#st-temp').textContent='—'; $('#st-dur').textContent='—'; $('#st-proof').hidden=true;
     $('#st-caption').textContent='Coupe de l’étoile : chaque couche est le produit d’une fusion.';
-    $('#st-xp').textContent='4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV : 0,7 % de la masse devient énergie (E = mc²).';
+    setCert('st', null); $('#st-xp').textContent='4 ¹H → ⁴He + 2 e⁺ + 2 νₑ + 26,7 MeV : 0,7 % de la masse devient énergie (E = mc²).';
     renderTypes(); renderSteps();
   }
   $('#st-reset').addEventListener('click', reset);
@@ -2929,19 +3313,567 @@ const SOL = (function(){
     resetTilts(){ PLANETS.forEach(p => { p.tiltNow = p.tilt; }); renderInfo(true); } };
 })();
 
+
+/* =========================================================
+   BADGES DE CERTITUDE — établi · bien soutenu · hypothèse · débattu
+   ========================================================= */
+const CERT = {
+  etabli:   {l:'Établi',        why:'Établi : confirmé par de nombreuses observations ou expériences indépendantes.'},
+  soutenu:  {l:'Bien soutenu',  why:'Bien soutenu : de solides indices convergent, mais des points restent à confirmer.'},
+  hypothese:{l:'Hypothèse',     why:'Hypothèse : une idée cohérente avec certaines observations, pas encore démontrée.'},
+  debat:    {l:'Débattu',       why:'Débattu : les spécialistes ne sont pas d’accord, les mesures récentes divergent.'}
+};
+function setCert(pfx, c, why){
+  const b = $('#'+pfx+'-cert'), w = $('#'+pfx+'-certwhy'); if(!b) return;
+  if(!c || !CERT[c]){ b.hidden = true; if(w) w.hidden = true; return; }
+  b.hidden = false; b.className = 'cert ' + c; b.textContent = CERT[c].l; b.title = CERT[c].why;
+  if(w){ w.hidden = false; w.textContent = why || CERT[c].why; }
+}
+function story(pfx, o){
+  $('#'+pfx+'-k').textContent = o.k || ''; $('#'+pfx+'-t').textContent = o.title || ''; $('#'+pfx+'-p').textContent = o.text || '';
+  const pr = $('#'+pfx+'-proof'); if(pr){ pr.hidden = !o.proof; pr.querySelector('span').textContent = o.proof || ''; }
+  const xp = $('#'+pfx+'-xp'); if(xp) xp.innerHTML = o.xp || '';
+  setCert(pfx, o.cert, o.certWhy);
+}
+const togglePlayBtn = (b, on, lblOn, lblOff) => { b.classList.toggle('on', on); b.innerHTML = (on ? ICON.pause : ICON.play) + `<span class="lbl">${on ? lblOn : lblOff}</span>`; };
+
+/* =========================================================
+   ACTE 4 — Lumière : spectres, température, décalage vers le rouge
+   ========================================================= */
+function nmRGB(l){
+  let r=0,g=0,b=0;
+  if(l>=380&&l<440){ r=-(l-440)/60; b=1; } else if(l<490){ g=(l-440)/50; b=1; } else if(l<510){ g=1; b=-(l-510)/20; }
+  else if(l<580){ r=(l-510)/70; g=1; } else if(l<645){ r=1; g=-(l-645)/65; } else if(l<=780){ r=1; }
+  const f = l<380||l>780 ? 0 : l<420 ? .3+.7*(l-380)/40 : l>700 ? .3+.7*(780-l)/80 : 1;
+  const c = v => Math.round(255*Math.pow(v*f,.8));
+  return [c(r),c(g),c(b)];
+}
+const LUM = (function(){
+  const LINES = {
+    H: {n:'Hydrogène', l:[[656.28,1],[486.13,.6],[434.05,.4],[410.17,.3]]},
+    He:{n:'Hélium', l:[[706.52,.5],[667.82,.6],[587.56,1],[501.57,.5],[492.19,.3],[471.31,.3],[447.15,.6]]},
+    Na:{n:'Sodium', l:[[589.59,1],[589.00,1]]},
+    Hg:{n:'Mercure', l:[[579.07,.7],[576.96,.7],[546.07,1],[435.83,.8],[404.66,.5]]},
+    Ne:{n:'Néon', l:[[703.24,.6],[692.95,.5],[659.90,.4],[650.65,.7],[640.22,1],[638.30,.6],[633.44,.7],[626.65,.5],[621.73,.4],[616.36,.6],[614.31,.8],[609.62,.6],[594.48,.7],[588.19,.6],[585.25,1]]},
+    Ca:{n:'Calcium (ionisé)', l:[[396.85,1],[393.37,1]]},
+    Mg:{n:'Magnésium', l:[[518.36,1],[517.27,.9]]},
+    Fe:{n:'Fer', l:[[527.04,.8],[516.89,.6],[495.76,.5],[466.81,.5],[438.36,.6],[430.79,.8]]}
+  };
+  const FRAUN = [['A','O₂',759.37],['B','O₂',686.72],['C','H',656.28],['D₁','Na',589.59],['D₂','Na',589.00],['E','Fe',527.04],['b₁','Mg',518.36],['b₂','Mg',517.27],['F','H',486.13],['G','Fe',430.79],['h','H',410.17],['H','Ca⁺',396.85],['K','Ca⁺',393.37]];
+  const GAL_LINES = [393.37,396.85,410.17,430.79,486.13,517.27,518.36,589.00,589.59,656.28];
+  const MODES = [['em','Émission : la lumière d’un gaz chaud'],['abs','Absorption : les raies sombres des étoiles'],['temp','Température : la couleur d’une étoile'],['z','Décalage vers le rouge : l’expansion']];
+  const STARS = [['Bételgeuse',3600],['Le Soleil',5772],['Sirius A',9940],['Rigel',12100]];
+  const H0 = 70, CKM = 299792.458;
+  const S = { mode:'em', el:'H', gas:new Set(['sun']), T:5772, z:.05, myst:null, cmp:new Set(), guess:0 };
+  const cv = $('#lum-canvas'); let ctx = cv.getContext('2d'), W=1, H=1;
+  const rc = $('#lum-ref'); let rctx=null, rW=1, rH=1;
+  function resize(){ const r=hiDPI(cv,state.light); ctx=r.ctx; W=r.W; H=r.H; ref(); }
+  const L0=380, L1=780;
+  function strip(x0,y,w,h,kind,lines,opt={}){
+    const X = l => x0 + (l-L0)/(L1-L0)*w;
+    if(kind==='em'){ ctx.fillStyle='#000'; ctx.fillRect(x0,y,w,h); }
+    else { for(let i=0;i<w;i++){ const l=L0+i/w*(L1-L0), [r,g,b]=nmRGB(l), k=opt.bright?opt.bright(l):1; ctx.fillStyle=`rgb(${r*k|0},${g*k|0},${b*k|0})`; ctx.fillRect(x0+i,y,1.5,h); } }
+    lines.forEach(([l,a,lab]) => {
+      if(l<L0||l>L1) return; const x=X(l);
+      if(kind==='em'){ const [r,g,b]=nmRGB(l); ctx.fillStyle=`rgba(${r},${g},${b},${Math.min(1,.35+a)})`; ctx.fillRect(x-1.5,y,3,h); ctx.fillStyle=`rgba(${r},${g},${b},${a*.25})`; ctx.fillRect(x-5,y,10,h); }
+      else { ctx.fillStyle=`rgba(0,0,0,${Math.min(.95,.45+a*.5)})`; ctx.fillRect(x-1.2,y,2.4,h); }
+    });
+    ctx.strokeStyle=C.line; ctx.lineWidth=1; ctx.strokeRect(x0+.5,y+.5,w-1,h-1);
+    if(opt.axis!==false){ ctx.fillStyle=C.muted; ctx.font='11px ui-monospace,monospace'; ctx.textAlign='center';
+      for(let l=400;l<=750;l+=50){ const x=X(l); ctx.fillRect(x,y+h,1,4); ctx.fillText(String(l),x,y+h+15); }
+      ctx.textAlign='start'; }
+    return X;
+  }
+  function planck(lnm,T){ const l=lnm*1e-9; return 1/(Math.pow(l,5)*(Math.exp(1.4388e-2/(l*T))-1)); }
+  function starRGB(T){ // approximation de la couleur d'un corps noir
+    const t=T/100; let r,g,b;
+    r = t<=66 ? 255 : 329.7*Math.pow(t-60,-.1332);
+    g = t<=66 ? 99.47*Math.log(t)-161.1 : 288.1*Math.pow(t-60,-.0755);
+    b = t>=66 ? 255 : t<=19 ? 0 : 138.5*Math.log(t-10)-305;
+    return [r,g,b].map(v => Math.max(0,Math.min(255,Math.round(v))));
+  }
+  function frame(now){
+    if(W<60||H<60) return;
+    ctx.fillStyle=C.deep; ctx.fillRect(0,0,W,H);
+    const pad=Math.max(16,W*.05), sw=W-2*pad, sh=Math.max(34,Math.min(70,H*.13));
+    const topY = Math.max(Math.min(150,H*.4), Math.min(H*.45, H-sh*2-80)), m=S.mode, lx0 = W>720 ? Math.min(W*.5,500) : pad;
+    ctx.font='12px ui-monospace,monospace';
+    if(m==='em'){
+      const e=LINES[S.el], [r,g,b]=nmRGB(e.l.reduce((a,c)=>c[1]>a[1]?c:a)[0]);
+      const lx=Math.max(lx0+sw*.18, pad+sw*.62), ly=topY*.55;
+      ctx.fillStyle=`rgba(${r},${g},${b},.18)`; ctx.beginPath(); ctx.ellipse(lx,ly,sw*.16,28,0,0,6.283); ctx.fill();
+      ctx.fillStyle=`rgb(${r},${g},${b})`; ctx.fillRect(lx-sw*.12,ly-7,sw*.24,14);
+      ctx.fillStyle=C.muted; ctx.textAlign='center'; ctx.fillText(`lampe à ${e.n.toLowerCase()} → prisme`, lx, ly+34); ctx.textAlign='start';
+      const X=strip(pad,topY+28,sw,sh,'em',e.l);
+      ctx.fillStyle=C.fg; ctx.fillText('Spectre d’émission : '+e.n, pad, topY+8);
+      if(level>=2){ ctx.fillStyle=C.muted; ctx.textAlign='center'; e.l.forEach(([l,a]) => { if(a>=.5) ctx.fillText(fmt(l,1), X(l), topY+28+sh+30); }); ctx.textAlign='start'; }
+    } else if(m==='abs'){
+      const lines = absLines();
+      ctx.fillStyle=C.fg; ctx.fillText(S.myst ? 'Spectre d’une étoile mystère' : S.gas.has('sun') ? 'Spectre du Soleil (raies de Fraunhofer)' : 'Lumière blanche à travers un gaz froid', pad, topY+6);
+      const X=strip(pad,topY+28,sw,sh,'abs',lines);
+      if(S.gas.has('sun') && !S.myst && level>=2){ ctx.fillStyle=C.accent; ctx.textAlign='center'; ctx.font='bold 12px system-ui'; FRAUN.forEach(([n,,l]) => ctx.fillText(n, X(l), topY+24)); ctx.textAlign='start'; }
+      if(S.myst){ let k=0; S.cmp.forEach(el => { const [r,g,b]=nmRGB(LINES[el].l[0][0]); const y=topY+28+sh+26+k*16; ctx.fillStyle=C.muted; ctx.fillText(el,pad-14>0?pad-14:2,y+4); LINES[el].l.forEach(([l]) => { ctx.fillStyle=`rgb(${r},${g},${b})`; ctx.fillRect(X(l)-1,y-5,2,10); }); k++; }); }
+      // schéma : source blanche → nuage → prisme
+      const sy=topY*.5, ax=lx0, aw=W-pad-lx0; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ax+16,sy,14,0,6.283); ctx.fill();
+      ctx.fillStyle='rgba(138,169,255,.25)'; ctx.beginPath(); ctx.ellipse(ax+aw*.45,sy,Math.max(4,Math.min(50,aw*.15)),26,0,0,6.283); ctx.fill();
+      ctx.strokeStyle=C.muted; ctx.beginPath(); ctx.moveTo(ax+32,sy); ctx.lineTo(ax+aw*.8,sy); ctx.stroke();
+      ctx.fillStyle=C.muted; ctx.textAlign='center'; ctx.fillText('lumière blanche', ax+30, sy+32); ctx.fillText(S.gas.has('sun')&&!S.myst?'atmosphère du Soleil':'gaz plus froid', ax+aw*.45, sy+42); ctx.fillText('prisme', ax+aw*.84, sy+32); ctx.textAlign='start';
+      ctx.fillStyle='rgba(255,255,255,.15)'; ctx.beginPath(); ctx.moveTo(ax+aw*.8,sy+18); ctx.lineTo(ax+aw*.84,sy-18); ctx.lineTo(ax+aw*.88,sy+18); ctx.closePath(); ctx.fill();
+    } else if(m==='temp'){
+      const [r,g,b]=starRGB(S.T), lmax=2.898e6/S.T;
+      const R=Math.min(topY*.3,50), sx=W-pad-R, sy=topY*.5;
+      const gr=ctx.createRadialGradient(sx,sy,0,sx,sy,R*1.8); gr.addColorStop(0,`rgb(${r},${g},${b})`); gr.addColorStop(.55,`rgba(${r},${g},${b},.9)`); gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+      ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(sx,sy,R*1.8,0,6.283); ctx.fill();
+      // courbe de Planck de 100 à 2000 nm
+      const px0=lx0+10, pw=sx-R*1.9-px0, py0=14, ph=topY-34, A=100, B=2000;
+      const XP = l => px0+(l-A)/(B-A)*pw;
+      ctx.fillStyle='rgba(255,255,255,.04)'; ctx.fillRect(XP(380),py0,XP(780)-XP(380),ph);
+      let mx=0; for(let l=A;l<=B;l+=5) mx=Math.max(mx,planck(l,S.T));
+      ctx.strokeStyle=`rgb(${r},${g},${b})`; ctx.lineWidth=2; ctx.beginPath();
+      for(let l=A;l<=B;l+=5){ const x=XP(l), y=py0+ph-planck(l,S.T)/mx*ph; l===A?ctx.moveTo(x,y):ctx.lineTo(x,y); } ctx.stroke();
+      if(lmax>=A && lmax<=B){ ctx.strokeStyle=C.accent; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(XP(lmax),py0); ctx.lineTo(XP(lmax),py0+ph); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle=C.accent; ctx.fillText('λmax ≈ '+fmt(lmax,0)+' nm', Math.min(XP(lmax)+5,W-pad-110), py0+12); }
+      ctx.fillStyle=C.muted; ctx.fillText('100 nm', px0, py0+ph+14); ctx.textAlign='right'; ctx.fillText('2 000 nm', px0+pw, py0+ph+14); ctx.textAlign='center'; ctx.fillText('visible', XP(580), py0-2); ctx.textAlign='start';
+      ctx.fillStyle=C.fg; ctx.fillText('Spectre continu d’une étoile à '+fmt(S.T,0)+' K', pad, topY+8);
+      let vm=0; for(let l=L0;l<=L1;l+=5) vm=Math.max(vm,planck(l,S.T));
+      strip(pad,topY+28,sw,sh,'abs',[],{bright:l => .15+.85*planck(l,S.T)/vm});
+    } else {
+      const zObs = S.myst ? S.myst.z : S.z;
+      const y1 = topY-14;
+      ctx.fillStyle=C.fg; ctx.fillText('Laboratoire (galaxie immobile)', pad, y1-8);
+      const X=strip(pad,y1,sw,sh*.8,'abs',GAL_LINES.map(l=>[l,.8]),{axis:false});
+      const y2 = y1+sh*.8+40;
+      ctx.fillStyle=C.fg; ctx.fillText(S.myst ? 'Galaxie mystère : où sont passées les raies ?' : `Galaxie lointaine (z = ${fmt(zObs,3)})`, pad, y2-8);
+      strip(pad,y2,sw,sh,'abs',GAL_LINES.map(l=>[l*(1+zObs),.8]));
+      const zz = S.myst ? S.guess : zObs;
+      ctx.strokeStyle = S.myst ? C.accent : 'rgba(244,195,90,.6)'; ctx.setLineDash([3,4]); ctx.lineWidth=1.2;
+      GAL_LINES.forEach(l => { const a=X(l), b=X(l*(1+zz)); if(b>pad+sw) return; ctx.beginPath(); ctx.moveTo(a,y1+sh*.8); ctx.lineTo(b,y2); ctx.stroke(); });
+      ctx.setLineDash([]);
+      if(S.myst){ ctx.fillStyle=C.accent; GAL_LINES.forEach(l => { const b=X(l*(1+S.guess)); if(b<pad+sw) ctx.fillRect(b-1,y2-6,2,sh+12); }); }
+      const gx=W-pad-40, gy=y1-40; if(gy>10 && !reduced){ const off=(now*12*(1+zObs*20))%60; ctx.fillStyle='rgba(220,200,255,.7)'; ctx.beginPath(); ctx.ellipse(gx-20+off*.2,Math.max(16,gy),14,6,.4,0,6.283); ctx.fill(); }
+    }
+  }
+  function absLines(){
+    if(S.myst) return [].concat(...S.myst.set.map(el => LINES[el].l));
+    if(S.gas.has('sun')) return FRAUN.map(([,,l]) => [l, .8]);
+    return [].concat(...[...S.gas].map(el => LINES[el].l));
+  }
+  /* --- textes --- */
+  const TXT = {
+    em:{k:'Spectre d’émission', title:'Chaque élément a sa signature', cert:'etabli',
+      text:'Un gaz chauffé n’émet que certaines couleurs : des raies fines, toujours aux mêmes longueurs d’onde. Comme une empreinte digitale, cette série de raies permet de reconnaître l’élément, même à des années-lumière.',
+      proof:'Vers 1860, Kirchhoff et Bunsen relient chaque série de raies à un élément chimique ; ils découvrent ainsi deux éléments nouveaux, le césium et le rubidium.',
+      xp:'Série de Balmer (hydrogène) : 1/λ = R<sub>H</sub> (1/2² − 1/n²), R<sub>H</sub> ≈ 1,097 × 10⁷ m⁻¹. n = 3 donne Hα ≈ 656 nm, n = 4 donne Hβ ≈ 486 nm. Chaque raie correspond à un saut d’électron entre deux niveaux d’énergie : E = h·c / λ.'},
+    abs:{k:'Spectre d’absorption', title:'Les raies sombres des étoiles', cert:'etabli',
+      text:'La lumière blanche venue du cœur d’une étoile traverse son atmosphère, plus froide. Chaque élément y absorbe exactement les couleurs qu’il émettrait : des raies sombres apparaissent. On lit ainsi la composition d’une étoile sans y aller.',
+      proof:'Fraunhofer a cartographié plus de 570 raies sombres dans la lumière du Soleil en 1814. En 1868, une raie jaune inconnue, vue lors d’une éclipse par Janssen puis Lockyer, révèle un élément nouveau : l’hélium, trouvé sur le Soleil avant d’être isolé sur Terre en 1895.',
+      xp:'Raies de Fraunhofer : C = Hα 656,3 nm ; D₁ et D₂ = sodium 589,6 et 589,0 nm ; E = fer 527,0 nm ; b = magnésium 518,4 et 517,3 nm ; F = Hβ 486,1 nm ; H et K = calcium ionisé 396,8 et 393,4 nm. Les raies A et B viennent du dioxygène de l’atmosphère terrestre, pas du Soleil.'},
+    temp:{k:'Rayonnement thermique', title:'La couleur donne la température', cert:'etabli',
+      text:'Tout corps chaud rayonne. Plus il est chaud, plus le maximum de sa lumière glisse vers le bleu : les étoiles rouges sont les plus « froides », les bleues les plus chaudes. Le Soleil, à environ 5 800 K, émet surtout dans le vert-jaune, mais l’ensemble nous paraît blanc.',
+      proof:'La loi de Wien (1893) et la loi de Planck (1900) décrivent ce rayonnement ; elles se vérifient en laboratoire sur des corps chauffés et servent à mesurer la température de millions d’étoiles.',
+      xp:'Loi de Wien : λmax × T ≈ 2,898 × 10⁻³ m·K. Loi de Planck : B(λ, T) = (2hc² / λ⁵) · 1 / (e<sup>hc/λkT</sup> − 1). Température de surface du Soleil : 5 772 K.'},
+    z:{k:'Décalage vers le rouge', title:'L’univers est en expansion', cert:'etabli', certWhy:'L’expansion est établie. Sa vitesse exacte (la constante H₀) est débattue : environ 67 km/s/Mpc d’après le satellite Planck, environ 73 d’après les supernovas proches.',
+      text:'La lumière des galaxies lointaines arrive « étirée » : toutes leurs raies glissent ensemble vers le rouge. Plus une galaxie est loin, plus le décalage est grand. Ce n’est pas qu’elle fuit dans l’espace : c’est l’espace lui-même qui s’étire.',
+      proof:'Lemaître (1927) puis Hubble (1929) relient le décalage vers le rouge à la distance des galaxies : c’est la loi de Hubble-Lemaître, première preuve de l’expansion de l’univers.',
+      xp:'z = (λ<sub>obs</sub> − λ<sub>0</sub>) / λ<sub>0</sub>. Pour z petit : v ≈ c·z et d = v / H₀ (ici H₀ = 70 km/s/Mpc). 1 Mpc ≈ 3,26 millions d’années-lumière. Au-delà de z ≈ 0,1, ce calcul simple devient approximatif : il faut le modèle cosmologique complet.'}
+  };
+  /* --- interface --- */
+  const modesEl=$('#lum-modes'), opts=$('#lum-opts'), help=$('#lum-opts-help');
+  MODES.forEach(([k,l]) => { const b=document.createElement('button'); b.type='button'; b.dataset.m=k; b.textContent=l; b.addEventListener('click', () => setMode(k)); modesEl.appendChild(b); });
+  const chip = (lab, on, fn, dot) => { const b=document.createElement('button'); b.type='button'; b.className='pchip'; b.setAttribute('aria-pressed', on?'true':'false'); b.innerHTML=(dot?`<i class="dot" style="background:${dot}"></i>`:'')+esc(lab); b.addEventListener('click', fn); return b; };
+  const lineCol = el => { const [r,g,b]=nmRGB(LINES[el].l.reduce((a,c)=>c[1]>a[1]?c:a)[0]); return `rgb(${r},${g},${b})`; };
+  function alertBox(kind, html){ const a=$('#lum-alert'); if(!kind){ a.hidden=true; a.innerHTML=''; return; } a.hidden=false; a.className='alert '+kind; a.innerHTML=html; a.closest('.info').classList.remove('mini'); }
+  function renderOpts(){
+    modesEl.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m===S.mode));
+    opts.innerHTML=''; const m=S.mode;
+    if(m==='em'){
+      help.textContent='Choisis le gaz de la lampe.';
+      const row=document.createElement('div'); row.className='chips';
+      ['H','He','Na','Hg','Ne'].forEach(el => row.appendChild(chip(LINES[el].n, S.el===el, () => { S.el=el; upd(); }, lineCol(el))));
+      opts.appendChild(row);
+    } else if(m==='abs'){
+      if(!S.myst){
+        help.textContent='Le Soleil, ou un gaz de ton choix devant une lumière blanche.';
+        const row=document.createElement('div'); row.className='chips';
+        row.appendChild(chip('Le Soleil', S.gas.has('sun'), () => { S.gas=new Set(['sun']); upd(); }, '#ffcf6b'));
+        ['H','He','Na','Ca','Mg','Fe'].forEach(el => row.appendChild(chip(LINES[el].n, S.gas.has(el), () => { S.gas.delete('sun'); S.gas.has(el)?S.gas.delete(el):S.gas.add(el); if(!S.gas.size) S.gas.add('sun'); upd(); })));
+        opts.appendChild(row);
+        const b=document.createElement('button'); b.className='btn btn-primary'; b.textContent='🔍 Étoile mystère : à toi d’identifier ses éléments'; b.addEventListener('click', mystStar); opts.appendChild(b);
+      } else {
+        help.textContent='Compare avec les empreintes, puis valide.';
+        const p=document.createElement('p'); p.className='small'; p.textContent='Superpose les raies de référence sous le spectre. Coche les éléments présents dans l’étoile.'; opts.appendChild(p);
+        const row=document.createElement('div'); row.className='chips';
+        ['H','He','Na','Ca','Mg','Fe'].forEach(el => row.appendChild(chip(LINES[el].n, S.cmp.has(el), () => { S.cmp.has(el)?S.cmp.delete(el):S.cmp.add(el); renderOpts(); }, lineCol(el))));
+        opts.appendChild(row);
+        const r2=document.createElement('div'); r2.className='row';
+        const v=document.createElement('button'); v.className='btn btn-primary'; v.textContent='Valider ma réponse'; v.addEventListener('click', checkStar);
+        const q=document.createElement('button'); q.className='btn'; q.textContent='Abandonner'; q.addEventListener('click', () => { alertBox('warn', 'Réponse : ' + S.myst.set.map(e=>LINES[e].n).join(', ') + '.'); S.myst=null; S.cmp.clear(); upd(); });
+        r2.append(v,q); opts.appendChild(r2);
+      }
+    } else if(m==='temp'){
+      help.textContent='Fais varier la température de surface.';
+      opts.insertAdjacentHTML('beforeend', `<div class="range-row"><div class="range-head"><label for="lum-T">Température</label><span class="mono" id="lum-T-v">${fmt(S.T,0)} K</span></div><input type="range" id="lum-T" min="2500" max="30000" step="50" value="${S.T}"></div>`);
+      $('#lum-T').addEventListener('input', e => { S.T=+e.target.value; $('#lum-T-v').textContent=fmt(S.T,0)+' K'; status(); });
+      const row=document.createElement('div'); row.className='chips';
+      STARS.forEach(([n,T]) => row.appendChild(chip(`${n} (${T===5772?'':'≈ '}${fmt(T,0)} K)`, S.T===T, () => { S.T=T; upd(); }, (c => `rgb(${c})`)(starRGB(T)))));
+      opts.appendChild(row);
+    } else {
+      if(!S.myst){
+        help.textContent='Éloigne la galaxie : z augmente avec la distance.';
+        opts.insertAdjacentHTML('beforeend', `<div class="range-row"><div class="range-head"><label for="lum-z">Décalage z</label><span class="mono" id="lum-z-v">${fmt(S.z,3)}</span></div><input type="range" id="lum-z" min="0" max="0.3" step="0.001" value="${S.z}"></div>`);
+        $('#lum-z').addEventListener('input', e => { S.z=+e.target.value; $('#lum-z-v').textContent=fmt(S.z,3); status(); });
+        const b=document.createElement('button'); b.className='btn btn-primary'; b.textContent='🔍 Galaxie mystère : mesure sa distance'; b.addEventListener('click', mystGal); opts.appendChild(b);
+      } else {
+        help.textContent='Fais glisser les pointillés sur les raies, puis valide.';
+        opts.insertAdjacentHTML('beforeend', `<div class="range-row"><div class="range-head"><label for="lum-g">Ton estimation de z</label><span class="mono" id="lum-g-v">${fmt(S.guess,3)}</span></div><input type="range" id="lum-g" min="0" max="0.3" step="0.001" value="${S.guess}"></div>`);
+        $('#lum-g').addEventListener('input', e => { S.guess=+e.target.value; $('#lum-g-v').textContent=fmt(S.guess,3); status(); });
+        const r2=document.createElement('div'); r2.className='row';
+        const v=document.createElement('button'); v.className='btn btn-primary'; v.textContent='Valider ma mesure'; v.addEventListener('click', checkGal);
+        const q=document.createElement('button'); q.className='btn'; q.textContent='Abandonner'; q.addEventListener('click', () => { alertBox('warn', `Réponse : z = ${fmt(S.myst.z,3)}.`); S.z=S.myst.z; S.myst=null; upd(); });
+        r2.append(v,q); opts.appendChild(r2);
+      }
+    }
+  }
+  function mystStar(){
+    const pool=['H','Na','Ca','Mg','Fe','He'], set=[]; const R=Math.random;
+    set.push(pool[Math.floor(R()*5)]); while(set.length<2+(R()<.5?1:0)){ const e=pool[Math.floor(R()*pool.length)]; if(!set.includes(e)) set.push(e); }
+    S.myst={set}; S.cmp=new Set(); alertBox(null); upd();
+  }
+  function checkStar(){
+    const ok = S.myst.set.length===S.cmp.size && S.myst.set.every(e => S.cmp.has(e));
+    if(ok){ alertBox('ok', `<strong>Bravo !</strong> L’étoile contient : ${S.myst.set.map(e=>LINES[e].n).join(', ')}. C’est exactement ainsi qu’on analyse les étoiles.`); win('spectre'); S.myst=null; S.cmp.clear(); upd(); }
+    else { const miss=S.myst.set.filter(e=>!S.cmp.has(e)).length, extra=[...S.cmp].filter(e=>!S.myst.set.includes(e)).length; alertBox('bad', `Pas encore. ${miss?`Il manque ${miss} élément${miss>1?'s':''}. `:''}${extra?`${extra} élément${extra>1?'s ne sont':' n’est'} pas dans l’étoile. `:''}Chaque raie de référence doit tomber sur une raie sombre.`); }
+  }
+  function mystGal(){ S.myst={z:Math.round((.02+Math.random()*.2)*1000)/1000}; S.guess=0; alertBox(null); upd(); }
+  function checkGal(){
+    const d=Math.abs(S.guess-S.myst.z);
+    if(d<=.004){ const v=CKM*S.myst.z, D=v/H0; alertBox('ok', `<strong>Mesure réussie : z ≈ ${fmt(S.myst.z,3)}.</strong> La galaxie s’éloigne à environ ${fmt(v,0)} km/s ; elle est à environ ${fmt(D,0)} Mpc, soit ${fmt(D*3.2616,0)} millions d’années-lumière.`); win('hubble'); S.z=S.myst.z; S.myst=null; upd(); }
+    else alertBox('bad', `Pas encore : les pointillés doivent tomber pile sur les raies sombres. Tu es ${S.guess<S.myst.z?'en dessous':'au-dessus'}.`);
+  }
+  function status(){
+    const m=S.mode, ro=$('#lum-readout'), st=$('#lum-status');
+    if(m==='em'){ const e=LINES[S.el]; ro.innerHTML=`${esc(e.n)} <span class="k">·</span> ${e.l.length} raie${e.l.length>1?'s':''} visible${e.l.length>1?'s':''}`; st.textContent = S.el==='Na' ? 'C’est la lumière orangée des lampadaires au sodium : presque toute dans deux raies jaunes très proches.' : S.el==='Ne' ? 'Les enseignes « au néon » rouges : le néon brille surtout dans le rouge et l’orange.' : S.el==='He' ? 'La raie jaune à 587,6 nm est celle qui a fait découvrir l’hélium sur le Soleil en 1868.' : S.el==='Hg' ? 'Le mercure des anciennes lampes fluorescentes : raies violette, bleue, verte et jaunes.' : 'Quatre raies visibles : la série de Balmer, rouge, bleu-vert et deux violettes.'; }
+    else if(m==='abs'){ ro.innerHTML = S.myst ? `Étoile mystère <span class="k">·</span> ${S.cmp.size} élément${S.cmp.size>1?'s':''} comparé${S.cmp.size>1?'s':''}` : S.gas.has('sun') ? 'Soleil <span class="k">·</span> 13 raies principales' : [...S.gas].map(e=>LINES[e].n).join(' + '); st.textContent = S.myst ? 'Superpose les empreintes : chaque raie de l’élément doit tomber sur une raie sombre.' : S.gas.has('sun') ? 'Les raies sombres de la lumière du Soleil : hydrogène, sodium, magnésium, fer, calcium…' : 'Les raies sombres sont exactement aux places des raies brillantes d’émission.'; }
+    else if(m==='temp'){ const l=2.898e6/S.T; ro.innerHTML=`T = ${fmt(S.T,0)} K <span class="k">·</span> λmax ≈ ${fmt(l,0)} nm`; st.textContent = l>750 ? 'Maximum dans l’infrarouge : l’étoile paraît rouge-orangé.' : l<380 ? 'Maximum dans l’ultraviolet : l’étoile paraît bleu-blanc.' : `Maximum dans le visible, vers ${l<450?'le bleu':l<495?'le bleu-vert':l<570?'le vert':l<590?'le jaune':l<620?'l’orange':'le rouge'}.`; }
+    else { if(S.myst){ ro.innerHTML=`Estimation z = ${fmt(S.guess,3)}`; st.textContent='Aligne les pointillés jaunes sur les raies sombres de la galaxie.'; } else { const v=CKM*S.z, D=v/H0; ro.innerHTML=`z = ${fmt(S.z,3)} <span class="k">· v ≈</span> ${fmt(v,0)} km/s <span class="k">· d ≈</span> ${fmt(D,0)} Mpc (${fmt(D*3.2616,0)} M al)`; st.textContent = S.z>.1 ? 'Au-delà de z ≈ 0,1, la formule v = c·z devient approximative.' : 'Plus la galaxie est loin, plus ses raies glissent vers le rouge.'; } }
+    const mb=$('#lum-main');
+    mb.innerHTML = ICON.play + `<span class="lbl">${m==='em'?'Élément suivant':m==='abs'?(S.myst?'Valider':'Étoile mystère'):m==='temp'?'Étoile suivante':(S.myst?'Valider':'Galaxie mystère')}</span>`;
+  }
+  function upd(){ story('lum', TXT[S.mode]); renderOpts(); status(); }
+  function setMode(m){ S.mode=m; S.myst=null; S.cmp.clear(); alertBox(null); upd(); }
+  function main(){
+    const m=S.mode;
+    if(m==='em'){ const L=['H','He','Na','Hg','Ne']; S.el=L[(L.indexOf(S.el)+1)%L.length]; upd(); }
+    else if(m==='abs'){ if(S.myst) checkStar(); else mystStar(); }
+    else if(m==='temp'){ const i=STARS.findIndex(s=>s[1]===S.T); S.T=STARS[(i+1)%STARS.length][1]; upd(); }
+    else { if(S.myst) checkGal(); else mystGal(); }
+  }
+  /* --- empreintes de référence (bas d'écran) --- */
+  const REF=['H','He','Na','Hg','Ne','Ca','Mg','Fe'];
+  function ref(){
+    const r=hiDPI(rc,state.light); rctx=r.ctx; rW=r.W; rH=r.H; const g=rctx;
+    g.clearRect(0,0,rW,rH); const lab=118, x0=lab, w=rW-lab-10, n=REF.length, rowH=Math.max(12,(rH-22)/n);
+    REF.forEach((el,i) => {
+      const y=i*rowH+2, h=rowH-4; g.fillStyle='#000'; g.fillRect(x0,y,w,h);
+      LINES[el].l.forEach(([l,a]) => { const [rr,gg,bb]=nmRGB(l), x=x0+(l-L0)/(L1-L0)*w; g.fillStyle=`rgba(${rr},${gg},${bb},${Math.min(1,.4+a)})`; g.fillRect(x-1,y,2.5,h); });
+      g.fillStyle=(S.mode==='em'&&S.el===el)?C.accent:C.fg; g.font='12px system-ui'; g.textBaseline='middle'; g.fillText(LINES[el].n, 4, y+h/2);
+    });
+    g.textBaseline='alphabetic'; g.fillStyle=C.muted; g.font='11px ui-monospace,monospace'; g.textAlign='center';
+    for(let l=400;l<=750;l+=50) g.fillText(l+' nm', x0+(l-L0)/(L1-L0)*w, rH-4);
+    g.textAlign='start';
+  }
+  rc.addEventListener('click', e => { const r=rc.getBoundingClientRect(), n=REF.length, rowH=Math.max(12,(r.height-22)/n), i=Math.floor((e.clientY-r.top)/rowH); if(i>=0&&i<n){ const el=REF[i]; if(['H','He','Na','Hg','Ne'].includes(el)){ S.mode='em'; S.el=el; } else { S.mode='abs'; S.myst=null; S.gas=new Set([el]); } alertBox(null); upd(); ref(); } });
+  upd();
+  return { frame, resize, main, reset(){ S.mode='em'; S.el='H'; S.myst=null; alertBox(null); upd(); ref(); },
+    set(o){ Object.assign(S, o); if(o.gas) S.gas=new Set(o.gas); S.myst=null; S.cmp=new Set(); alertBox(null); upd(); ref(); }, mystStar(){ S.mode='abs'; mystStar(); }, mystGal(){ S.mode='z'; mystGal(); }, LINES };
+})();
+
+/* =========================================================
+   ACTE 5 — Galaxies : Voie lactée, trou noir central, matière noire, contenu de l'univers
+   ========================================================= */
+const GAL = (function(){
+  const cv=$('#gal-canvas'); let ctx=cv.getContext('2d'), W=1, H=1;
+  const S = { view:'dessus', playing:!reduced, ang:0, halo:0, arms:true, t:0 };
+  function resize(){ const r=hiDPI(cv,state.light); ctx=r.ctx; W=r.W; H=r.H; }
+  const R0=rng(4242), STARS=[];
+  for(let i=0;i<2600;i++){
+    const u=R0(); let r,a;
+    if(u<.18){ r=Math.pow(R0(),1.6)*.17; a=R0()*6.283; }                // bulbe / barre
+    else { const arm=Math.floor(R0()*4), t=R0(); r=.12+t*.88; a=arm*Math.PI/2 + Math.log(r/.12)/.26 + (R0()-.5)*(.5+ .4*(1-t)); }
+    const bar = r<.17 ? 1 : 0;
+    STARS.push({r, a, b:R0(), z:(R0()-.5)*(bar?.12:.025), bar});
+  }
+  const VIEWS = {
+    dessus:{lab:'La Voie lactée vue de dessus', k:'Notre galaxie', title:'La Voie lactée', cert:'soutenu', certWhy:'Nous sommes à l’intérieur : sa forme exacte est reconstituée à partir de mesures (radiotélescopes, satellite Gaia), pas photographiée de l’extérieur.',
+      text:'Une galaxie spirale barrée d’environ 100 000 années-lumière de diamètre, qui contient entre 100 et 400 milliards d’étoiles. Le Soleil se trouve dans un petit bras, à environ 26 000 années-lumière du centre.',
+      proof:'Le satellite européen Gaia a mesuré la position et le mouvement de plus d’un milliard d’étoiles de la Voie lactée ; les radiotélescopes suivent le gaz des bras spiraux à travers les poussières.',
+      xp:'Distance Soleil–centre ≈ 8,2 kpc (≈ 26 700 al). Vitesse orbitale du Soleil ≈ 230 km/s : un tour complet en ≈ 230 millions d’années, une « année galactique ». Depuis la disparition des dinosaures, le Soleil n’a parcouru qu’environ un quart de tour.',
+      facts:[['Diamètre du disque','≈ 100 000 années-lumière'],['Nombre d’étoiles','100 à 400 milliards (estimation)'],['Soleil – centre','≈ 26 000 années-lumière'],['Vitesse du Soleil','≈ 230 km/s'],['Un tour du Soleil','≈ 230 millions d’années'],['Type','spirale barrée']], src:'Sources : NASA, NRAO, mission Gaia (ESA).'},
+    profil:{lab:'Vue de profil : disque, bulbe et halo', k:'Notre galaxie', title:'Un disque très mince… dans un grand halo', cert:'soutenu', certWhy:'Le disque et le bulbe sont établis ; l’étendue et la masse du halo de matière noire sont estimées indirectement.',
+      text:'De profil, la Voie lactée est un disque très plat avec un renflement central, le bulbe. Tout autour s’étend un halo sphérique beaucoup plus grand, fait de vieilles étoiles, d’amas et surtout, semble-t-il, de matière noire invisible.',
+      proof:'La bande laiteuse qui traverse le ciel nocturne loin des villes, c’est ce disque vu de l’intérieur : en 1610, Galilée y découvre, à la lunette, une multitude d’étoiles.',
+      xp:'Épaisseur du disque mince ≈ 1 000 al pour ≈ 100 000 al de diamètre (comme une feuille de papier de 10 cm de large). Masse en étoiles ≈ 5 × 10¹⁰ masses solaires ; masse totale avec la matière noire ≈ 1 à 1,5 × 10¹² masses solaires.',
+      facts:[['Épaisseur du disque','≈ 1 000 années-lumière'],['Masse des étoiles','≈ 50 milliards de Soleils'],['Masse totale','≈ 1 000 à 1 500 milliards de Soleils'],['Part de matière noire','environ 9/10 de la masse']], src:'Ordres de grandeur ; les estimations de masse varient selon les études.'},
+    sgr:{lab:'Le trou noir central, Sagittarius A*', k:'Centre galactique', title:'Un trou noir au cœur : Sagittarius A*', cert:'etabli',
+      text:'Au centre de la Voie lactée, des étoiles tournent à toute vitesse autour d’un point invisible. Leur mouvement révèle une masse d’environ 4 millions de Soleils, concentrée dans une région minuscule : un trou noir supermassif.',
+      proof:'Prix Nobel de physique 2020 (Reinhard Genzel et Andrea Ghez) pour le suivi pendant des décennies des étoiles qui tournent autour de Sgr A*. En 2022, l’Event Horizon Telescope publie l’image de son « ombre ».',
+      xp:'L’étoile S2 boucle son orbite en ≈ 16 ans. Masse de Sgr A* ≈ 4 × 10⁶ masses solaires. Rayon de Schwarzschild : R = 2GM / c² ≈ 12 millions de km (environ 17 fois le rayon du Soleil).',
+      facts:[['Masse','≈ 4 millions de Soleils'],['Distance','≈ 26 000 années-lumière'],['Période de l’étoile S2','≈ 16 ans'],['Découverte (source radio)','1974'],['Image de l’ombre','2022 (Event Horizon Telescope)']], src:'Sources : NRAO, ESO, prix Nobel de physique 2020.'},
+    rotation:{lab:'La rotation qui trahit la matière noire', k:'Matière noire', title:'Des étoiles trop rapides', cert:'soutenu', certWhy:'Les vitesses mesurées sont établies. La matière noire est l’explication la mieux soutenue, mais on ne sait pas encore de quoi elle est faite.',
+      text:'Loin du centre, les étoiles devraient tourner de plus en plus lentement, comme les planètes autour du Soleil. Or elles gardent presque la même vitesse. Il faut donc une masse invisible en plus : la matière noire. Ajoute un halo pour retrouver les mesures.',
+      proof:'Dans les années 1970, Vera Rubin et Kent Ford mesurent ces courbes de rotation « plates » ; on les retrouve depuis dans des centaines de galaxies.',
+      xp:'Orbite circulaire : v = √(G·M(r) / r). Si la masse M(r) ne grandit plus, v ∝ 1/√r : c’est la courbe de Kepler. Une vitesse constante impose M(r) ∝ r : la masse continue d’augmenter là où il n’y a presque plus d’étoiles.',
+      facts:[['Vitesse au niveau du Soleil','≈ 230 km/s'],['Prévue sans matière noire, à 60 000 al','nettement plus faible'],['Mesurée à 60 000 al','presque la même qu’au Soleil'],['Courbes du graphique','schématiques (forme réaliste, pas des mesures)']], src:'Le graphique illustre le principe ; il ne reproduit pas un relevé précis.'},
+    compo:{lab:'De quoi est fait l’univers ?', k:'Cosmologie', title:'95 % de l’univers est invisible', cert:'soutenu', certWhy:'Les proportions sont mesurées avec précision ; la nature de la matière noire et de l’énergie noire reste inconnue.',
+      text:'Tout ce que l’on voit – étoiles, planètes, gaz, et nous – ne représente qu’environ 5 % du contenu de l’univers. Le reste est sombre : environ 27 % de matière noire, qui attire, et 68 % d’énergie noire, qui accélère l’expansion.',
+      proof:'Mesures du satellite Planck (fond diffus cosmologique), confirmées par les supernovas lointaines : la découverte de l’accélération de l’expansion a valu le prix Nobel de physique 2011 (Perlmutter, Schmidt, Riess).',
+      xp:'Satellite Planck : matière ordinaire 4,9 %, matière noire 26,8 %, énergie noire 68,3 % de la densité d’énergie totale de l’univers aujourd’hui.',
+      facts:[['Matière ordinaire (atomes)','4,9 %'],['Matière noire','26,8 %'],['Énergie noire','68,3 %']], src:'Source : mission Planck (ESA, NASA).'},
+    andromede:{lab:'Andromède, notre grande voisine', k:'Groupe local', title:'Andromède se rapproche', cert:'debat', certWhy:'Le rapprochement est établi. La collision, longtemps jugée certaine, est débattue : en 2025, une étude (Hubble et Gaia) ne lui donne qu’environ une chance sur deux dans les 10 prochains milliards d’années.',
+      text:'La galaxie d’Andromède, à 2,5 millions d’années-lumière, est la grande galaxie la plus proche. Elle fonce vers nous à environ 110 km/s. On la voit à l’œil nu, comme une petite tache floue, dans un ciel bien noir.',
+      proof:'Le télescope spatial Hubble a mesuré le très faible mouvement « de côté » d’Andromède ; le satellite Gaia a précisé celui de la Voie lactée et de ses galaxies satellites.',
+      xp:'Vitesse d’approche ≈ 110 km/s (≈ 400 000 km/h). Même en cas de fusion, les étoiles ne se heurteraient presque jamais : elles sont séparées par des distances immenses par rapport à leur taille.',
+      facts:[['Distance','≈ 2,5 millions d’années-lumière'],['Vitesse d’approche','≈ 110 km/s'],['Visible à l’œil nu','oui, par ciel très noir'],['Fusion dans 10 milliards d’années','environ 1 chance sur 2 (étude de 2025)']], src:'Sources : ESA/Hubble (2025), Nature Astronomy (Sawala et al., 2025).'}
+  };
+  const viewsEl=$('#gal-views');
+  Object.entries(VIEWS).forEach(([k,v]) => { const b=document.createElement('button'); b.type='button'; b.dataset.v=k; b.textContent=v.lab; b.addEventListener('click', () => setView(k)); viewsEl.appendChild(b); });
+  function vCirc(r){ // r en kpc ; vitesses en km/s (modèle schématique)
+    const a=2.6, Md=1, vis=Math.sqrt(Math.max(0, 1-(1+r/a)*Math.exp(-r/a))/Math.max(r,.05))*Md;
+    const vVis=vis*450, rc=3, v0=235, vH=v0*Math.sqrt(Math.max(0,1-(rc/r)*Math.atan(r/rc)));
+    return {vis:vVis, halo:vH};
+  }
+  function frame(now, dt){
+    if(S.playing) S.t+=dt;
+    if(W<60||H<60) return;
+    ctx.fillStyle=C.deep; ctx.fillRect(0,0,W,H);
+    const v=S.view, cx=W/2, cy=H/2+10, Sz=Math.min(W,H);
+    if(v==='dessus'||v==='profil'){
+      const R=Sz*.42, rot=S.t*.08;
+      if(v==='profil' && S.halo>0){ const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.5); g.addColorStop(0,'rgba(140,120,255,.18)'); g.addColorStop(1,'rgba(140,120,255,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,R*1.5,0,6.283); ctx.fill(); ctx.fillStyle=C.muted; ctx.font='12px system-ui'; ctx.fillText('halo de matière noire (invisible)', cx-R*.6, cy-R*1.1); }
+      for(const s of STARS){
+        if(!S.arms && !s.bar && s.b<.5) continue;
+        const a=s.a+rot*(1/(.3+s.r)), x=Math.cos(a)*s.r*R, y=Math.sin(a)*s.r*R;
+        const py = v==='dessus' ? cy+y : cy + s.z*R + y*.04;
+        const col = s.bar ? '255,215,160' : s.b<.15 ? '160,190,255' : '230,225,255';
+        ctx.fillStyle=`rgba(${col},${.35+.5*s.b})`; ctx.fillRect(cx+x, py, s.bar?1.6:1.2, s.bar?1.6:1.2);
+      }
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R*.16); g.addColorStop(0,'rgba(255,230,180,.85)'); g.addColorStop(1,'rgba(255,200,120,0)'); ctx.fillStyle=g;
+      ctx.beginPath(); v==='dessus'?ctx.arc(cx,cy,R*.16,0,6.283):ctx.ellipse(cx,cy,R*.18,R*.07,0,0,6.283); ctx.fill();
+      const sr=.26*R, sa=2.4+rot*(1/(.3+.26)), sx=cx+Math.cos(sa)*sr, sy=v==='dessus'?cy+Math.sin(sa)*sr:cy+Math.sin(sa)*sr*.04;
+      ctx.fillStyle=C.accent; ctx.beginPath(); ctx.arc(sx,sy,4,0,6.283); ctx.fill();
+      ctx.font='bold 12px system-ui'; ctx.fillText('Soleil (vous êtes ici)', sx+7, sy-6);
+      ctx.fillStyle=C.fg; ctx.font='12px system-ui'; if(v==='dessus') ctx.fillText('Sgr A*', cx+6, cy-6);
+      const bar=R*.2; ctx.strokeStyle=C.muted; ctx.beginPath(); ctx.moveTo(16,H-22); ctx.lineTo(16+bar,H-22); ctx.stroke(); ctx.fillStyle=C.muted; ctx.fillText('10 000 années-lumière', 16, H-28);
+    } else if(v==='sgr'){
+      const R=Sz*.42;
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,24); g.addColorStop(0,'#000'); g.addColorStop(.45,'#000'); g.addColorStop(.6,'rgba(255,170,90,.9)'); g.addColorStop(1,'rgba(255,120,40,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,24,0,6.283); ctx.fill();
+      const ORB=[['S2',.37,.88,0,16],['S38',.32,.82,1.2,19],['S55',.25,.72,2.4,12.8],['S1',.62,.56,3.6,30],['S13',.5,.43,5,49]];
+      ORB.forEach(([n,a,e,w,P]) => {
+        const A=a*R*1.25, B=A*Math.sqrt(1-e*e), c=A*e;
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(w);
+        ctx.strokeStyle='rgba(138,169,255,.25)'; ctx.beginPath(); ctx.ellipse(-c,0,A,B,0,0,6.283); ctx.stroke();
+        const M=(S.t/1.2)/P*6.283; let E=M; for(let i=0;i<8;i++) E-=(E-e*Math.sin(E)-M)/(1-e*Math.cos(E));
+        const x=A*(Math.cos(E)-e), y=B*Math.sin(E);
+        ctx.fillStyle=n==='S2'?C.accent:'#dfe6ff'; ctx.beginPath(); ctx.arc(x,y,n==='S2'?4:3,0,6.283); ctx.fill();
+        ctx.font='11px system-ui'; ctx.fillText(n, x+6, y-4); ctx.restore();
+      });
+      ctx.fillStyle=C.muted; ctx.font='12px system-ui'; ctx.fillText('Orbites stylisées · 1 s ≈ 1 an', 16, H-16);
+    } else if(v==='rotation'){
+      const L=56, Rm=18, T=W>720?Math.min(130,H*.3):90, B=46, w=W-L-Rm, h=H-T-B, rMax=20, vMax=300;
+      const X=r=>L+r/rMax*w, Y=vv=>T+h-vv/vMax*h;
+      ctx.strokeStyle=C.line; ctx.fillStyle=C.muted; ctx.font='11px ui-monospace,monospace'; ctx.lineWidth=1;
+      for(let vv=0;vv<=300;vv+=100){ ctx.beginPath(); ctx.moveTo(L,Y(vv)); ctx.lineTo(L+w,Y(vv)); ctx.stroke(); ctx.fillText(vv+'', L-30, Y(vv)+4); }
+      ctx.textAlign='center'; for(let r=0;r<=20;r+=5){ ctx.textAlign = r===20 ? 'right' : r===0 ? 'left' : 'center'; ctx.fillText(r ? fmt(r*3.26,0)+' 000' : '0', X(r), T+h+16); } ctx.textAlign='start';
+      ctx.fillText('distance au centre (années-lumière)', L+w/2-110, H-8); ctx.save(); ctx.translate(14,T+h/2+50); ctx.rotate(-Math.PI/2); ctx.fillText('vitesse (km/s)',0,0); ctx.restore();
+      const curve=(f,col,dash,wd)=>{ ctx.strokeStyle=col; ctx.lineWidth=wd||2; ctx.setLineDash(dash||[]); ctx.beginPath(); for(let r=.2;r<=rMax;r+=.1){ const x=X(r), y=Y(f(r)); r<.25?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke(); ctx.setLineDash([]); };
+      const Rr=rng(9); ctx.fillStyle=C.fg;
+      for(let r=1;r<=19;r+=.75){ const c=vCirc(r), vv=Math.sqrt(c.vis*c.vis+c.halo*c.halo)+(Rr()-.5)*14; ctx.beginPath(); ctx.arc(X(r),Y(vv),3,0,6.283); ctx.fill(); }
+      curve(r=>vCirc(r).vis, C.cool, [6,5]);
+      if(S.halo>0) curve(r=>{ const c=vCirc(r); return Math.sqrt(c.vis*c.vis+S.halo*S.halo*c.halo*c.halo); }, C.accent, null, 2.5);
+      ctx.fillStyle=C.accent; ctx.beginPath(); ctx.arc(X(8.2),Y(230),5,0,6.283); ctx.strokeStyle=C.accent; ctx.stroke();
+      ctx.font='12px system-ui'; ctx.fillText('Soleil', X(8.2)+7, Y(230)+16);
+      const lg=[[C.fg,'● mesures (schématiques)'],[C.cool,'- - prévu avec la seule matière visible'],[C.accent,`— avec un halo de matière noire (${Math.round(S.halo*100)} %)`]];
+      lg.forEach(([c,t],i)=>{ if(i===2&&!S.halo) return; ctx.fillStyle=c; ctx.fillText(t, L+w-300, T+16+i*16); });
+    } else if(v==='compo'){
+      const R=Math.min(Sz*.3,(H-120)*.45), parts=[[4.9,'#f4c35a','Matière ordinaire'],[26.8,'#8a7dff','Matière noire'],[68.3,'#2f3a7a','Énergie noire']];
+      let a0=-Math.PI/2; const ccx=W>720?W*.5:W*.32;
+      parts.forEach(([p,col,n]) => { const a1=a0+p/100*6.283; ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(ccx,cy); ctx.arc(ccx,cy,R,a0,a1); ctx.closePath(); ctx.fill(); ctx.strokeStyle=C.deep; ctx.lineWidth=2; ctx.stroke(); a0=a1; });
+      parts.forEach(([p,col,n],i) => { const y=cy-40+i*36, x=ccx+R+40; ctx.fillStyle=col; ctx.fillRect(x,y-12,18,18); ctx.fillStyle=C.fg; ctx.font='bold 15px system-ui'; ctx.fillText(fmt(p,1)+' %', x+28, y+2); ctx.font='13px system-ui'; ctx.fillStyle=C.muted; ctx.fillText(n, x+28+70, y+2); });
+    } else {
+      const R=Sz*.16, d=W*.32, x1=cx-d/2, x2=cx+d/2;
+      const drawG=(x,y,r,tilt,col)=>{ for(let i=0;i<600;i++){ const s=STARS[i*4], a=s.a+S.t*.05; ctx.fillStyle=`rgba(${col},${.3+.5*s.b})`; ctx.fillRect(x+Math.cos(a)*s.r*r, y+Math.sin(a)*s.r*r*tilt, 1.2,1.2); } };
+      drawG(x1,cy,R,1,'230,225,255'); drawG(x2,cy-10,R*1.25,.4,'255,225,200');
+      ctx.fillStyle=C.fg; ctx.font='bold 13px system-ui'; ctx.textAlign='center'; ctx.fillText('Voie lactée', x1, cy+R+24); ctx.fillText('Andromède', x2, cy+R*.6+24); ctx.textAlign='start';
+      ctx.strokeStyle=C.accent; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(x1+R+10,cy-R-6); ctx.lineTo(x2-R*1.25-10,cy-R-6); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=C.accent; ctx.font='12px system-ui'; ctx.textAlign='center'; ctx.fillText('≈ 2,5 millions d’années-lumière', cx, cy-R-12); ctx.textAlign='start';
+      ctx.fillStyle=C.muted; ctx.fillText('Taille des galaxies très exagérée par rapport à la distance', 16, H-16);
+    }
+  }
+  const optsEl=$('#gal-opts'), help=$('#gal-opts-help');
+  function renderOpts(){
+    viewsEl.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v===S.view));
+    optsEl.innerHTML=''; const v=S.view;
+    if(v==='rotation'||v==='profil'){
+      help.textContent = v==='rotation' ? 'Ajoute de la matière noire jusqu’à retrouver les mesures.' : 'Montre ou cache le halo de matière noire.';
+      optsEl.insertAdjacentHTML('beforeend', `<div class="range-row"><div class="range-head"><label for="gal-halo">Halo de matière noire</label><span class="mono" id="gal-halo-v">${Math.round(S.halo*100)} %</span></div><input type="range" id="gal-halo" min="0" max="1.5" step="0.05" value="${S.halo}"></div>`);
+      $('#gal-halo').addEventListener('input', e => { S.halo=+e.target.value; $('#gal-halo-v').textContent=Math.round(S.halo*100)+' %'; status(); });
+    } else if(v==='dessus'){
+      help.textContent='Les bras spiraux sont surtout tracés par les étoiles jeunes et brillantes.';
+      optsEl.insertAdjacentHTML('beforeend', `<label class="toggle"><input type="checkbox" id="gal-arms" ${S.arms?'checked':''}> Afficher toutes les étoiles des bras</label>`);
+      $('#gal-arms').addEventListener('change', e => { S.arms=e.target.checked; });
+    } else { help.textContent = v==='compo' ? 'Rien à régler : ce sont des mesures.' : v==='sgr' ? 'Lance l’animation pour voir les étoiles accélérer près du trou noir.' : 'Rien à régler pour cette vue.'; }
+  }
+  function status(){
+    const v=S.view, st=$('#gal-status'), ro=$('#gal-readout');
+    if(v==='rotation'){
+      const ok = S.halo>=.85 && S.halo<=1.15;
+      st.textContent = S.halo<.05 ? 'Sans matière noire, la vitesse prévue s’effondre loin du centre : ce n’est pas ce qu’on mesure.' : ok ? 'La courbe passe par les mesures : il faut beaucoup plus de masse que les étoiles visibles.' : S.halo<.85 ? 'Mieux, mais pas encore assez de masse invisible.' : 'Trop de matière noire : la vitesse prévue dépasse les mesures.';
+      ro.innerHTML=`Halo <span class="k">:</span> ${Math.round(S.halo*100)} % <span class="k">·</span> v(Soleil) ≈ 230 km/s`;
+      if(ok) win('matnoire');
+    } else if(v==='dessus'){ st.textContent='Les étoiles proches du centre tournent plus vite en angle que celles du bord.'; ro.innerHTML='Ø ≈ 100 000 al <span class="k">·</span> Soleil à ≈ 26 000 al du centre'; }
+    else if(v==='profil'){ st.textContent = S.halo>0 ? 'Le halo de matière noire, invisible, dépasse largement le disque.' : 'Un disque d’environ 1 000 al d’épaisseur pour 100 000 al de diamètre.'; ro.innerHTML='Épaisseur ≈ 1 000 al <span class="k">·</span> Ø ≈ 100 000 al'; }
+    else if(v==='sgr'){ st.textContent='Près du trou noir, l’étoile S2 atteint plusieurs milliers de km/s.'; ro.innerHTML='Sgr A* <span class="k">·</span> ≈ 4 millions de masses solaires'; }
+    else if(v==='compo'){ st.textContent='Les atomes – tout ce que nous connaissons – ne font qu’environ 5 %.'; ro.innerHTML='4,9 % <span class="k">·</span> 26,8 % <span class="k">·</span> 68,3 %'; }
+    else { st.textContent='Une rencontre n’aurait lieu que dans des milliards d’années, si elle a lieu.'; ro.innerHTML='Andromède <span class="k">·</span> 2,5 millions d’al <span class="k">·</span> ≈ 110 km/s'; }
+  }
+  function setView(k){
+    S.view=k; const V=VIEWS[k]; story('gal', V);
+    $('#gal-ft').textContent=V.lab+' — en chiffres';
+    $('#gal-facts').innerHTML=V.facts.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
+    $('#gal-src').textContent=V.src||'';
+    renderOpts(); status();
+  }
+  const mb=$('#gal-main'); const updMain=()=>togglePlayBtn(mb, S.playing, 'Pause', 'Animer');
+  setView('dessus'); updMain();
+  return { frame, resize, setView, main(){ S.playing=!S.playing; updMain(); }, setHalo(h){ S.halo=h; renderOpts(); status(); }, reset(){ S.halo=0; S.arms=true; setView('dessus'); } };
+})();
+
+/* =========================================================
+   ACTE 8 — Échelles : du quark à l'univers observable
+   ========================================================= */
+const ECH = (function(){
+  const AL=9.4607e15, UA=1.496e11;
+  const OBJ = [
+    {id:'quark', n:'Quark', s:1e-18, col:'#ff6170', cert:'soutenu', certWhy:'Aucune taille n’a jamais été mesurée : 10⁻¹⁸ m est seulement une limite supérieure.', d:'Les quarks paraissent ponctuels : aucune expérience n’a jamais mesuré leur taille. On sait seulement qu’ils sont plus petits que 10⁻¹⁸ m environ.', p:'Collisions à très haute énergie (accélérateurs comme le LHC) : aucune structure interne détectée.', lab:'moins de 10⁻¹⁸ m'},
+    {id:'proton', n:'Proton', s:1.7e-15, col:'#ff8a70', cert:'etabli', d:'Trois quarks liés par le champ fort. Son rayon est d’environ 0,84 femtomètre.', p:'Diffusion d’électrons sur des protons et spectroscopie de l’hydrogène « muonique ».', lab:'≈ 1,7 fm (diamètre)'},
+    {id:'noyau', n:'Noyau d’uranium', s:1.5e-14, col:'#9fb0d4', cert:'etabli', d:'238 nucléons serrés les uns contre les autres. Le rayon d’un noyau suit R ≈ 1,2 fm × A^⅓.', p:'Expérience de Rutherford (1911) : des particules alpha rebondissent sur un noyau minuscule.', lab:'≈ 15 fm'},
+    {id:'atome', n:'Atome d’hydrogène', s:1.06e-10, col:'#6fe3ff', cert:'etabli', d:'Un atome est environ 100 000 fois plus grand que son noyau : il est presque entièrement vide.', p:'Diffraction des rayons X par les cristaux, et aujourd’hui images directes au microscope à effet tunnel.', lab:'≈ 0,1 nm'},
+    {id:'eau', n:'Molécule d’eau', s:2.8e-10, col:'#4fa3ff', cert:'etabli', d:'Trois atomes, un angle de 104,5° : une molécule si petite qu’un verre d’eau en contient environ 10²⁵.', p:'Spectroscopie et diffraction : distances et angles mesurés avec précision.', lab:'≈ 0,28 nm'},
+    {id:'adn', n:'Double hélice d’ADN (largeur)', s:2e-9, col:'#3fd98e', cert:'etabli', d:'Large de 2 nm, mais longue d’environ 2 mètres une fois déroulée dans chaque cellule humaine.', p:'Diffraction des rayons X (Rosalind Franklin, 1952) puis modèle de Watson et Crick (1953).', lab:'≈ 2 nm'},
+    {id:'virus', n:'Virus de la grippe', s:1e-7, col:'#b07cff', cert:'etabli', d:'Trop petit pour un microscope optique : il faut un microscope électronique pour le voir.', p:'Microscopie électronique.', lab:'≈ 100 nm'},
+    {id:'bacterie', n:'Bactérie (E. coli)', s:2e-6, col:'#7fe38a', cert:'etabli', d:'Un être vivant entier en une seule cellule, environ 20 fois plus grande qu’un virus.', p:'Microscope optique (Antoni van Leeuwenhoek observe les premières bactéries en 1676).', lab:'≈ 2 µm'},
+    {id:'globule', n:'Globule rouge', s:7.5e-6, col:'#ff5d5d', cert:'etabli', d:'Un disque creusé de 7 à 8 µm qui transporte l’oxygène ; le corps humain en contient environ 25 000 milliards.', p:'Microscope optique et compteurs de cellules au laboratoire d’analyses.', lab:'≈ 7,5 µm'},
+    {id:'cheveu', n:'Épaisseur d’un cheveu', s:7e-5, col:'#d9b38c', cert:'etabli', d:'Entre 50 et 100 µm selon les personnes : la limite de ce que l’œil distingue.', p:'Mesure au microscope ou par diffraction d’un faisceau laser.', lab:'≈ 0,07 mm'},
+    {id:'fourmi', n:'Fourmi', s:5e-3, col:'#c8a06a', cert:'etabli', d:'Quelques millimètres : l’échelle des insectes.', p:'Mesure directe.', lab:'≈ 5 mm'},
+    {id:'humain', n:'Être humain', s:1.7, col:'#f4c35a', cert:'etabli', d:'Notre échelle, à peu près au milieu entre le proton et l’univers observable… en puissances de dix.', p:'Mesure directe.', lab:'≈ 1,7 m'},
+    {id:'foot', n:'Terrain de football', s:105, col:'#3c8a4a', cert:'etabli', d:'Environ 105 m de long.', p:'Mesure directe.', lab:'≈ 105 m'},
+    {id:'everest', n:'Mont Everest (altitude)', s:8849, col:'#c8d4e8', cert:'etabli', d:'8 849 m au-dessus du niveau de la mer : le plus haut sommet de la Terre.', p:'Mesures GPS et géodésiques (Chine et Népal, 2020).', lab:'8 849 m'},
+    {id:'lune', n:'La Lune', s:3.4748e6, col:'#b8b8b8', cert:'etabli', d:'3 475 km de diamètre, environ un quart de celui de la Terre.', p:'Télémétrie laser sur les réflecteurs déposés par les missions Apollo et Lunokhod.', lab:'3 475 km'},
+    {id:'terre', n:'La Terre', s:1.2742e7, col:'#4f7dff', cert:'etabli', d:'12 742 km de diamètre moyen. Ératosthène en avait estimé la taille vers 240 av. J.-C. avec des ombres de bâtons.', p:'Satellites de géodésie ; déjà estimée par Ératosthène dans l’Antiquité.', lab:'12 742 km'},
+    {id:'jupiter', n:'Jupiter', s:1.3982e8, col:'#d9b38c', cert:'etabli', d:'Environ 11 fois le diamètre de la Terre : la plus grosse planète du système solaire.', p:'Sondes spatiales (Voyager, Juno).', lab:'≈ 140 000 km'},
+    {id:'soleil', n:'Le Soleil', s:1.3927e9, col:'#ffcf6b', cert:'etabli', d:'Environ 109 fois le diamètre de la Terre ; on pourrait y loger environ 1,3 million de Terres.', p:'Distance Terre–Soleil et taille apparente dans le ciel.', lab:'≈ 1,39 million de km'},
+    {id:'ua', n:'Distance Terre–Soleil (1 UA)', s:UA, col:'#8aa9ff', cert:'etabli', d:'150 millions de km : la lumière du Soleil met environ 8 minutes 20 secondes pour nous parvenir.', p:'Radar sur les planètes et sondes spatiales ; valeur fixée à 149 597 870,7 km.', lab:'≈ 150 millions de km'},
+    {id:'neptune', n:'Orbite de Neptune (diamètre)', s:60*UA, col:'#4f7dff', cert:'etabli', d:'Environ 60 UA d’un bord à l’autre : la lumière met environ 8 heures pour la traverser.', p:'Mécanique céleste et sondes Voyager.', lab:'≈ 60 UA'},
+    {id:'oort', n:'Nuage d’Oort (estimation)', s:2*AL, col:'#9aa0c8', cert:'hypothese', certWhy:'Jamais observé directement : on le déduit de l’orbite des comètes à très longue période.', d:'Un réservoir de comètes glacées qui entourerait le système solaire jusqu’à peut-être une à deux années-lumière.', p:'Déduit des orbites des comètes à longue période (Jan Oort, 1950).', lab:'≈ 1 à 3 al (incertain)'},
+    {id:'proxima', n:'Proxima du Centaure (distance)', s:4.24*AL, col:'#ff9a5a', cert:'etabli', d:'L’étoile la plus proche du Soleil : sa lumière met 4,2 ans pour nous parvenir.', p:'Méthode de la parallaxe : le léger déplacement apparent de l’étoile quand la Terre tourne autour du Soleil.', lab:'4,24 al'},
+    {id:'voie', n:'La Voie lactée', s:1e5*AL, col:'#cfd8ff', cert:'soutenu', d:'Une galaxie d’environ 100 000 années-lumière, avec 100 à 400 milliards d’étoiles.', p:'Cartographie radio et mission Gaia.', lab:'≈ 100 000 al'},
+    {id:'groupe', n:'Groupe local', s:1e7*AL, col:'#b9a8ff', cert:'soutenu', d:'La Voie lactée, Andromède, la galaxie du Triangle et des dizaines de petites galaxies, sur environ 10 millions d’années-lumière.', p:'Distances par étoiles variables (céphéides) et mouvements des galaxies.', lab:'≈ 10 millions d’al'},
+    {id:'laniakea', n:'Superamas Laniakea', s:5.2e8*AL, col:'#8a7dff', cert:'soutenu', certWhy:'Ses limites dépendent de la façon de définir le « bassin » de galaxies : elles restent discutées.', d:'Environ 100 000 galaxies entraînées vers un même « bassin » de gravité, sur quelque 500 millions d’années-lumière.', p:'Cartographie des vitesses de milliers de galaxies (Tully et collègues, 2014).', lab:'≈ 520 millions d’al'},
+    {id:'univers', n:'Univers observable', s:9.3e10*AL, col:'#f4c35a', cert:'soutenu', certWhy:'La valeur dépend du modèle cosmologique ; ce que contient l’univers au-delà reste inaccessible.', d:'Environ 93 milliards d’années-lumière de diamètre : plus que 2 × 13,8 milliards, car l’espace s’est étiré pendant le trajet de la lumière.', p:'Âge de l’univers (fond diffus cosmologique, satellite Planck) et modèle de l’expansion.', lab:'≈ 93 milliards d’al'}
+  ];
+  OBJ.forEach(o => { o.e=Math.log10(o.s); });
+  const S = { e:0, target:null, travel:false, seenMin:99, seenMax:-99 };
+  const cv=$('#ech-canvas'); let ctx=cv.getContext('2d'), W=1, H=1;
+  const ru=$('#ech-ruler'); let rctx=null, rW=1, rH=1;
+  function resize(){ const r=hiDPI(cv,state.light); ctx=r.ctx; W=r.W; H=r.H; ruler(); }
+  function fmtLen(m){
+    if(m<1e-12) return fmt(m/1e-15, m<1e-15?2:1)+' fm';
+    if(m<1e-6) return fmt(m/1e-9, m<1e-9?3:1)+' nm';
+    if(m<1e-3) return fmt(m/1e-6,1)+' µm';
+    if(m<1) return fmt(m*1000,1)+' mm';
+    if(m<1e4) return fmt(m,1)+' m';
+    if(m<1e10) return fmt(m/1000,0)+' km';
+    if(m<1e15) return fmt(m/UA,1)+' UA';
+    const a=m/AL; return a<1e6 ? fmt(a,1)+' al' : a<1e9 ? fmt(a/1e6,1)+' millions d’al' : fmt(a/1e9,1)+' milliards d’al';
+  }
+  const SUPd={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  const pow = e => '10'+String(Math.round(e)).split('').map(c=>SUPd[c]).join('');
+  const nearest = () => OBJ.reduce((b,o)=>Math.abs(o.e-S.e)<Math.abs(b.e-S.e)?o:b, OBJ[0]);
+  let lastNear=null;
+  function frame(now, dt){
+    if(S.travel){ S.e+=dt*1.5; if(S.e>=27){ S.e=27; S.travel=false; updMain(); } sync(); }
+    else if(S.target!==null){ const d=S.target-S.e; if(Math.abs(d)<.01){ S.e=S.target; S.target=null; } else S.e+=d*Math.min(1,dt*3); sync(); }
+    ctx.fillStyle=C.deep; ctx.fillRect(0,0,W,H);
+    const cx=W/2, cy=H/2+8, D=Math.min(W,H)*.78, view=Math.pow(10,S.e);
+    const vis=OBJ.filter(o => { const r=o.s/view*D/2; return r>1.5 && r<Math.max(W,H)*1.6; }).sort((a,b)=>b.s-a.s);
+    vis.forEach(o => {
+      const r=o.s/view*D/2, near=Math.abs(o.e-S.e)<.6;
+      ctx.globalAlpha = Math.min(1, r/6) * (r>Math.max(W,H)*.9 ? Math.max(0,1-(r-Math.max(W,H)*.9)/(Math.max(W,H)*.7)) : 1);
+      ctx.fillStyle=o.col+(near?'33':'18'); ctx.beginPath(); ctx.arc(cx,cy,r,0,6.283); ctx.fill();
+      ctx.strokeStyle=o.col; ctx.lineWidth=near?2.5:1.2; ctx.stroke();
+      if(r>14 && r<Math.min(W,H)*.55+40){ ctx.fillStyle=near?'#fff':o.col; ctx.font=(near?'bold 14px':'12px')+' system-ui'; ctx.textAlign='center'; ctx.fillText(o.n, cx, cy-r-7); }
+      ctx.globalAlpha=1;
+    });
+    ctx.textAlign='start';
+    // barre d'échelle
+    const bw=D/10; ctx.strokeStyle=C.fg; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(16,H-18); ctx.lineTo(16+bw,H-18); ctx.moveTo(16,H-23); ctx.lineTo(16,H-13); ctx.moveTo(16+bw,H-23); ctx.lineTo(16+bw,H-13); ctx.stroke();
+    ctx.fillStyle=C.fg; ctx.font='12px system-ui'; ctx.fillText(fmtLen(view/10), 16, H-28);
+    const n=nearest(); if(n!==lastNear){ lastNear=n; showObj(n); }
+        S.seenMin=Math.min(S.seenMin,S.e); S.seenMax=Math.max(S.seenMax,S.e);
+    if(S.seenMin<=-14.5 && S.seenMax>=26.5 && !S.travelDemo) win('zoom');
+    drawMarker();
+  }
+  function showObj(o){
+    const i=OBJ.indexOf(o), prev=OBJ[i-1];
+    story('ech', {k:`Échelle ${pow(o.e)} m`, title:`${o.n} · ${o.lab}`, text:o.d, proof:o.p, cert:o.cert, certWhy:o.certWhy,
+      xp: `Taille ≈ ${fmt(o.s/Math.pow(10,Math.floor(o.e)),2)} × ${pow(Math.floor(o.e))} m.` + (prev ? `<br>Environ ${fmt(o.s/prev.s, o.s/prev.s<10?1:0)} fois ${esc(prev.n.toLowerCase())}.` : '') + `<br>Il y a environ ${Math.round(o.e+18)} puissances de dix entre 10⁻¹⁸ m et cet objet, et ${Math.round(27-o.e)} jusqu’à l’univers observable.`});
+    $('#ech-status').textContent = prev ? `Environ ${fmt(o.s/prev.s, o.s/prev.s<10?1:0)} fois plus grand que : ${prev.n.toLowerCase()}.` : 'Le plus petit de la liste.';
+    chipsEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id===o.id?'true':'false'));
+  }
+  const inp=$('#ech-e'), chipsEl=$('#ech-objs');
+  OBJ.forEach(o => { const b=document.createElement('button'); b.type='button'; b.className='pchip'; b.dataset.id=o.id; b.innerHTML=`<i class="dot" style="background:${o.col}"></i>${esc(o.n)}`; b.addEventListener('click', () => go(o.id)); chipsEl.appendChild(b); });
+  function sync(){ inp.value=S.e; $('#ech-e-v').textContent=`${pow(S.e)} m · ${fmtLen(Math.pow(10,S.e))}`; $('#ech-readout').innerHTML=`Vue : ${pow(S.e)} m <span class="k">·</span> ${fmtLen(Math.pow(10,S.e))}`; }
+  inp.addEventListener('input', () => { S.travel=false; S.target=null; S.e=+inp.value; sync(); updMain(); });
+  cv.addEventListener('wheel', e => { e.preventDefault(); S.travel=false; S.target=null; S.e=Math.max(-18,Math.min(27,S.e+(e.deltaY>0?.25:-.25))); sync(); updMain(); }, {passive:false});
+  let pinch=null;
+  cv.addEventListener('pointerdown', e => { pinch={y:e.clientY,e:S.e}; try{cv.setPointerCapture(e.pointerId);}catch(_){} });
+  cv.addEventListener('pointermove', e => { if(!pinch) return; S.travel=false; S.target=null; S.e=Math.max(-18,Math.min(27,pinch.e+(pinch.y-e.clientY)*.02)); sync(); });
+  const endP=()=>{ pinch=null; }; cv.addEventListener('pointerup',endP); cv.addEventListener('pointercancel',endP);
+  function go(id){ const o=OBJ.find(x=>x.id===id); if(!o) return; S.travel=false; S.target=o.e+.35; updMain(); }
+  const mb=$('#ech-main'); function updMain(){ togglePlayBtn(mb, S.travel, 'Pause', 'Le grand voyage'); }
+  function ruler(){
+    const r=hiDPI(ru,state.light); rctx=r.ctx; rW=r.W; rH=r.H; drawMarker();
+  }
+  function drawMarker(){
+    if(!rctx) return; const g=rctx, L=14, w=rW-28, X=e=>L+(e+18)/45*w, y=rH*.5;
+    g.clearRect(0,0,rW,rH);
+    g.strokeStyle=C.line; g.lineWidth=2; g.beginPath(); g.moveTo(L,y); g.lineTo(L+w,y); g.stroke();
+    g.fillStyle=C.muted; g.font='10px ui-monospace,monospace'; g.textAlign='center';
+    for(let e=-18;e<=27;e+=3){ g.fillRect(X(e)-.5,y-5,1,10); g.fillText(pow(e), X(e), y+20); }
+    OBJ.forEach((o,i) => { g.fillStyle=o.col; g.beginPath(); g.arc(X(o.e),y,3.5,0,6.283); g.fill(); if(rW>700 && i%2===0){ g.save(); g.translate(X(o.e),y-9); g.rotate(-.7); g.textAlign='left'; g.fillStyle=C.muted; g.fillText(o.n.replace(/ \(.*\)/,''),0,0); g.restore(); } });
+    g.fillStyle=C.accent; g.beginPath(); g.moveTo(X(S.e),y-12); g.lineTo(X(S.e)-6,y-22); g.lineTo(X(S.e)+6,y-22); g.closePath(); g.fill();
+    g.textAlign='start';
+  }
+  ru.addEventListener('click', e => { const r=ru.getBoundingClientRect(), t=(e.clientX-r.left-14)/(r.width-28); S.travel=false; S.target=Math.max(-18,Math.min(27,-18+t*45)); updMain(); });
+  sync(); updMain();
+  return { frame, resize, go, OBJ, main(){ if(S.travel){ S.travel=false; } else { if(S.e>=26.9) S.e=-18; S.target=null; S.travel=true; S.travelDemo=!!state.demo; } updMain(); },
+    travelFrom(){ S.e=-18; S.target=null; S.travel=true; S.travelDemo=true; updMain(); }, reset(){ S.travel=false; S.target=null; S.e=.3; sync(); updMain(); }, user(){ S.travelDemo=false; } };
+})();
+
+const MODS = {'big-bang':BB, matiere:AT, etoiles:ST, lumiere:LUM, galaxies:GAL, molecules:MOL, 'systeme-solaire':SOL, echelles:ECH};
 /* ---------- Loop & resize ---------- */
 function resizeAll(){
   const t=state.tab;
-  if(t==='big-bang') BB.resize(); else if(t==='matiere') AT.resize(); else if(t==='etoiles') ST.resize(); else if(t==='molecules') MOL.resize(); else if(t==='systeme-solaire') SOL.resize();
+  const M=MODS[t]; if(M) M.resize();
 }
-if(window.ResizeObserver){ const ro=new ResizeObserver(() => resizeAll()); ['#bb-stage','#atom-stage','#star-stage','#mol-stage','#sol-stage','#be-chart'].forEach(s => ro.observe($(s))); }
+if(window.ResizeObserver){ const ro=new ResizeObserver(() => resizeAll()); ['#bb-stage','#atom-stage','#star-stage','#mol-stage','#sol-stage','#be-chart','#lum-stage','#lum-ref','#gal-stage','#ech-stage','#ech-ruler'].forEach(s => ro.observe($(s))); }
 else window.addEventListener('resize', resizeAll);
 let lastT=performance.now()/1000;
 function loop(){
   const now=performance.now()/1000, dt=Math.min(.05,now-lastT); lastT=now;
   if(!document.hidden){
     const t=state.tab;
-    if(t==='big-bang') BB.frame(now,dt); else if(t==='matiere') AT.frame(now,dt); else if(t==='etoiles') ST.frame(now,dt); else if(t==='molecules') MOL.frame(now,dt); else if(t==='systeme-solaire') SOL.frame(now,dt);
+    const M=MODS[t]; if(M) M.frame(now,dt);
   }
   requestAnimationFrame(loop);
 }
@@ -2951,8 +3883,8 @@ function loop(){
    ========================================================= */
 const SITE = 'https://oumarmaiil-oss.github.io/ateliercosmique/';
 const WHATSAPP = '221774144799';
-const TAB_NAMES = {'big-bang':'Big Bang', matiere:'Matière', etoiles:'Étoiles', molecules:'Molécules', 'systeme-solaire':'Système solaire', defis:'Défis'};
-const SIMS = ['big-bang','matiere','etoiles','molecules','systeme-solaire'];
+const TAB_NAMES = {'big-bang':'Big Bang', matiere:'Matière', etoiles:'Étoiles', lumiere:'Lumière', galaxies:'Galaxies', molecules:'Molécules', 'systeme-solaire':'Système solaire', echelles:'Échelles', defis:'Défis'};
+const SIMS = ['big-bang','matiere','etoiles','lumiere','galaxies','molecules','systeme-solaire','echelles'];
 const simEl = t => $('#sim-'+t);
 
 /* ---------- Message bref ---------- */
@@ -3066,6 +3998,47 @@ const EX = {
     grp: i === 0 ? ST.DATA[tp].name : undefined, id: tp+(i+1), t: s.title, w: `${s.label} · cœur ${s.T}`,
     run(){ allOn(); ST.jump(i, tp); }
   })))),
+  lumiere: [
+    {grp:'Raies d’émission', id:'h', t:'Hydrogène : la série de Balmer', w:'Quatre raies visibles, la plus brillante est rouge.', run(){ LUM.set({mode:'em', el:'H'}); }},
+    {id:'he', t:'Hélium', w:'La raie jaune qui l’a fait découvrir sur le Soleil.', run(){ LUM.set({mode:'em', el:'He'}); }},
+    {id:'na', t:'Sodium : les lampadaires orange', w:'Presque toute la lumière dans deux raies jaunes.', run(){ LUM.set({mode:'em', el:'Na'}); }},
+    {id:'hg', t:'Mercure', w:'Les anciennes lampes fluorescentes.', run(){ LUM.set({mode:'em', el:'Hg'}); }},
+    {id:'ne', t:'Néon : les enseignes rouges', w:'Une forêt de raies rouges et orange.', run(){ LUM.set({mode:'em', el:'Ne'}); }},
+    {grp:'Raies d’absorption', id:'soleil', t:'Le Soleil et ses raies de Fraunhofer', w:'Hydrogène, sodium, magnésium, fer, calcium…', run(){ LUM.set({mode:'abs', gas:['sun']}); }},
+    {id:'nafroid', t:'Du sodium froid devant une lumière blanche', w:'Raies sombres aux places exactes des raies brillantes.', run(){ LUM.set({mode:'abs', gas:['Na']}); }},
+    {id:'mystere', t:'Étoile mystère', w:'À toi d’identifier ses éléments.', run(){ LUM.mystStar(); }},
+    {grp:'Couleur et température', id:'betel', t:'Bételgeuse (≈ 3 600 K)', w:'Une supergéante rouge, « froide ».', run(){ LUM.set({mode:'temp', T:3600}); }},
+    {id:'sun', t:'Le Soleil (5 772 K)', w:'Maximum vers 500 nm, dans le vert-bleu.', run(){ LUM.set({mode:'temp', T:5772}); }},
+    {id:'sirius', t:'Sirius A (≈ 9 940 K)', w:'L’étoile la plus brillante du ciel nocturne.', run(){ LUM.set({mode:'temp', T:9940}); }},
+    {id:'rigel', t:'Rigel (≈ 12 100 K)', w:'Une supergéante bleue d’Orion.', run(){ LUM.set({mode:'temp', T:12100}); }},
+    {grp:'Expansion de l’univers', id:'z1', t:'Galaxie proche (z = 0,01)', w:'Raies à peine décalées.', run(){ LUM.set({mode:'z', z:.01}); }},
+    {id:'z2', t:'Galaxie lointaine (z = 0,1)', w:'Environ 1,4 milliard d’années-lumière.', run(){ LUM.set({mode:'z', z:.1}); }},
+    {id:'zmyst', t:'Galaxie mystère', w:'Mesure son décalage, déduis sa distance.', run(){ LUM.mystGal(); }}
+  ],
+  galaxies: [
+    {grp:'Notre galaxie', id:'dessus', t:'La Voie lactée vue de dessus', w:'Une spirale barrée ; le Soleil dans un petit bras.', run(){ GAL.setHalo(0); GAL.setView('dessus'); }},
+    {id:'profil', t:'Vue de profil, avec son halo', w:'Un disque très mince dans un énorme halo sombre.', run(){ GAL.setView('profil'); GAL.setHalo(1); }},
+    {id:'sgr', t:'Le trou noir central', w:'Des étoiles qui tournent autour d’un point invisible.', run(){ GAL.setView('sgr'); }},
+    {grp:'Matière noire et énergie noire', id:'sansmn', t:'Rotation sans matière noire', w:'La vitesse prévue s’effondre : les mesures disent non.', run(){ GAL.setView('rotation'); GAL.setHalo(0); }},
+    {id:'avecmn', t:'Rotation avec matière noire', w:'Avec un halo, la courbe colle aux mesures.', run(){ GAL.setView('rotation'); GAL.setHalo(1); }},
+    {id:'compo', t:'De quoi est fait l’univers ?', w:'5 % d’atomes, 27 % de matière noire, 68 % d’énergie noire.', run(){ GAL.setView('compo'); }},
+    {grp:'Nos voisines', id:'andromede', t:'Andromède se rapproche', w:'Une collision longtemps jugée certaine… aujourd’hui débattue.', run(){ GAL.setView('andromede'); }}
+  ],
+  echelles: [
+    {grp:'Le grand voyage', id:'voyage', t:'Du quark à l’univers observable', w:'45 puissances de dix en une trentaine de secondes.', run(){ ECH.travelFrom(); }},
+    {grp:'L’infiniment petit', id:'proton', t:'Le proton', w:'Environ 1,7 femtomètre.', run(){ ECH.go('proton'); }},
+    {id:'atome', t:'L’atome', w:'100 000 fois plus grand que son noyau.', run(){ ECH.go('atome'); }},
+    {id:'adn', t:'L’ADN', w:'2 nm de large.', run(){ ECH.go('adn'); }},
+    {grp:'Le vivant', id:'virus', t:'Un virus', w:'Visible seulement au microscope électronique.', run(){ ECH.go('virus'); }},
+    {id:'globule', t:'Un globule rouge', w:'7 à 8 µm.', run(){ ECH.go('globule'); }},
+    {id:'humain', t:'L’être humain', w:'Au milieu de l’échelle, en puissances de dix.', run(){ ECH.go('humain'); }},
+    {grp:'La Terre et le système solaire', id:'terre', t:'La Terre', w:'12 742 km.', run(){ ECH.go('terre'); }},
+    {id:'soleil', t:'Le Soleil', w:'109 fois la Terre.', run(){ ECH.go('soleil'); }},
+    {id:'ua', t:'La distance Terre–Soleil', w:'8 minutes-lumière.', run(){ ECH.go('ua'); }},
+    {grp:'L’infiniment grand', id:'proxima', t:'L’étoile la plus proche', w:'4,24 années-lumière.', run(){ ECH.go('proxima'); }},
+    {id:'voie', t:'La Voie lactée', w:'100 000 années-lumière.', run(){ ECH.go('voie'); }},
+    {id:'univers', t:'L’univers observable', w:'93 milliards d’années-lumière.', run(){ ECH.go('univers'); }}
+  ],
   molecules: [
     {grp:'Géométries remarquables', id:'h2o', t:'Eau : molécule coudée', w:'Angle H–O–H d’environ 104,5°.', run(){ MOL.show('h2o'); }},
     {id:'co2', t:'Dioxyde de carbone : molécule linéaire', w:'O=C=O à 180°, deux doubles liaisons.', run(){ MOL.show('co2'); }},
@@ -3125,7 +4098,10 @@ const ACT = {
   matiere: { main(){ AT.V.paused = !AT.V.paused; updSpin(); }, reset(){ allOn(); AT.setAtom(6,6,6); } },
   etoiles: { main(){ ST.next(); }, reset(){ ST.reset(); } },
   molecules: { main(){ MOL.V.paused = !MOL.V.paused; updSpin(); }, reset(){ MOL.show('h2o'); } },
-  'systeme-solaire': { main(){ SOL.togglePlay(); }, reset(){ SOL.today(); } }
+  'systeme-solaire': { main(){ SOL.togglePlay(); }, reset(){ SOL.today(); } },
+  lumiere: { main(){ LUM.main(); }, reset(){ LUM.reset(); } },
+  galaxies: { main(){ GAL.main(); }, reset(){ GAL.reset(); } },
+  echelles: { main(){ ECH.main(); }, reset(){ ECH.reset(); } }
 };
 function updSpin(){
   [['#at-spin', AT.V], ['#mol-spin', MOL.V]].forEach(([s, v]) => {
@@ -3149,7 +4125,7 @@ SIMS.forEach(t => {
 });
 
 /* ---------- Image de la scène ---------- */
-const CANVAS = {'big-bang':'#bb-canvas', matiere:'#atom-canvas', etoiles:'#star-canvas', molecules:'#mol-canvas', 'systeme-solaire':'#sol-canvas'};
+const CANVAS = {'big-bang':'#bb-canvas', matiere:'#atom-canvas', etoiles:'#star-canvas', lumiere:'#lum-canvas', galaxies:'#gal-canvas', molecules:'#mol-canvas', 'systeme-solaire':'#sol-canvas', echelles:'#ech-canvas'};
 function capture(){
   const t = state.tab; if(!CANVAS[t]){ toast('L’image se fait depuis un onglet de simulation (pas depuis Défis).'); return; }
   const src = $(CANVAS[t]); if(t === 'systeme-solaire') SOL.frame(performance.now()/1000, 0);
