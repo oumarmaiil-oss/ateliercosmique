@@ -4113,6 +4113,41 @@ const TEL = (function(){
   const fovOf = (tg,inst) => FOV[tg.id][ORDER.indexOf(inst.id)];
   const imgs = {}; let ready=false;
   function prep(){ if(ready) return; ready=true; ['Lune','Jupiter','Saturne'].forEach(n => { const im=texImg(n); if(im){ im.onload=()=>{ imgs[n]=sphereImage(im, 320, n==='Lune'?0:30); }; } }); }
+
+  /* nébuleuse d'Orion : bruit fractal déformé (filaments), cœur près du Trapèze, ailes, « bouche du poisson », barre d'Orion */
+  const NEB = {};
+  /* h : demi-largeur de la fenêtre calculée (1 = toute la nébuleuse, ≈ 1,1°) ; plus h est petit, plus on ajoute de détails */
+  function orionNebula(mode, h){
+    h = Math.max(.04, Math.min(1, h)); const key = mode + state.profile + h.toFixed(3); if(NEB[key]) return NEB[key];
+    const N = state.profile==='leger' ? 192 : state.profile==='complet' ? 512 : 320, oct = Math.min(9, 5 + Math.round(Math.log2(1/h)));
+    const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'), im = g.createImageData(N, N), d = im.data;
+    const R = rng(1234), P = new Float32Array(65536); for(let i=0;i<P.length;i++) P[i] = R();
+    const vn = (x,y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x-xi, yf = y-yi, u = xf*xf*(3-2*xf), v = yf*yf*(3-2*yf);
+      const A = P[(yi&255)*256+(xi&255)], B = P[(yi&255)*256+((xi+1)&255)], Cc = P[((yi+1)&255)*256+(xi&255)], D = P[((yi+1)&255)*256+((xi+1)&255)];
+      return A + (B-A)*u + (Cc-A)*v + (A-B-Cc+D)*u*v; };
+    const fbm = (x,y,o=5) => { let s = 0, a = .5, f = 1; for(let k=0;k<o;k++){ s += a*vn(x*f, y*f); f *= 2.03; a *= .5; } return s; };
+    for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+      const nx = (x/N*2-1)*h, ny = (y/N*2-1)*h;
+      const wx = nx*3 + fbm(nx*3+5, ny*3)*1.6, wy = ny*3 + fbm(nx*3, ny*3+9)*1.6, n = fbm(wx+10, wy+10, oct);
+      const rr = Math.hypot(nx, ny*1.25), wing = Math.exp(-Math.pow((nx+ny*.6)/.55, 2))*Math.exp(-rr*1.4);
+      let dens = (Math.exp(-rr*rr*6)*1.1 + wing*.9 + Math.exp(-rr*2.2)*.5)*(.4 + 1.15*n);
+      dens *= 1 - .8*Math.exp(-(Math.pow((nx-.28)/.12,2) + Math.pow((ny+.02)/.08,2)));
+      if(h > .9){ const e = Math.max(Math.abs(nx), Math.abs(ny)); dens *= 1 - Math.min(1, Math.max(0, (e-.7)/.3)); }
+      const bar = Math.exp(-Math.pow((ny*.8 + nx*.55 - .18)/.03, 2))*Math.exp(-Math.pow((nx-.15)/.25, 2));
+      const core = Math.exp(-rr*rr*40), cw = Math.exp(-rr*rr*9);
+      const lane = Math.pow(Math.max(0, 1 - Math.abs(fbm(wx*1.7+3, wy*1.7, oct) - .5)*14), 2);
+      let r_, g_, b_;
+      if(mode === 'photo'){ const t = (1 - Math.exp(-dens*1.2))*(1 - .5*lane), m = Math.min(1, Math.max(0, (dens - .5)/.6))*Math.exp(-(rr*rr)/(h*h*.22)), w = Math.max(0, dens - 1.3)*.5;
+        r_ = 255*t*(1 - .55*m) + 255*w; g_ = 255*t*(.22 + .58*m) + 70*bar*t + 255*w; b_ = 255*t*(.3 + .5*m) + 255*w; }
+      else if(mode === 'eye'){ const t = Math.min(1, Math.max(0, dens-.35)*1.3); r_ = 150*t; g_ = 178*t; b_ = 160*t; }
+      else if(mode === 'ir'){ const dust = Math.min(1, n*n*1.6*(.6 + wing + Math.exp(-rr*1.5))), fil = Math.pow(Math.max(0, 1 - Math.abs(fbm(wx*2, wy*2, oct) - .5)*6), 2);
+        const t0 = dust*.8 + fil*.7*Math.exp(-rr*1.2) + bar*.9 + core*.5, t = (1 - Math.exp(-t0*1.3))*(1 - .3*lane); r_ = 255*Math.min(1, t*1.25); g_ = 165*t + 50*core; b_ = 70*t*t + 70*core; }
+      else { const ridge = Math.exp(-Math.pow((nx + .06 - .25*ny*ny)/.07, 2))*Math.exp(-Math.pow(ny/.7, 2)), clump = Math.max(0, fbm(nx*6+3, ny*6, oct) - .42)*2.6;
+        const t = Math.min(1, ridge*clump*1.8 + .08*clump*Math.exp(-rr*2)); r_ = 110*t + 70*t*t; g_ = 50*t + 170*t*t; b_ = 255*t; }
+      const o = (y*N + x)*4; d[o] = Math.min(255, r_); d[o+1] = Math.min(255, g_); d[o+2] = Math.min(255, b_); d[o+3] = 255;
+    }
+    g.putImageData(im, 0, 0); NEB[key] = c; return c;
+  }
   /* scènes simulées, dessinées à la taille angulaire réelle */
   function drawTarget(g, R, inst, tg, now){
     const fovDeg = fovOf(tg,inst), pxPerDeg = 2*R/fovDeg*S.zoom, ox=S.panX*R, oy=S.panY*R;
@@ -4130,10 +4165,9 @@ const TEL = (function(){
     else if(tg.id==='saturne'){ const r=Math.max(.6, 9/3600*pxPerDeg), im=imgs.Saturne, tilt=.22;
       const rings = s => { [[1.24,1.53,'rgba(150,135,110,.35)'],[1.53,1.95,'rgba(225,205,165,.9)'],[2.03,2.27,'rgba(200,180,140,.75)']].forEach(([a,b,c]) => { g.strokeStyle=c; g.lineWidth=(b-a)*r*(inst.id==='galilee'?2:1); g.beginPath(); g.ellipse(0,0,(a+b)/2*r,(a+b)/2*r*tilt, 0, s?Math.PI:0, s?2*Math.PI:Math.PI); g.stroke(); }); };
       rings(true); if(im && r>4){ g.drawImage(im,-r,-r*.9,2*r,1.8*r); } else { g.fillStyle='#e3cf9a'; g.beginPath(); g.ellipse(0,0,r,r*.9,0,0,6.283); g.fill(); } rings(false); }
-    else if(tg.id==='orion'){ const r=.5*pxPerDeg, Rr=rng(42), ir=inst.band==='infrarouge', rad=inst.band==='radio';
-      for(let k=0;k<(state.profile==='leger'?60:160);k++){ const a=Rr()*6.283, d=Math.pow(Rr(),.6)*r, s=r*(.1+Rr()*.35);
-        const col = rad ? `rgba(120,${120+Rr()*80|0},255,` : ir ? `rgba(255,${120+Rr()*60|0},60,` : faint ? 'rgba(170,200,185,' : (Rr()<.6?'rgba(255,90,130,':'rgba(90,200,220,');
-        const gr=g.createRadialGradient(Math.cos(a)*d,Math.sin(a)*d*.8,0,Math.cos(a)*d,Math.sin(a)*d*.8,s); gr.addColorStop(0,col+(faint?.05:ir?.17:.1)+')'); gr.addColorStop(1,col+'0)'); g.fillStyle=gr; g.beginPath(); g.arc(Math.cos(a)*d,Math.sin(a)*d*.8,s,0,6.283); g.fill(); }
+    else if(tg.id==='orion'){ const r=.5*pxPerDeg, ir=inst.band==='infrarouge', rad=inst.band==='radio';
+      const mode = rad ? 'radio' : ir ? 'ir' : faint ? 'eye' : 'photo', hh = Math.min(1, fovOf(tg,inst)/1.1*1.15), neb = orionNebula(mode, hh), s = r*2.2*Math.max(.04, hh);
+      g.globalAlpha = inst.id==='oeil' ? .55 : inst.id==='jumelles' ? .75 : 1; g.globalCompositeOperation = 'lighter'; g.drawImage(neb, -s/2, -s/2, s, s); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
       if(!rad){ g.filter='none'; const ns = ir ? Math.round(420*Q()) : inst.id==='hubble'||inst.id==='vlt' ? 60 : 4; const Rs=rng(7);
         [[0,0],[.0035,.0012],[-.0028,.002],[.0012,-.003]].forEach(([x,y])=>{ g.fillStyle='#fff'; g.beginPath(); g.arc(x*pxPerDeg,y*pxPerDeg,Math.max(1.6,Math.min(4,blur*.6)),0,6.283); g.fill(); });
         const sp=Math.min(r,R*1.1); for(let k=0;k<ns;k++){ g.fillStyle=ir?'#ffd9b0':'#e8f0ff'; g.globalAlpha=.4+Rs()*.6; g.beginPath(); g.arc((Rs()-.5)*sp*2,(Rs()-.5)*sp*2,.8+Rs()*1.2,0,6.283); g.fill(); } g.globalAlpha=1; } }
