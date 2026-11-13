@@ -47,3 +47,7 @@ Cartes des planètes, de la Lune et du Soleil : [Solar System Scope](https://www
 ## Licence
 
 [MIT](LICENSE) — © 2026 Dr Oumar Sow. Réutilisation et contributions bienvenues.
+
+## En-tête commun aux trois ateliers
+
+Comme [L'Atelier des Forces](https://oumarmaiil-oss.github.io/atelierforces/) et [L'Atelier Optique](https://oumarmaiil-oss.github.io/atelieroptique/) : niveaux **1 · Découvrir**, **2 · Comprendre**, **3 · Expert** ; **profil d'affichage** Complet, Équilibré ou Léger ; bouton **Ateliers** pour passer d'un atelier à l'autre ; bouton **ⓘ À propos** (le projet, les sources et simplifications, la licence et les droits, la confidentialité).
